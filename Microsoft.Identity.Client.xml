@@ -1,0 +1,1357 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Identity.Client</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Identity.Client.AuthenticationResult">
+            <summary>
+            Contains the results of one token acquisition operation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.AuthenticationResult.AccessToken">
+            <summary>
+            Gets the Access Token requested.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.AuthenticationResult.UniqueId">
+            <summary>
+            Gets the Unique Id of the user.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.AuthenticationResult.ExpiresOn">
+            <summary>
+            Gets the point in time in which the Access Token returned in the Token property ceases to be valid.
+            This value is calculated based on current UTC time measured locally and the value expiresIn received from the
+            service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.AuthenticationResult.TenantId">
+            <summary>
+            Gets an identifier for the tenant the token was acquired from. This property will be null if tenant information is
+            not returned by the service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.AuthenticationResult.User">
+            <summary>
+            Gets the user object. Some elements in User might be null if not returned by the
+            service. It can be passed back in some API overloads to identify which user should be used.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.AuthenticationResult.IdToken">
+            <summary>
+            Gets the entire Id Token if returned by the service or null if no Id Token is returned.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.AuthenticationResult.Scopes">
+            <summary>
+            Gets the scope values returned from the service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.AuthenticationResult.CreateAuthorizationHeader">
+            <summary>
+            Creates authorization header from authentication result.
+            </summary>
+            <returns>Created authorization header</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Client.ClientApplicationBase">
+            <Summary>
+            Abstract class containing common API methods and properties. Both PublicClientApplication and ConfidentialClientApplication extend this class.
+            </Summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.ClientApplicationBase.DefaultAuthority">
+            <Summary>
+            Default Authority used for interactive calls.
+            </Summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.ClientApplicationBase.#ctor(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="clientId"></param>
+            <param name="authority"></param>
+            <param name="redirectUri"></param>
+            <param name="validateAuthority"></param>
+        </member>
+        <member name="P:Microsoft.Identity.Client.ClientApplicationBase.Component">
+            <summary>
+            Identifier of the component consuming MSAL and it is intended for libraries/SDKs that consume MSAL. This will allow for disambiguation between MSAL usage by the app vs MSAL usage by component libraries.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.ClientApplicationBase.Authority">
+            <Summary>
+            Authority provided by the developer or default authority used by the library.
+            </Summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.ClientApplicationBase.ClientId">
+            <summary>
+            Will be a default value. Can be overridden by the developer. Once set, application will bind to the client Id.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.ClientApplicationBase.RedirectUri">
+            <summary>
+            Redirect Uri configured in the app registration portal. PublicClientApplication has a default value of 
+            urn:ietf:wg:oauth:2.0:oob.This default does not apply to iOS and Android as the library needs to leverage 
+            system webview for authentication.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.ClientApplicationBase.SliceParameters">
+            <summary>
+            Sets or Gets the custom query parameters that may be sent to the STS for dogfood testing. This parameter should not be set by the 
+            developers as it may have adverse effect on the application.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.ClientApplicationBase.UserTokenCache">
+            <Summary>
+            Token Cache instance for storing User tokens.
+            </Summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.ClientApplicationBase.ValidateAuthority">
+            <summary>
+            Gets/sets a value indicating whether authority validation is ON or OFF. Value is true by default. 
+            It should be set to false by the deveopers for B2C applications.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.ClientApplicationBase.Users">
+            <summary>
+            Returns a User centric view over the cache that provides a list of all the available users in the cache for the application.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.ClientApplicationBase.GetUser(System.String)">
+            <summary>
+            Get user by identifier from users available in the cache.
+            </summary>
+            <param name="identifier">user identifier</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.ClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser)">
+            <summary>
+            Attempts to acquire the access token from cache. Access token is considered a match if it AT LEAST contains all the requested scopes.
+            This means that an access token with more scopes than requested could be returned as well. If access token is expired or 
+            close to expiration (within 5 minute window), then refresh token (if available) is used to acquire a new access token by making a network call.
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User for which the token is requested. <see cref="T:Microsoft.Identity.Client.IUser"/></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.ClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,System.String,System.Boolean)">
+            <summary>
+            Attempts to acquire the access token from cache. Access token is considered a match if it AT LEAST contains all the requested scopes.
+            This means that an access token with more scopes than requested could be returned as well. If access token is expired or 
+            close to expiration (within 5 minute window), then refresh token (if available) is used to acquire a new access token by making a network call.
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User for which the token is requested <see cref="T:Microsoft.Identity.Client.User"/></param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <param name="forceRefresh">If TRUE, API will ignore the access token in the cache and attempt to acquire new access token using the refresh token if available</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.ClientApplicationBase.Remove(Microsoft.Identity.Client.IUser)">
+            <summary>
+            Removes all cached tokens for the specified user.
+            </summary>
+            <param name="user">instance of the user that needs to be removed</param>
+        </member>
+        <member name="T:Microsoft.Identity.Client.IClientApplicationBase">
+            <summary>
+            Component containing common validation methods
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IClientApplicationBase.Component">
+            <summary>
+            Identifier of the component consuming MSAL and it is intended for libraries/SDKs that consume MSAL. This will allow for 
+            disambiguation between MSAL usage by the app vs MSAL usage by component libraries.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IClientApplicationBase.Authority">
+            <Summary>
+            Authority provided by the developer or default authority used by the library.
+            </Summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IClientApplicationBase.ClientId">
+            <summary>
+            Will be a default value. Can be overridden by the developer. Once set, application will bind to the client Id.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IClientApplicationBase.RedirectUri">
+            <summary>
+            Redirect Uri configured in the portal. Will have a default value. Not required if the developer is using the
+            default client Id.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IClientApplicationBase.ValidateAuthority">
+            <summary>
+            Gets a value indicating whether address validation is ON or OFF.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IClientApplicationBase.Users">
+            <summary>
+            Returns a user-centric view over the cache that provides a list of all the available users in the cache.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IClientApplicationBase.SliceParameters">
+            <summary>
+            Sets or Gets the custom query parameters that may be sent to the STS for dogfood testing. This parameter should not be set by the 
+            developers as it may have adverse effect on the application.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IClientApplicationBase.GetUser(System.String)">
+            <summary>
+            Get user by identifier from users available in the cache.
+            </summary>
+            <param name="identifier">user identifier</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser)">
+            <summary>
+            Attempts to acquire the access token from cache. Access token is considered a match if it AT LEAST contains all the requested scopes.
+            This means that an access token with more scopes than requested could be returned as well. If access token is expired or 
+            close to expiration (within 5 minute window), then refresh token (if available) is used to acquire a new access token by making a network call.
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User for which the token is requested. <see cref="T:Microsoft.Identity.Client.IUser"/></param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,System.String,System.Boolean)">
+            <summary>
+            Attempts to acquire the access token from cache. Access token is considered a match if it AT LEAST contains all the requested scopes.
+            This means that an access token with more scopes than requested could be returned as well. If access token is expired or 
+            close to expiration (within 5 minute window), then refresh token (if available) is used to acquire a new access token by making a network call.
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User for which the token is requested <see cref="T:Microsoft.Identity.Client.IUser"/></param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <param name="forceRefresh">If TRUE, API will ignore the access token in the cache and attempt to acquire new access token using the refresh token if available</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IClientApplicationBase.Remove(Microsoft.Identity.Client.IUser)">
+            <summary>
+            Removes all cached tokens for the specified user.
+            </summary>
+            <param name="user">instance of the user that needs to be removed</param>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Internal.Cache.AccessTokenCacheItem.TokenType">
+            <summary>
+            Gets the AccessToken Type.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Internal.Cache.AccessTokenCacheItem.AccessToken">
+            <summary>
+            Gets the Access Token requested.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Internal.Cache.AccessTokenCacheItem.Authority">
+            <summary>
+            Gets the Authority.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Internal.Cache.AccessTokenCacheItem.Scope">
+            <summary>
+            Gets the ScopeSet.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Internal.Cache.AccessTokenCacheKey">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Internal.Cache.AccessTokenCacheKey.ToString">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Internal.Cache.BaseTokenCacheItem">
+            <summary>
+            Token cache item
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Internal.Cache.BaseTokenCacheItem.#ctor(System.String)">
+            <summary>
+            Default constructor.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Internal.Cache.RefreshTokenCacheKey.ToString">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Internal.MsalErrorMessage">
+            <summary>
+            The active directory authentication error message.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Internal.MsalError">
+            <summary>
+            Error code returned as a property in MsalException
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.AuthenticationFailed">
+            <summary>
+            Authentication failed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.AuthorityValidationFailed">
+            <summary>
+            Authority validation failed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.InvalidOwnerWindowType">
+            <summary>
+            Invalid owner window type.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.InvalidAuthorityType">
+            <summary>
+            Invalid authority type.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.InvalidServiceUrl">
+            <summary>
+            Invalid service URL.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.EncodedTokenTooLong">
+            <summary>
+            Encoded token too long.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.NoDataFromSts">
+            <summary>
+            No data from STS.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.UserMismatch">
+            <summary>
+            User Mismatch.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.FailedToRefreshToken">
+            <summary>
+            Failed to refresh token.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalError.RedirectUriValidationFailed">
+            <summary>
+            RedirectUri validation failed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalIdParameter.Product">
+            <summary>
+            MSAL Flavor: .NET or WinRT
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalIdParameter.Version">
+            <summary>
+            MSAL assembly version
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalIdParameter.CpuPlatform">
+            <summary>
+            CPU platform with x86, x64 or ARM as value
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalIdParameter.OS">
+            <summary>
+            Version of the operating system. This will not be sent on WinRT
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Internal.MsalIdParameter.DeviceModel">
+            <summary>
+            Device model. This will not be sent on .NET
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Internal.MsalIdHelper">
+            <summary>
+            This class adds additional query parameters or headers to the requests sent to STS. This can help us in
+            collecting statistics and potentially on diagnostics.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.IPublicClientApplication">
+            <summary>
+            Component to be used for native applications (Desktop/UWP/iOS/Android).
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIBehavior,System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIBehavior,System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIBehavior,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIBehavior,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIBehavior,System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIBehavior,System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIBehavior,System.String,System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.IPublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIBehavior,System.String,System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Client.IUser">
+            <summary>
+            Contains information of a single user. This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IUser.DisplayableId">
+            <summary>
+            Gets a displayable value in UserPrincipalName (UPN) format. The value can be null.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IUser.Name">
+            <summary>
+            Gets given name of the user if provided by the service. If not, the value is null.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IUser.IdentityProvider">
+            <summary>
+            Gets identity provider if returned by the service. If not, the value is null.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.IUser.Identifier">
+            <summary>
+            Gets an identifier for the user that is used by the library and the service as a strong handle to user identity. Cannot be null.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.LogCallback">
+            <summary>
+            Callback delegate that allows the developer to consume logs handle them in a custom manner.
+            </summary>
+            <param name="level">Log level of the message</param>
+            <param name="message">Pre-formatted log message</param>
+            <param name="containsPii">Indicates if the log message contains PII. If Logger.PiiLoggingEnabled is set to 
+            false then this value is always false.</param>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Logger">
+            <summary>
+            MSAL Logger class that allows developers to configure log level, configure callbacks etc.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Logger.LogLevel">
+            <summary>
+            MSAL Log Levels
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Logger.LogLevel.Error">
+            <summary>
+            Error Log level
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Logger.LogLevel.Warning">
+            <summary>
+            Warning Log level
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Logger.LogLevel.Info">
+            <summary>
+            Information Log level
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.Logger.LogLevel.Verbose">
+            <summary>
+            Verbose Log level
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Logger.LogCallback">
+            <summary>
+            Callback instance that can be provided by the developer to consume and publish logs in a custom manner. 
+            The property can only be set once and it will throw an ArgumentException if called twice.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Logger.Level">
+            <summary>
+            Configurable log level. Default value is Info.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Logger.PiiLoggingEnabled">
+            <summary>
+            Flag to enable/disable logging of PII data. PII logs are never written to default outputs like Console, Logcat or NSLog.
+            Default is set to false.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Logger.DefaultLoggingEnabled">
+            <summary>
+            Flag to enable/disable logging to platform defaults. In Desktop/UWP, Event Tracing is used. In iOS, NSLog is used.
+            In android, logcat is used.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.Error(System.String)">
+            <summary>
+            Method for error logging
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.ErrorPii(System.String)">
+            <summary>
+            Method for error logging of Pii 
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.Warning(System.String)">
+            <summary>
+            Method for warning logging
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.WarningPii(System.String)">
+            <summary>
+            Method for warning logging of Pii 
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.Info(System.String)">
+            <summary>
+            Method for information logging
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.InfoPii(System.String)">
+            <summary>
+            Method for information logging for Pii
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.Verbose(System.String)">
+            <summary>
+            Method for verbose logging
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.VerbosePii(System.String)">
+            <summary>
+            Method for verbose logging for Pii
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.Error(System.Exception)">
+            <summary>
+            Method for error exception logging
+            Removes Pii from exception
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Logger.ErrorPii(System.Exception)">
+            <summary>
+            Method for error exception logging for Pii
+            Contains Pii passed from exception
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.MsalClientException">
+            <summary>
+            This exception class represents errors that are local to the library or the device.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.MultipleTokensMatchedError">
+            <summary>
+            MultipleTokensMatched were matched.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.NonHttpsRedirectNotSupported">
+            <summary>
+            Non HTTPS redirects are not supported.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.NetworkNotAvailableError">
+            <summary>
+            The request could not be preformed because the network is down.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.DuplicateQueryParameterError">
+            <summary>
+            Duplicate query parameter in extraQueryParameters
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.AuthenticationUiFailedError">
+            <summary>
+            The request could not be preformed because of a failure in the UI flow.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.AuthenticationCanceledError">
+            <summary>
+            Authentication canceled.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.JsonParseError">
+            <summary>
+            JSON parsing failed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.InvalidJwtError">
+            <summary>
+            JWT was invalid
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.StateMismatchError">
+            <summary>
+            State returned from the STS was different than the one sent.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalClientException.TenantDiscoveryFailedError">
+            <summary>
+            Tenant discovery failed.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalClientException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code.
+            </summary>
+            <param name="errorCode">
+            The error code returned by the service or generated by client. This is the code you can rely on
+            for exception handling.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalClientException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code and error message.
+            </summary>        
+            <param name="errorCode">
+            The error code returned by the service or generated by client. This is the code you can rely on
+            for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalClientException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code, error message and inner exception.
+            </summary>
+            <param name="errorCode">
+            The error code returned by the service or generated by client. This is the code you can rely on
+            for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+            <param name="innerException"></param>
+        </member>
+        <member name="T:Microsoft.Identity.Client.MsalException">
+            <summary>
+            The exception type thrown when an error occurs during token acquisition.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalException.UnknownError">
+            <summary>
+            Unknown Error occured.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalException.#ctor">
+            <summary>
+            Initializes a new instance of the exception class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code.
+            </summary>
+            <param name="errorCode">
+            The error code returned by the service or generated by client. This is the code you can rely on
+            for exception handling.
+            </param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code and error message.
+            </summary>
+            <param name="errorCode">
+            The error code returned by the service or generated by client. This is the code you can rely on
+            for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code and a reference to the inner exception that is the cause of
+            this exception.
+            </summary>
+            <param name="errorCode">
+            The error code returned by the service or generated by client. This is the code you can rely on
+            for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+            <param name="innerException">
+            The exception that is the cause of the current exception, or a null reference if no inner
+            exception is specified.
+            </param>
+        </member>
+        <member name="P:Microsoft.Identity.Client.MsalException.ErrorCode">
+            <summary>
+            Gets the protocol error code returned by the service or generated by client. This is the code you can rely on for
+            exception handling.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalException.ToString">
+            <summary>
+            Creates and returns a string representation of the current exception.
+            </summary>
+            <returns>A string representation of the current exception.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Client.MsalServiceException">
+            <summary>
+            The exception type thrown when service returns and error response or other networking errors occur.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalServiceException.ServiceNotAvailable">
+            <summary>
+            Service is unavailable and returned HTTP error code within the range of 500-599.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalServiceException.RequestTimeout">
+            <summary>
+            Http Request timed out.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalServiceException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code, error message and a reference to the inner exception that is the cause of
+            this exception.
+            </summary>
+            <param name="errorCode">
+            The protocol error code returned by the service or generated by client. This is the code you
+            can rely on for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalServiceException.#ctor(System.String,System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code, error message and a reference to the inner exception that is the cause of
+            this exception.
+            </summary>
+            <param name="errorCode">
+            The protocol error code returned by the service or generated by client. This is the code you
+            can rely on for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+            <param name="statusCode">Status code of the resposne received from the service.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalServiceException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code, error message and a reference to the inner exception that is the cause of
+            this exception.
+            </summary>
+            <param name="errorCode">
+            The protocol error code returned by the service or generated by client. This is the code you
+            can rely on for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+            <param name="innerException">
+            The exception that is the cause of the current exception, or a null reference if no inner
+            exception is specified.
+            </param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalServiceException.#ctor(System.String,System.String,System.Int32,System.Exception)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code, error message and a reference to the inner exception that is the cause of
+            this exception.
+            </summary>
+            <param name="errorCode">
+            The protocol error code returned by the service or generated by client. This is the code you
+            can rely on for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+            <param name="statusCode">Status code of the resposne received from the service.</param>
+            <param name="innerException">
+            The exception that is the cause of the current exception, or a null reference if no inner
+            exception is specified.
+            </param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalServiceException.#ctor(System.String,System.String,System.Int32,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code, error message and a reference to the inner exception that is the cause of
+            this exception.
+            </summary>
+            <param name="errorCode">
+            The protocol error code returned by the service or generated by client. This is the code you
+            can rely on for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+            <param name="statusCode">The status code of the request.</param>
+            <param name="claims">The claims challenge returned back from the service.</param>
+            <param name="innerException">
+            The exception that is the cause of the current exception, or a null reference if no inner
+            exception is specified.
+            </param>
+        </member>
+        <member name="P:Microsoft.Identity.Client.MsalServiceException.StatusCode">
+            <summary>
+            Gets the status code returned from http layer. This status code is either the HttpStatusCode in the inner
+            HttpRequestException response or
+            NavigateError Event Status Code in browser based flow (See
+            http://msdn.microsoft.com/en-us/library/bb268233(v=vs.85).aspx).
+            You can use this code for purposes such as implementing retry logic or error investigation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.MsalServiceException.Claims">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.MsalServiceException.ResponseBody">
+            <summary>
+            Raw response body received from the server.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalServiceException.ToString">
+            <summary>
+            Creates and returns a string representation of the current exception.
+            </summary>
+            <returns>A string representation of the current exception.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Client.MsalUiRequiredException">
+            <summary>
+            This exception class is to inform developers that UI interaction is required for authentication to 
+            succeed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalUiRequiredException.InvalidGrantError">
+            <summary>
+            Standard OAuth2 protocol error code. It indicates to the libray that the user needs to go the UI for 
+            getting a new token.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalUiRequiredException.NoTokensFoundError">
+            <summary>
+            No tokens were found matching the criteria.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalUiRequiredException.UserNullError">
+            <summary>
+            This error code comes back from AcquireTokenSilent calls when null user is 
+            passed into AcquireTokenSilent calls.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalUiRequiredException.TokenCacheNullError">
+            <summary>
+            This error code comes back from AcquireTokenSilent calls when null token cache reference 
+            is passed into the application constructor
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.MsalUiRequiredException.NoPromptFailedError">
+            <summary>
+            One of two conditions was encountered.
+            1. The PromptBehavior.Never flag was passed and but the constraint could not be honored
+            because user interaction was required.
+            2. An error occurred during a silent web authentication that prevented the authentication
+            flow from completing in a short enough time frame.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalUiRequiredException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code and error message.
+            </summary>
+            <param name="errorCode">
+            The error code returned by the service or generated by client. This is the code you can rely on
+            for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.MsalUiRequiredException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the exception class with a specified
+            error code, error message and inner exception indicating the root cause.
+            </summary>
+            <param name="errorCode">
+            The error code returned by the service or generated by client. This is the code you can rely on
+            for exception handling.
+            </param>
+            <param name="errorMessage">The error message that explains the reason for the exception.</param>
+            <param name="innerException">Represents the root cause of the exception.</param>
+        </member>
+        <member name="T:Microsoft.Identity.Client.PublicClientApplication">
+            <summary>
+            Class to be used for native applications (Desktop/UWP/iOS/Android).
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.#ctor(System.String)">
+            <summary>
+            Consutructor of the application. It will use https://login.microsoftonline.com/common as the default authority.
+            </summary>
+            <param name="clientId">Client id of the application</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.#ctor(System.String,System.String)">
+            <summary>
+            Consutructor of the application.
+            </summary>
+            <param name="clientId">Client id of the application</param>
+            <param name="authority">Default authority to be used for the application</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIBehavior,System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIBehavior,System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIBehavior,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIBehavior,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIBehavior,System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIBehavior,System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIBehavior,System.String,System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="loginHint">Identifier of the user. Generally a UPN.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.PublicClientApplication.AcquireTokenAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.IUser,Microsoft.Identity.Client.UIBehavior,System.String,System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Client.UIParent)">
+            <summary>
+            Interactive request to acquire token. 
+            </summary>
+            <param name="scopes">Array of scopes requested for resource</param>
+            <param name="user">User object to enforce the same user to be authenticated in the web UI.</param>
+            <param name="behavior">Enumeration to control UI behavior.</param>
+            <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
+            <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
+            <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+            <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
+            <returns>Authentication result containing token of the user</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Telemetry">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.Telemetry.Receiver">
+            <summary>
+            
+            </summary>
+            <param name="events"></param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Telemetry.RegisterReceiver(Microsoft.Identity.Client.Telemetry.Receiver)">
+            <summary>
+            
+            </summary>
+            <param name="r"></param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.Telemetry.GetInstance">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Microsoft.Identity.Client.Telemetry.TelemetryOnFailureOnly">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.TokenCache">
+            <summary>
+            Token cache class used by ConfidentialClientApplication and PublicClientApplication to store access and refresh tokens.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.TokenCache.TokenCacheNotification">
+            <summary>
+            Notification for certain token cache interactions during token acquisition.
+            </summary>
+            <param name="args">Arguments related to the cache item impacted</param>
+        </member>
+        <member name="P:Microsoft.Identity.Client.TokenCache.BeforeAccess">
+            <summary>
+            Notification method called before any library method accesses the cache.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.TokenCache.BeforeWrite">
+            <summary>
+            Notification method called before any library method writes to the cache. This notification can be used to reload
+            the cache state from a row in database and lock that row. That database row can then be unlocked in
+            AfterAccess notification.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.TokenCache.AfterAccess">
+            <summary>
+            Notification method called after any library method accesses the cache.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.TokenCache.HasStateChanged">
+            <summary>
+            Gets or sets the flag indicating whether cache state has changed.
+            MSAL methods set this flag after any change.
+            Caller application should reset the flag after serializing and persisting the state of the cache.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.TokenCache.SaveAccesTokenCacheItem(Microsoft.Identity.Client.Internal.Cache.AccessTokenCacheItem)">
+            <summary>
+            Only used by dev test apps
+            </summary>
+            <param name="accessTokenCacheItem"></param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.TokenCache.SaveRefreshTokenCacheItem(Microsoft.Identity.Client.Internal.Cache.RefreshTokenCacheItem)">
+            <summary>
+            Only used by dev test apps
+            </summary>
+            <param name="refreshTokenCacheItem"></param>
+        </member>
+        <member name="T:Microsoft.Identity.Client.TokenCacheNotificationArgs">
+            <summary>
+            Contains parameters used by the MSAL call accessing the cache.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.TokenCacheNotificationArgs.TokenCache">
+            <summary>
+            Gets the TokenCache
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.TokenCacheNotificationArgs.ClientId">
+            <summary>
+            Gets the ClientId.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.TokenCacheNotificationArgs.User">
+            <summary>
+            Gets the user object.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.UIBehavior">
+            <summary>
+            Indicates how AcquireToken should prompt the user.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.UIBehavior.SelectAccount">
+            <summary>
+            AcquireToken will send prompt=select_account to authorize endpoint 
+            and would show a list of users from which one can be selected for 
+            authentication.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.UIBehavior.ForceLogin">
+            <summary>
+            The user will be prompted for credentials by the service. It is achieved
+            by sending prompt=login to the service.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Client.UIBehavior.Consent">
+            <summary>
+            The user will be prompted to consent even if consent was granted before. It is achieved
+            by sending prompt=consent to the service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.UIBehavior.Equals(System.Object)">
+            <summary>
+            Equals method override to compare UIBehavior structs
+            </summary>
+            <param name="obj">object to compare against</param>
+            <returns>true if object are equal.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.UIBehavior.GetHashCode">
+            <summary>
+            Override to compute hashcode
+            </summary>
+            <returns>hash code of the PromptValue</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.UIBehavior.op_Equality(Microsoft.Identity.Client.UIBehavior,Microsoft.Identity.Client.UIBehavior)">
+            <summary>
+            operator overload to equality check
+            </summary>
+            <param name="x">first value</param>
+            <param name="y">second value</param>
+            <returns>true if the object are equal</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Client.UIBehavior.op_Inequality(Microsoft.Identity.Client.UIBehavior,Microsoft.Identity.Client.UIBehavior)">
+            <summary>
+            operator overload to equality check
+            </summary>
+            <param name="x">first value</param>
+            <param name="y">second value</param>
+            <returns>true if the object are not equal</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Client.UIParent">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.UIParent.#ctor">
+            <summary>
+            Default constructor.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.User">
+            <summary>
+            Contains information of a single user. This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.User.DisplayableId">
+            <summary>
+            Gets a displayable value in UserPrincipalName (UPN) format. The value can be null.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.User.Name">
+            <summary>
+            Gets given name of the user if provided by the service. If not, the value is null.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.User.IdentityProvider">
+            <summary>
+            Gets identity provider if returned by the service. If not, the value is null.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.UserAssertion">
+            <summary>
+            Credential type containing an assertion representing user credential.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.UserAssertion.#ctor(System.String)">
+            <summary>
+            Constructor to create the object with an assertion. This constructor can be used for On Behalf Of flow which
+            assumes the
+            assertion is a JWT token. For other flows, the other construction with assertionType must be used.
+            </summary>
+            <param name="assertion">Assertion representing the user.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Client.UserAssertion.#ctor(System.String,System.String)">
+            <summary>
+            Constructor to create credential with assertion and assertionType
+            </summary>
+            <param name="assertion">Assertion representing the user.</param>
+            <param name="assertionType">Type of the assertion representing the user.</param>
+        </member>
+        <member name="P:Microsoft.Identity.Client.UserAssertion.Assertion">
+            <summary>
+            Gets the assertion.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Client.UserAssertion.AssertionType">
+            <summary>
+            Gets the assertion type.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Client.AuthenticationContinuationHelper">
+            <summary>
+            Static class that consumes the response from the Authentication flow and continues token acquisition. This class should be called in ApplicationDelegate whenever app loads/reloads.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Client.AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(Foundation.NSUrl)">
+            <summary>
+            Sets response for continuing authentication flow. This function will return true if the response was meant for MSAL, else it will return false.
+            </summary>
+            <param name="url">url used to invoke the application</param>
+        </member>
+    </members>
+</doc>
