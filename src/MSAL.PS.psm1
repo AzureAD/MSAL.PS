@@ -73,7 +73,7 @@ function Get-MSALClientApplication {
 function Get-MSALUser {
     param
     (
-        # 
+        #
         [parameter(Mandatory=$true, ParameterSetName='ClientApplication')]
         [Microsoft.Identity.Client.IClientApplicationBase] $ClientApplication,
         # Information of a single user.
@@ -199,7 +199,7 @@ function Get-MSALToken {
         # This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         [Parameter(Mandatory=$false, ParameterSetName='Implicit')]
         [string] $extraQueryParameters
-    )    
+    )
 
     switch -Wildcard ($PSCmdlet.ParameterSetName)
     {
@@ -217,39 +217,40 @@ function Get-MSALToken {
             break
         }
     }
-    
+
+    [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $null
     switch -Wildcard ($PSCmdlet.ParameterSetName)
     {
         "Implicit" {
             if ($User) {
                 if ($UIBehavior) {
-                    [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $PublicClientApplication.AcquireTokenAsync($Scopes,$User,$UIBehavior,$extraQueryParameters,$ExtraScopesToConsent,$Authority).GetAwaiter().GetResult();
+                    $AuthenticationResult = $PublicClientApplication.AcquireTokenAsync($Scopes,$User,$UIBehavior,$extraQueryParameters,$ExtraScopesToConsent,$Authority).GetAwaiter().GetResult();
                 }
                 else {
-                    [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $PublicClientApplication.AcquireTokenSilentAsync($Scopes,$User,$Authority,$false).GetAwaiter().GetResult();
+                    $AuthenticationResult = $PublicClientApplication.AcquireTokenSilentAsync($Scopes,$User,$Authority,$false).GetAwaiter().GetResult();
                 }
             }
             else {
                 if (!$UIBehavior) { $UIBehavior = [Microsoft.Identity.Client.UIBehavior]::SelectAccount }
-                [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $PublicClientApplication.AcquireTokenAsync($Scopes,$LoginHint,$UIBehavior,$extraQueryParameters,$ExtraScopesToConsent,$Authority).GetAwaiter().GetResult();
+                $AuthenticationResult = $PublicClientApplication.AcquireTokenAsync($Scopes,$LoginHint,$UIBehavior,$extraQueryParameters,$ExtraScopesToConsent,$Authority).GetAwaiter().GetResult();
             }
             break
         }
         "ClientSecret" {
-            [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenForClientAsync($Scopes).GetAwaiter().GetResult();
+            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenForClientAsync($Scopes).GetAwaiter().GetResult();
             break
         }
         "ClientAssertionCertificate" {
-            [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenForClientAsync($Scopes).GetAwaiter().GetResult();
+            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenForClientAsync($Scopes).GetAwaiter().GetResult();
             break
         }
         "*AuthorizationCode" {
-            [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenByAuthorizationCodeAsync($AuthorizationCode,$Scopes).GetAwaiter().GetResult();
+            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenByAuthorizationCodeAsync($AuthorizationCode,$Scopes).GetAwaiter().GetResult();
             break
         }
         "*OnBehalfOf" {
             [Microsoft.Identity.Client.UserAssertion] $UserAssertionObj = New-Object Microsoft.Identity.Client.UserAssertion -ArgumentList $UserAssertion, $UserAssertionType
-            [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenOnBehalfOfAsync($Scopes,$UserAssertionObj).GetAwaiter().GetResult();
+            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenOnBehalfOfAsync($Scopes,$UserAssertionObj).GetAwaiter().GetResult();
             break
         }
     }

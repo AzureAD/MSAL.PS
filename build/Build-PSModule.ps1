@@ -3,19 +3,19 @@ param
     # Directory used to base all relative paths
     [parameter(Mandatory=$false)]
     [string] $BaseDirectory = "..\",
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $OutputDirectory = ".\build\release\",
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $SourceDirectory = ".\src\",
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $ModuleManifestPath,
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $PackagesConfigPath = ".\packages.config",
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $PackagesDirectory = ".\build\packages"
 )
