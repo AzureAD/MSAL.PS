@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.4.1'
+ModuleVersion = '2.5.0.1'
 
 # ID used to uniquely identify this module
 GUID = 'c765c957-c730-4520-9c36-6a522e35d60b'
@@ -50,7 +50,7 @@ ProcessorArchitecture = 'Amd64'
 
 # Assemblies that must be loaded prior to importing this module
 #RequiredAssemblies =
-               #'..\build\packages\Microsoft.Identity.Client.1.1.3-preview0012\lib\net45\Microsoft.Identity.Client.dll'
+               #'..\build\packages\Microsoft.Identity.Client.2.5.0-preview\lib\net45\Microsoft.Identity.Client.dll'
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
@@ -92,10 +92,10 @@ PrivateData = @{
         Tags = 'Microsoft', 'Identity', 'Azure', 'AzureActiveDirectory', 'AzureAD', 'AAD', 'ActiveDirectory', 'AD', 'Microsoft.Identity.Client', 'MicrosoftAuthenticationLibrary', 'MSAL', 'OAuth', 'OpenIdConnect', 'OIDC'
 
         # A URL to the license for this module.
-        LicenseUri = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-library-for-dotnet/dev/LICENSE'
+        LicenseUri = 'https://raw.githubusercontent.com/jasoth/MSAL.PS/master/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki'
+        ProjectUri = 'https://github.com/jasoth/MSAL.PS'
 
         # A URL to an icon representing this module.
         # IconUri = ''

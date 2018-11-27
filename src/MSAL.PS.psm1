@@ -70,25 +70,30 @@ function Get-MSALClientApplication {
     }
 }
 
-function Get-MSALUser {
+function Get-MSALAccount {
     param
     (
         #
         [parameter(Mandatory=$true, ParameterSetName='ClientApplication')]
         [Microsoft.Identity.Client.IClientApplicationBase] $ClientApplication,
-        # Information of a single user.
-        [parameter(Mandatory=$true, ParameterSetName='Users')]
-        [Microsoft.Identity.Client.IUser[]] $Users,
-        # The displayable value in UserPrincipalName (UPN) format.
+        # Information of a single account.
+        [parameter(Mandatory=$true, ParameterSetName='Accounts')]
+        [Microsoft.Identity.Client.IAccount[]] $Accounts,
+        # The username in UserPrincipalName (UPN) format.
         [parameter(Mandatory=$false)]
-        [string] $DisplayableId
+        [string] $Username
     )
 
     if ($PSCmdlet.ParameterSetName -eq 'ClientApplication') {
-        [Microsoft.Identity.Client.IUser[]] $Users = $ClientApplication.Users
+        [Microsoft.Identity.Client.IAccount[]] $Accounts = $ClientApplication.GetAccountsAsync().GetAwaiter().GetResult()
     }
 
-    return $Users | where DisplayableId -eq $DisplayableId
+    if ($Username) {
+        return $Accounts | Where-Object Username -eq $Username
+    }
+    else {
+        return $Accounts
+    }
 }
 
 function New-MSALClientCredential {
@@ -205,7 +210,7 @@ function Get-MSALToken {
     {
         "Implicit" {
             [Microsoft.Identity.Client.PublicClientApplication] $PublicClientApplication = Get-MSALClientApplication -ClientId $ClientId -RedirectUri $RedirectUri
-            [Microsoft.Identity.Client.IUser] $User = Get-MSALUser -ClientApplication $PublicClientApplication -DisplayableId $LoginHint
+            [Microsoft.Identity.Client.IAccount] $Account = Get-MSALAccount -ClientApplication $PublicClientApplication -Username $LoginHint
             break
         }
         "ClientSecret*" {
@@ -222,35 +227,35 @@ function Get-MSALToken {
     switch -Wildcard ($PSCmdlet.ParameterSetName)
     {
         "Implicit" {
-            if ($User) {
+            if ($Account) {
                 if ($UIBehavior) {
-                    $AuthenticationResult = $PublicClientApplication.AcquireTokenAsync($Scopes,$User,$UIBehavior,$extraQueryParameters,$ExtraScopesToConsent,$Authority).GetAwaiter().GetResult();
+                    $AuthenticationResult = $PublicClientApplication.AcquireTokenAsync($Scopes,$Account,$UIBehavior,$extraQueryParameters,$ExtraScopesToConsent,$Authority).GetAwaiter().GetResult()
                 }
                 else {
-                    $AuthenticationResult = $PublicClientApplication.AcquireTokenSilentAsync($Scopes,$User,$Authority,$false).GetAwaiter().GetResult();
+                    $AuthenticationResult = $PublicClientApplication.AcquireTokenSilentAsync($Scopes,$Account,$Authority,$false).GetAwaiter().GetResult()
                 }
             }
             else {
                 if (!$UIBehavior) { $UIBehavior = [Microsoft.Identity.Client.UIBehavior]::SelectAccount }
-                $AuthenticationResult = $PublicClientApplication.AcquireTokenAsync($Scopes,$LoginHint,$UIBehavior,$extraQueryParameters,$ExtraScopesToConsent,$Authority).GetAwaiter().GetResult();
+                $AuthenticationResult = $PublicClientApplication.AcquireTokenAsync($Scopes,$LoginHint,$UIBehavior,$extraQueryParameters,$ExtraScopesToConsent,$Authority).GetAwaiter().GetResult()
             }
             break
         }
         "ClientSecret" {
-            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenForClientAsync($Scopes).GetAwaiter().GetResult();
+            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenForClientAsync($Scopes).GetAwaiter().GetResult()
             break
         }
         "ClientAssertionCertificate" {
-            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenForClientAsync($Scopes).GetAwaiter().GetResult();
+            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenForClientAsync($Scopes).GetAwaiter().GetResult()
             break
         }
         "*AuthorizationCode" {
-            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenByAuthorizationCodeAsync($AuthorizationCode,$Scopes).GetAwaiter().GetResult();
+            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenByAuthorizationCodeAsync($AuthorizationCode,$Scopes).GetAwaiter().GetResult()
             break
         }
         "*OnBehalfOf" {
             [Microsoft.Identity.Client.UserAssertion] $UserAssertionObj = New-Object Microsoft.Identity.Client.UserAssertion -ArgumentList $UserAssertion, $UserAssertionType
-            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenOnBehalfOfAsync($Scopes,$UserAssertionObj).GetAwaiter().GetResult();
+            $AuthenticationResult = $ConfidentialClientApplication.AcquireTokenOnBehalfOfAsync($Scopes,$UserAssertionObj).GetAwaiter().GetResult()
             break
         }
     }
