@@ -1,0 +1,20 @@
+{
+	"signInAudience": "AzureADMyOrg",
+	"displayName": "PublicClient",
+	"tags": [
+		"Test"
+	],
+	"isFallbackPublicClient": true,
+	"publicClient": {
+		"redirectUris": [
+			"urn:ietf:wg:oauth:2.0:oob",
+			"https://login.microsoftonline.com/common/oauth2/nativeclient"
+		]
+	}
+	// "web": {
+	// 	"implicitGrantSettings": {
+	// 		"enableAccessTokenIssuance": true,
+	// 		"enableIdTokenIssuance": true
+	// 	}
+	// }
+}

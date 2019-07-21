@@ -55,10 +55,15 @@ $xmlPackagesConfig.Load($PackagesConfigFileInfo.FullName)
 
 ## Copy Packages to Module Output Directory
 foreach ($package in $xmlPackagesConfig.packages.package) {
-    [System.IO.DirectoryInfo] $PackageDirectory = Join-Path $PackagesDirectoryInfo.FullName ("{0}.{1}\lib\{2}" -f $package.id, $package.version, $package.targetFramework)
-    [System.IO.DirectoryInfo] $PackageOutputDirectory = "{0}\{1}.{2}" -f $ModuleOutputDirectoryInfo.FullName, $package.id, $package.version
-    Assert-DirectoryExists $PackageOutputDirectory -ErrorAction Stop | Out-Null
-    Copy-Item ("{0}\*" -f $PackageDirectory) -Destination $PackageOutputDirectory.FullName -Recurse -Force
+    [string[]] $targetFrameworks = $package.targetFramework
+    if (!$targetFrameworks) { [string[]] $targetFrameworks = "net45","netcoreapp2.1" }
+    foreach ($targetFramework in $targetFrameworks) {
+        [System.IO.DirectoryInfo] $PackageDirectory = Join-Path $PackagesDirectoryInfo.FullName ("{0}.{1}\lib\{2}" -f $package.id, $package.version, $targetFramework)
+        [System.IO.DirectoryInfo] $PackageOutputDirectory = "{0}\{1}.{2}\{3}" -f $ModuleOutputDirectoryInfo.FullName, $package.id, $package.version, $targetFramework
+        $PackageOutputDirectory
+        Assert-DirectoryExists $PackageOutputDirectory -ErrorAction Stop | Out-Null
+        Copy-Item ("{0}\*" -f $PackageDirectory) -Destination $PackageOutputDirectory.FullName -Recurse -Force
+    }
 }
 
 ## Get Module Output FileList
@@ -70,4 +75,6 @@ $ModuleFileList = Get-RelativePath $ModuleFileListFileInfo.FullName -BaseDirecto
 $ModuleRequiredAssemblies = Get-RelativePath $ModuleRequiredAssembliesFileInfo.FullName -BaseDirectory $ModuleOutputDirectoryInfo.FullName -ErrorAction Stop
 
 ## Update Module Manifest in Module Output Directory
-Update-ModuleManifest -Path $ModuleManifestOutputFileInfo.FullName -RequiredAssemblies $ModuleRequiredAssemblies -FileList $ModuleFileList
+Update-ModuleManifest -Path $ModuleManifestOutputFileInfo.FullName -FileList $ModuleFileList -NestedModules $ModuleManifest.NestedModules #-RequiredAssemblies $ModuleRequiredAssemblies
+
+## PowerShell Core fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList so fix the order before publishing.
