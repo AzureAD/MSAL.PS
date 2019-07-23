@@ -16,17 +16,28 @@ Import-Module ..\src\MSAL.PS.psd1
     'https://graph.microsoft.com/Directory.Read.All'
 )
 
+## Generate Client Application Object
+(New-Object Microsoft.Identity.Client.PublicClientApplicationOptions -Property @{
+    TenantId = [guid]::NewGuid()
+    ClientId = [guid]::NewGuid()
+} | New-MsalClientApplication -ClientId $PublicClientId -TenantId $TenantId -Verbose).AppConfig
+
 ## Test Public Client Automatic
-$MsalToken = Get-MsalToken -TenantId $TenantId -ClientId $PublicClientId -Scopes $Scopes -Verbose
+$MsalToken = Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $Scopes -Verbose
+New-MsalClientApplication -ClientId $PublicClientId -TenantId $TenantId -Verbose | Get-MsalToken -Scopes $Scopes -Verbose
 ## Test Public Client Interactive
-Get-MsalToken -TenantId $TenantId -ClientId $PublicClientId -Scopes $Scopes -Interactive -Verbose
+Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $Scopes -Interactive -Verbose
 ## Test Public Client IntegratedWindowsAuth
-Get-MsalToken -TenantId $TenantId -ClientId $PublicClientId -Scopes $Scopes -IntegratedWindowsAuth -Verbose
+Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $Scopes -IntegratedWindowsAuth -Verbose
 ## Test Public Client Silent
-Get-MsalToken -TenantId $TenantId -ClientId $PublicClientId -Scopes $Scopes -Silent -Verbose
+Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $Scopes -Silent -Verbose
+## Test Public Client UsernamePassword
+#Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $Scopes -UserCredential user@domain.com -Verbose
+## Test Public Client Device Code
+#Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $Scopes -DeviceCode -Verbose
 
 ## Get Application and Users
-$ClientApplication = Get-MsalClientApplication -ClientId $PublicClientId
+$ClientApplication = Get-MsalClientApplication -ClientId $PublicClientId -TenantId $TenantId
 Get-MsalAccount -ClientApplication $ClientApplication
 
 
@@ -48,10 +59,20 @@ if ($MsalToken.AccessToken) {
     $ConfidentialClientCertificate = Add-AzureADApplicationClientCertificate $MsalToken $ConfidentialClientId
 }
 
+## Generate Client Application Object
+(New-Object Microsoft.Identity.Client.ConfidentialClientApplicationOptions -Property @{
+    TenantId = [guid]::NewGuid()
+    ClientId = [guid]::NewGuid()
+    ClientSecret = (ConvertFrom-SecureStringAsPlainText $ConfidentialClientSecret)
+} | New-MsalClientApplication -ClientId $ConfidentialClientId -TenantId $TenantId -Verbose).AppConfig
+
 ## Test Confidential Client Secret
-Get-MsalToken -TenantId $TenantId -ClientId $ConfidentialClientId -ClientSecret $ConfidentialClientSecret -Scopes $Scopes -Verbose
-## Test Confidential Client Certificate
-Get-MsalToken -TenantId $TenantId -ClientId $ConfidentialClientId -ClientCertificate $ConfidentialClientCertificate -Scopes $Scopes -Verbose
+Get-MsalToken -ClientId $ConfidentialClientId -ClientSecret $ConfidentialClientSecret -TenantId $TenantId -Scopes $Scopes -Verbose
+New-MsalClientApplication -ClientId $ConfidentialClientId -ClientSecret $ConfidentialClientSecret -TenantId $TenantId -Verbose | Get-MsalToken -Scopes $Scopes -Verbose
+## Test Confidential Client Certificate (Not working for common endpoints)
+Get-MsalToken -ClientId $ConfidentialClientId -ClientCertificate $ConfidentialClientCertificate -TenantId $TenantId -Scopes $Scopes -Verbose
+New-MsalClientApplication -ClientId $ConfidentialClientId -ClientCertificate $ConfidentialClientCertificate -TenantId $TenantId -Verbose | Get-MsalToken -Scopes $Scopes -Verbose
+
 
 
 ### Cleanup

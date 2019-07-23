@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.1.0.1'
+ModuleVersion = '4.1.0.2'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -71,6 +71,7 @@ NestedModules = @(
     '.\Get-MsalAccount.ps1'
     '.\Get-MsalClientApplication.ps1'
     '.\Get-MsalToken.ps1'
+    '.\New-MsalClientApplication.ps1'
 )
 
 # Functions to export from this module
@@ -78,6 +79,7 @@ FunctionsToExport = @(
     'Get-MsalAccount'
     'Get-MsalClientApplication'
     'Get-MsalToken'
+    'New-MsalClientApplication'
 )
 
 # Cmdlets to export from this module

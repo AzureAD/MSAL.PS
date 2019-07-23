@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-    Get client application from local session cache.
+    Create new client application.
 .DESCRIPTION
-    This cmdlet will return a client application object from the local session cache. If it does not yet exist, a new client application will be created and added to the cache.
+    This cmdlet will return a new client application object which can be used with the Get-MsalToken cmdlet.
 .EXAMPLE
     PS C:\>Get-MsalClientApplication -ClientId '00000000-0000-0000-0000-000000000000'
     Get public client application using default settings.
@@ -16,7 +16,7 @@
     PS C:\>$ConfidentialClientOptions | Get-MsalClientApplication -ClientCertificate $ClientCertificate
     Pipe in confidential client options object to get a confidential client application using a client certificate and target a specific tenant.
 #>
-function Get-MsalClientApplication {
+function New-MsalClientApplication {
     [CmdletBinding(DefaultParameterSetName='PublicClient')]
     [OutputType([Microsoft.Identity.Client.PublicClientApplication],[Microsoft.Identity.Client.ConfidentialClientApplication])]
     param
@@ -50,40 +50,48 @@ function Get-MsalClientApplication {
         [Microsoft.Identity.Client.PublicClientApplicationOptions] $PublicClientOptions,
         # Confidential client application options
         [parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ConfidentialClient-InputObject', Position=0)]
-        [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions,
-        # Create application in cache if it does not already exist
-        [parameter(Mandatory=$false)]
-        [switch] $CreateIfMissing
+        [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions
     )
 
-    if ($PSBoundParameters.ContainsKey('CreateIfMissing')) { [void] $PSBoundParameters.Remove('CreateIfMissing') }
-    $NewClientApplication = New-MsalClientApplication -ErrorAction Stop @PSBoundParameters
-    switch ($PSCmdlet.ParameterSetName) {
-        "PublicClient" {
-            [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
-        }
-        "ConfidentialClientSecret" {
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientSecret -eq $NewClientApplication.AppConfig.ClientSecret -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
-        }
-        "ConfidentialClientCertificate" {
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientCredentialCertificate -eq $NewClientApplication.AppConfig.ClientCredentialCertificate -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
-        }
-    }
-
-    if (!$ClientApplication) {
-        if ($CreateIfMissing) {
-            $ClientApplication = $NewClientApplication
-            Write-Verbose ('Adding Application with ClientId [{0}] and RedirectUri [{1}] to cache.' -f $ClientApplication.AppConfig.ClientId, $ClientApplication.AppConfig.RedirectUri)
-            if ($ClientApplication -is [Microsoft.Identity.Client.IPublicClientApplication]) {
-                $PublicClientApplications.Add($ClientApplication)
+    switch -Wildcard ($PSCmdlet.ParameterSetName) {
+        "PublicClient*" {
+            if ($PublicClientOptions) {
+                $ClientApplicationBuilder = [Microsoft.Identity.Client.PublicClientApplicationBuilder]::CreateWithApplicationOptions($PublicClientOptions)
             }
             else {
-                $ConfidentialClientApplications.Add($ClientApplication)
+                $ClientApplicationBuilder = [Microsoft.Identity.Client.PublicClientApplicationBuilder]::Create($ClientId)
             }
+
+            if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri.AbsoluteUri) }
+            elseif (!$PublicClientOptions) { [void] $ClientApplicationBuilder.WithDefaultRedirectUri() }
+
+            $ClientOptions = $PublicClientOptions
         }
-    }
-    else {
-        Write-Debug ('Application with ClientId [{0}] and RedirectUri [{1}] already exists. Using application from cache.' -f $ClientApplication.AppConfig.ClientId, $ClientApplication.AppConfig.RedirectUri)
+        "ConfidentialClient*" {
+            if ($ConfidentialClientOptions) {
+                $ClientApplicationBuilder = [Microsoft.Identity.Client.ConfidentialClientApplicationBuilder]::CreateWithApplicationOptions($ConfidentialClientOptions)
+            }
+            else {
+                $ClientApplicationBuilder = [Microsoft.Identity.Client.ConfidentialClientApplicationBuilder]::Create($ClientId)
+            }
+
+            if ($ClientSecret) { [void] $ClientApplicationBuilder.WithClientSecret((ConvertFrom-SecureStringAsPlainText $ClientSecret)) }
+            if ($ClientCertificate) { [void] $ClientApplicationBuilder.WithCertificate($ClientCertificate) }
+            if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri.AbsoluteUri) }
+
+            $ClientOptions = $ConfidentialClientOptions
+        }
+        "*" {
+            if ($ClientId) { [void] $ClientApplicationBuilder.WithClientId($ClientId) }
+            if ($TenantId) { [void] $ClientApplicationBuilder.WithTenantId($TenantId) }
+            if ($Authority) { [void] $ClientApplicationBuilder.WithAuthority($Authority.AbsoluteUri) }
+            if (!$ClientOptions -or !($ClientOptions.ClientName -or $ClientOptions.ClientVersion)) {
+                [void] $ClientApplicationBuilder.WithClientName("PowerShell $($PSVersionTable.PSEdition)")
+                [void] $ClientApplicationBuilder.WithClientVersion($PSVersionTable.PSVersion)
+            }
+            $ClientApplication = $ClientApplicationBuilder.Build()
+            break
+        }
     }
 
     return $ClientApplication

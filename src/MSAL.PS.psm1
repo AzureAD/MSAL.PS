@@ -1,5 +1,10 @@
 ﻿Set-StrictMode -Version 2.0
 
+## Global Variables
+[System.Collections.Generic.List[Microsoft.Identity.Client.IPublicClientApplication]] $PublicClientApplications = New-Object 'System.Collections.Generic.List[Microsoft.Identity.Client.IPublicClientApplication]'
+[System.Collections.Generic.List[Microsoft.Identity.Client.IConfidentialClientApplication]] $ConfidentialClientApplications = New-Object 'System.Collections.Generic.List[Microsoft.Identity.Client.IConfidentialClientApplication]'
+
+
 <#
 .SYNOPSIS
     Convert/Decrypt SecureString to Plain Text String.
