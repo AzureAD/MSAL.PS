@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.1.0.2'
+ModuleVersion = '4.2.1.1'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -99,8 +99,8 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 #FileList = @(
-#    '..\build\packages\Microsoft.Identity.Client.4.1.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
-#    '..\build\packages\Microsoft.Identity.Client.4.1.0\lib\net45\Microsoft.Identity.Client.dll'
+#    '..\build\packages\Microsoft.Identity.Client.4.2.1\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
+#    '..\build\packages\Microsoft.Identity.Client.4.2.1\lib\net45\Microsoft.Identity.Client.dll'
 #)
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.

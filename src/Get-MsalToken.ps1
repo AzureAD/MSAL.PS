@@ -11,7 +11,12 @@
     Force interactive authentication to get AccessToken (with MS Graph permissions User.Read) and IdToken for specific Azure AD tenant and UPN using client id from application registration (public client).
 .EXAMPLE
     PS C:\>Get-MsalToken -ClientId '00000000-0000-0000-0000-000000000000' -ClientSecret (ConvertTo-SecureString 'SuperSecretString' -AsPlainText -Force) -TenantId '00000000-0000-0000-0000-000000000000' -Scope 'https://graph.microsoft.com/.default'
-    Get AccessToken (with MS Graph permissions User.Read) and IdToken for specific Azure AD tenant using client id and secret from application registration (confidential client).
+    Get AccessToken (with MS Graph permissions .Default) and IdToken for specific Azure AD tenant using client id and secret from application registration (confidential client).
+.EXAMPLE
+    PS C:\>$ClientCertificate = Get-Item Cert:\CurrentUser\My\0000000000000000000000000000000000000000
+    PS C:\>$MsalClientApplication = Get-MsalClientApplication -ClientId '00000000-0000-0000-0000-000000000000' -ClientCertificate $ClientCertificate -TenantId '00000000-0000-0000-0000-000000000000'
+    PS C:\>$MsalClientApplication | Get-MsalToken -Scope 'https://graph.microsoft.com/.default'
+    Pipe in confidential client options object to get a confidential client application using a client certificate and target a specific tenant.
 #>
 function Get-MsalToken {
     [CmdletBinding(DefaultParameterSetName='PublicClient')]
@@ -117,8 +122,6 @@ function Get-MsalToken {
 
         # Attempts to acquire an access token from the user token cache.
         [parameter(Mandatory=$true, ParameterSetName='PublicClient-Silent')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
         [switch] $Silent,
 
@@ -164,7 +167,16 @@ function Get-MsalToken {
 
         # This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         [Parameter(Mandatory=$false)]
-        [string] $extraQueryParameters
+        [string] $extraQueryParameters,
+
+        # Ignore any access token in the user token cache and attempt to acquire new access token using the refresh token for the account if one is available.
+        [parameter(Mandatory=$false, ParameterSetName='PublicClient')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Silent')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
+        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
+        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
+        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [switch] $ForceRefresh
     )
 
     switch -Wildcard ($PSCmdlet.ParameterSetName) {
@@ -228,6 +240,7 @@ function Get-MsalToken {
             elseif ($PSBoundParameters.ContainsKey("Silent") -and $Silent) {
                 if ($LoginHint) {
                     $AquireTokenParameters = $PublicClientApplication.AcquireTokenSilent($Scopes, $LoginHint)
+                    if ($ForceRefresh) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
                 }
                 else {
                     [Microsoft.Identity.Client.IAccount[]] $Accounts = $PublicClientApplication.GetAccountsAsync().GetAwaiter().GetResult()
@@ -259,19 +272,15 @@ function Get-MsalToken {
             elseif ($PSBoundParameters.ContainsKey("UserAssertion")) {
                 if ($UserAssertionType) { [Microsoft.Identity.Client.UserAssertion] $UserAssertionObj = New-Object Microsoft.Identity.Client.UserAssertion -ArgumentList $UserAssertion, $UserAssertionType }
                 else { [Microsoft.Identity.Client.UserAssertion] $UserAssertionObj = New-Object Microsoft.Identity.Client.UserAssertion -ArgumentList $UserAssertion }
-                if ($Silent) {
-                    $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenSilent($Scopes, $UserAssertionObj)
-                }
-                else {
-                    $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenOnBehalfOf($Scopes, $UserAssertionObj)
-                }
+                $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenOnBehalfOf($Scopes, $UserAssertionObj)
             }
             else {
                 $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenForClient($Scopes)
+                if ($ForceRefresh) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
             }
         }
         "*" {
-            if ($Authority) { [void] $AquireTokenParameters.WithAuthority($Authority) }
+            if ($Authority) { [void] $AquireTokenParameters.WithAuthority($Authority.AbsoluteUri) }
             if ($CorrelationId) { [void] $AquireTokenParameters.WithCorrelationId($CorrelationId) }
             if ($extraQueryParameters) { [void] $AquireTokenParameters.WithExtraQueryParameters($extraQueryParameters) }
             Write-Verbose ('Aquiring Token for Application with ClientId [{0}]' -f $ClientApplication.ClientId)

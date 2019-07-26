@@ -56,8 +56,9 @@ function Get-MsalClientApplication {
         [switch] $CreateIfMissing
     )
 
-    if ($PSBoundParameters.ContainsKey('CreateIfMissing')) { [void] $PSBoundParameters.Remove('CreateIfMissing') }
-    $NewClientApplication = New-MsalClientApplication -ErrorAction Stop @PSBoundParameters
+    [hashtable] $paramMsalClientApplication = $PSBoundParameters
+    if ($paramMsalClientApplication.ContainsKey('CreateIfMissing')) { [void] $paramMsalClientApplication.Remove('CreateIfMissing') }
+    $NewClientApplication = New-MsalClientApplication -ErrorAction Stop @paramMsalClientApplication
     switch ($PSCmdlet.ParameterSetName) {
         "PublicClient" {
             [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1

@@ -1,0 +1,30 @@
+{
+    "signInAudience": "AzureADMyOrg",
+    "displayName": "PublicClient",
+    "tags": [
+        "Test"
+    ],
+    "publicClient": {
+        "redirectUris": [
+            "urn:ietf:wg:oauth:2.0:oob",
+            "https://login.microsoftonline.com/common/oauth2/nativeclient"
+        ]
+    },
+    "isFallbackPublicClient": true,
+    "web": null,
+    "requiredResourceAccess": [
+        {
+            "resourceAppId": "00000003-0000-0000-c000-000000000000",
+            "resourceAccess": [
+                {
+                    "id": "06da0dbc-49e2-44d2-8312-53f166ab848a",
+                    "type": "Scope"
+                },
+                {
+                    "id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+                    "type": "Scope"
+                }
+            ]
+        }
+    ]
+}

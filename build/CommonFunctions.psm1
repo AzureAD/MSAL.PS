@@ -281,78 +281,6 @@ function Use-StartProcess {
     }
 }
 
-function Invoke-WindowsInstaller {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-    param (
-        # Path to msi or msp
-        [Parameter(Mandatory=$true, Position=0)]
-        [System.IO.FileInfo] $Path,
-        # Sets user interface level
-        [Parameter(Mandatory=$false)]
-        [ValidateSet('None','Basic','Reduced','Full')]
-        [string] $UserInterfaceMode,
-        # Restart Options
-        [Parameter(Mandatory=$false)]
-        [ValidateSet('No','Prompt','Force')]
-        [string] $RestartOptions,
-        # Logging Options
-        [Parameter(Mandatory=$false)]
-        [ValidatePattern('^[iwearucmopvx\+!\*]{0,14}$')]
-        [string] $LoggingOptions,
-        # Path of log file
-        [Parameter(Mandatory=$false)]
-        [System.IO.FileInfo] $LogPath,
-        # Public Properties
-        [Parameter(Mandatory=$false)]
-        [hashtable] $PublicProperties,
-        # Specifies the working directory for the process.
-        [Parameter(Mandatory=$false)]
-        [string] $WorkingDirectory,
-        # Regex pattern in cmdline to replace with '**********'
-        [Parameter(Mandatory=$false)]
-        [string[]] $SensitiveDataFilters
-    )
-
-    [System.IO.FileInfo] $itemLogPath = (Get-Location).ProviderPath
-    if ($LogPath) { $itemLogPath = $LogPath }
-    if (!$itemLogPath.Extension) { $itemLogPath = Join-Path $itemLogPath.FullName ('{0}.{1}.log' -f (Split-Path $Path -Leaf),(Get-Date -Format "yyyyMMddThhmmss")) }
-
-    ## Windows Installer Arguments
-    [System.Collections.Generic.List[string]] $argMsiexec = New-Object "System.Collections.Generic.List[string]"
-    switch ($UserInterfaceMode)
-    {
-        'None' { $argMsiexec.Add('/qn'); break }
-        'Basic' { $argMsiexec.Add('/qb'); break }
-        'Reduced' { $argMsiexec.Add('/qr'); break }
-        'Full' { $argMsiexec.Add('/qf'); break }
-    }
-
-    switch ($Restart)
-    {
-        'No' { $argMsiexec.Add('/norestart'); break }
-        'Prompt' { $argMsiexec.Add('/promptrestart'); break }
-        'Force' { $argMsiexec.Add('/forcerestart'); break }
-    }
-
-    if ($LoggingOptions -or $LogPath) { $argMsiexec.Add(('/l{0} "{1}"' -f $LoggingOptions, $itemLogPath.FullName)) }
-    switch ($Path.Extension)
-    {
-        '.msi' { $argMsiexec.Add('/i "{0}"' -f $Path); break }
-        '.msp' { $argMsiexec.Add('/update "{0}"' -f $Path); break }
-        Default { $argMsiexec.Add('/i "{0}"' -f $Path); break }
-    }
-
-    foreach ($PropertyKey in $PublicProperties.Keys) {
-        $argMsiexec.Add(('{0}="{1}"' -f $PropertyKey.ToUpper(), $PublicProperties[$PropertyKey]))
-    }
-
-    [hashtable] $paramStartProcess = @{}
-    if ($argMsiexec) { $paramStartProcess["ArgumentList"] = $argMsiexec }
-    if ($WorkingDirectory) { $paramStartProcess["WorkingDirectory"] = $WorkingDirectory }
-
-    Use-StartProcess msiexec @paramStartProcess
-}
-
 function New-AzureADUserTemporaryPassword {
     [char[]] $Consonants = 'bcdfghjklmnpqrstvwxyz'
     [char[]] $Vowels = 'aou'
@@ -374,7 +302,7 @@ function New-AzureADApplicationPublicClient ($MsalToken) {
         Authorization = $MsalToken.CreateAuthorizationHeader()
     }
 
-    $appPublicClient = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/applications" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json @{
+    $appPublicClient = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/applications" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
         displayName = "PublicClient"
         signInAudience = "AzureADMyOrg"
         isFallbackPublicClient = $true
@@ -385,6 +313,21 @@ function New-AzureADApplicationPublicClient ($MsalToken) {
             )
         }
         web = $null
+        requiredResourceAccess = @(
+            @{
+                resourceAppId = "00000003-0000-0000-c000-000000000000"
+                resourceAccess = @(
+                    @{
+                        id = "06da0dbc-49e2-44d2-8312-53f166ab848a"
+                        type = "Scope"
+                    }
+                    @{
+                        id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
+                        type = "Scope"
+                    }
+                )
+            }
+        )
         tags = @(
             "Test"
         )
@@ -397,7 +340,7 @@ function New-AzureADApplicationConfidentialClient ($MsalToken) {
         Authorization = $MsalToken.CreateAuthorizationHeader()
     }
 
-    $appConfidentialClient = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/applications" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json @{
+    $appConfidentialClient = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/applications" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
         displayName = "ConfidentialClient"
         signInAudience = "AzureADMyOrg"
         isFallbackPublicClient = $false
@@ -407,10 +350,35 @@ function New-AzureADApplicationConfidentialClient ($MsalToken) {
                 "urn:ietf:wg:oauth:2.0:oob"
                 "https://login.microsoftonline.com/common/oauth2/nativeclient"
             )
-            implicitGrantSettings = @{
-                enableIdTokenIssuance = $true
-                enableAccessTokenIssuance = $true
+        }
+        requiredResourceAccess = @(
+            @{
+                resourceAppId = "00000003-0000-0000-c000-000000000000"
+                resourceAccess = @(
+                    @{
+                        id = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
+                        type = "Role"
+                    }
+                    @{
+                        id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
+                        type = "Scope"
+                    }
+                )
             }
+        )
+        api = @{
+            oauth2PermissionScopes = @(
+                @{
+                    id = [guid]::NewGuid()
+                    value = "user_impersonation"
+                    type = "User"
+                    adminConsentDescription = "Allow the application to access ConfidentialClient on behalf of the signed-in user."
+                    adminConsentDisplayName = "Access ConfidentialClient"
+                    userConsentDescription = "Allow the application to access ConfidentialClient on your behalf."
+                    userConsentDisplayName = "Access ConfidentialClient"
+                    isEnabled = $true
+                }
+            )
         }
         tags = @(
             "Test"

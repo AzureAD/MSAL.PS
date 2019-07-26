@@ -77,14 +77,14 @@ function New-MsalClientApplication {
 
             if ($ClientSecret) { [void] $ClientApplicationBuilder.WithClientSecret((ConvertFrom-SecureStringAsPlainText $ClientSecret)) }
             if ($ClientCertificate) { [void] $ClientApplicationBuilder.WithCertificate($ClientCertificate) }
-            if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri.AbsoluteUri) }
+            if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri) }
 
             $ClientOptions = $ConfidentialClientOptions
         }
         "*" {
             if ($ClientId) { [void] $ClientApplicationBuilder.WithClientId($ClientId) }
             if ($TenantId) { [void] $ClientApplicationBuilder.WithTenantId($TenantId) }
-            if ($Authority) { [void] $ClientApplicationBuilder.WithAuthority($Authority.AbsoluteUri) }
+            if ($Authority) { [void] $ClientApplicationBuilder.WithAuthority($Authority) }
             if (!$ClientOptions -or !($ClientOptions.ClientName -or $ClientOptions.ClientVersion)) {
                 [void] $ClientApplicationBuilder.WithClientName("PowerShell $($PSVersionTable.PSEdition)")
                 [void] $ClientApplicationBuilder.WithClientVersion($PSVersionTable.PSVersion)
