@@ -310,6 +310,7 @@ function New-AzureADApplicationPublicClient ($MsalToken) {
             redirectUris = @(
                 "urn:ietf:wg:oauth:2.0:oob"
                 "https://login.microsoftonline.com/common/oauth2/nativeclient"
+                "http://localhost/"
             )
         }
         web = $null
@@ -349,6 +350,7 @@ function New-AzureADApplicationConfidentialClient ($MsalToken) {
             redirectUris = @(
                 "urn:ietf:wg:oauth:2.0:oob"
                 "https://login.microsoftonline.com/common/oauth2/nativeclient"
+                "http://localhost/"
             )
         }
         requiredResourceAccess = @(
