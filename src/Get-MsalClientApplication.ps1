@@ -59,15 +59,27 @@ function Get-MsalClientApplication {
     [hashtable] $paramMsalClientApplication = $PSBoundParameters
     if ($paramMsalClientApplication.ContainsKey('CreateIfMissing')) { [void] $paramMsalClientApplication.Remove('CreateIfMissing') }
     $NewClientApplication = New-MsalClientApplication -ErrorAction Stop @paramMsalClientApplication
-    switch ($PSCmdlet.ParameterSetName) {
-        "PublicClient" {
+    switch -Wildcard ($PSCmdlet.ParameterSetName) {
+        "PublicClient*" {
             [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
+            break
         }
         "ConfidentialClientSecret" {
             [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientSecret -eq $NewClientApplication.AppConfig.ClientSecret -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
+            break
         }
         "ConfidentialClientCertificate" {
             [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientCredentialCertificate -eq $NewClientApplication.AppConfig.ClientCredentialCertificate -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
+            break
+        }
+        "ConfidentialClient-InputObject" {
+            if ($NewClientApplication.AppConfig.ClientSecret) {
+                [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientSecret -eq $NewClientApplication.AppConfig.ClientSecret -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
+            }
+            else {
+                [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientCredentialCertificate -eq $NewClientApplication.AppConfig.ClientCredentialCertificate -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
+            }
+            break
         }
     }
 

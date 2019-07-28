@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.2.1.1'
+ModuleVersion = '4.2.1.2'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -68,6 +68,7 @@ DotNetFrameworkVersion = '4.5'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(
+    '.\Clear-MsalCache.ps1'
     '.\Get-MsalAccount.ps1'
     '.\Get-MsalClientApplication.ps1'
     '.\Get-MsalToken.ps1'
@@ -76,6 +77,7 @@ NestedModules = @(
 
 # Functions to export from this module
 FunctionsToExport = @(
+    'Clear-MsalCache'
     'Get-MsalAccount'
     'Get-MsalClientApplication'
     'Get-MsalToken'
@@ -128,5 +130,5 @@ PrivateData = @{
 # HelpInfoURI = ''
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
+DefaultCommandPrefix = 'Msal'
 }
