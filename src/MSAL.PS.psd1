@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.2.1.2'
+ModuleVersion = '4.2.1.3'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -122,6 +122,16 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         # ReleaseNotes = ''
+
+        # Prerelease string of this module
+        # Prerelease = ''
+
+        # Flag to indicate whether the module requires explicit user acceptance for install/update/save
+        # RequireLicenseAcceptance = $false
+
+        # External dependent modules of this module
+        # ExternalModuleDependencies = @()
+
     } # End of PSData hashtable
 
 } # End of PrivateData hashtable
@@ -130,5 +140,5 @@ PrivateData = @{
 # HelpInfoURI = ''
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-DefaultCommandPrefix = 'Msal'
+# DefaultCommandPrefix = ''
 }
