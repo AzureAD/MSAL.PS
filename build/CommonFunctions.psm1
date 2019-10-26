@@ -434,6 +434,51 @@ function Add-AzureADApplicationClientCertificate ($MsalToken,$ClientId) {
     return $ClientCertificate
 }
 
+function Add-AzureADServicePrincipalClientSecret ($MsalToken,$ClientId) {
+    [hashtable] $Headers = @{
+        Authorization = $MsalToken.CreateAuthorizationHeader()
+    }
+
+    $appConfidentialClient = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?`$filter=appId eq '$ClientId'" -Headers $Headers
+    if ($appConfidentialClient.value.Count) {
+        [securestring] $ClientSecret = New-AzureADClientSecret
+        Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($appConfidentialClient.value[0].id)" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json @{
+            passwordCredentials = @(
+                $appConfidentialClient.value[0].passwordCredentials | Where-Object displayName -NE 'MSAL.PS'
+                @{
+                    endDateTime = (Get-Date).AddMonths(1).ToString('O')
+                    secretText = (ConvertFrom-SecureStringAsPlainText $ClientSecret)
+                    displayName = "MSAL.PS"
+                }
+            )
+        }) | Out-Null
+    }
+    return $ClientSecret
+}
+
+function Add-AzureADServicePrincipalClientCertificate ($MsalToken,$ClientId) {
+    [hashtable] $Headers = @{
+        Authorization = $MsalToken.CreateAuthorizationHeader()
+    }
+
+    $appConfidentialClient = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?`$filter=appId eq '$ClientId'" -Headers $Headers
+    if ($appConfidentialClient.value.Count) {
+        [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate = New-SelfSignedCertificate -Subject 'CN=TestConfidentialClient' -KeyFriendlyName "Test ConfidentialClient" -HashAlgorithm sha256 -KeySpec Signature -KeyLength 2048 -Type Custom -NotBefore (Get-Date) -NotAfter (Get-Date).AddYears(1) -KeyExportPolicy ExportableEncrypted -CertStoreLocation Cert:\CurrentUser\My
+        Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($appConfidentialClient.value[0].id)" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json @{
+            keyCredentials = @(
+                $appConfidentialClient.value[0].keyCredentials | Where-Object displayName -NE 'MSAL.PS'
+                @{
+                    type = "AsymmetricX509Cert"
+                    usage = "Verify"
+                    key = ConvertTo-Base64String $ClientCertificate.GetRawCertData()
+                    displayName = "MSAL.PS"
+                }
+            )
+        }) | Out-Null
+    }
+    return $ClientCertificate
+}
+
 <#
 .SYNOPSIS
     Convert Byte Array or Plain Text String to Base64 String.

@@ -9,7 +9,7 @@ Import-Module ..\src\MSAL.PS.psd1
 [uri] $RedirectUri = 'https://login.microsoftonline.com/common/oauth2/nativeclient'
 
 ### Test PublicClient
-[string] $PublicClientId = 'fcbe5a30-c893-4df5-8176-e6d2b5fffff6'
+[string] $PublicClientId = '5f2d068e-50f9-4f92-b532-c62fa531de1f'
 [string[]] $DelegatedScopes = @(
     #'https://graph.microsoft.com/.default'
     'https://graph.microsoft.com/User.Read'
@@ -28,7 +28,7 @@ Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $DelegatedSc
 ## Test Public Client Silent
 Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $DelegatedScopes -Silent -Verbose
 ## Test Public Client UsernamePassword
-#Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $DelegatedScopes -UserCredential user@domain.com -Verbose
+Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $DelegatedScopes -UserCredential user@domain.com -Verbose
 ## Test Public Client Device Code
 #Get-MsalToken -ClientId $PublicClientId -TenantId $TenantId -Scopes $DelegatedScopes -DeviceCode -Verbose
 ## Test Public Client Automatic
@@ -42,8 +42,8 @@ Get-MsalAccount -ClientApplication $ClientApplication
 
 
 ### Test ConfidentialClient
-[string] $ConfidentialClientId = '00000000-0000-0000-0000-000000000000'
-[securestring] $ConfidentialClientSecret = Convertto-SecureString 'SuperSecretString' -AsPlainText -Force
+[string] $ConfidentialClientId = 'f3cd10d2-c84d-4b4d-97b5-73109ccef55d'
+[securestring] $ConfidentialClientSecret = ConvertTo-SecureString 'SuperSecretString' -AsPlainText -Force
 [System.Security.Cryptography.X509Certificates.X509Certificate2] $ConfidentialClientCertificate = Get-Item Cert:\CurrentUser\My\b12afe95f226d94dd01d3f61ae3dbb1c4947ef62
 [string[]] $ApplicationScopes = @(
     'https://graph.microsoft.com/.default'
@@ -55,8 +55,10 @@ if ($MsalToken.AccessToken) {
     [string] $ConfidentialClientId = New-AzureADApplicationConfidentialClient $MsalToken | Select-Object -ExpandProperty appId
     ## Reset ClientSecret?
     [securestring] $ConfidentialClientSecret = Add-AzureADApplicationClientSecret $MsalToken $ConfidentialClientId
+    [securestring] $ConfidentialClientSecret = Add-AzureADServicePrincipalClientSecret $MsalToken $ConfidentialClientId
     ## Reset ClientCertificate?
     $ConfidentialClientCertificate = Add-AzureADApplicationClientCertificate $MsalToken $ConfidentialClientId
+    $ConfidentialClientCertificate = Add-AzureADServicePrincipalClientCertificate $MsalToken $ConfidentialClientId
 }
 
 ## Generate Client Application Object
@@ -84,4 +86,4 @@ Get-MsalToken -ClientId $ConfidentialClientId -ClientCertificate $ConfidentialCl
 Get-AzureADServicePrincipal -Filter "AppId eq '$PublicClientId'" | Get-AzureADServicePrincipalOAuth2PermissionGrant | Remove-AzureADOAuth2PermissionGrant
 
 ## Remove Certificates from Certificate Store
-Get-ChildItem Cert:\CurrentUser\My | Where-Object Subject -eq "CN=ConfidentialClient" | Remove-Item
+Get-ChildItem Cert:\CurrentUser\My | Where-Object Subject -eq "CN=TestConfidentialClient" | Remove-Item

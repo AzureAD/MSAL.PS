@@ -246,6 +246,7 @@ function Get-MsalToken {
                     [Microsoft.Identity.Client.IAccount[]] $Accounts = $PublicClientApplication.GetAccountsAsync().GetAwaiter().GetResult()
                     if ($Accounts.Count) {
                         $AquireTokenParameters = $PublicClientApplication.AcquireTokenSilent($Scopes, $Accounts[0])
+                        if ($ForceRefresh) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
                     }
                     else { throw (New-Object Microsoft.Identity.Client.MsalUiRequiredException -ArgumentList 0, "No account was found in the token cache.") } # ToDo: Revisit proper creation of exception
                 }
