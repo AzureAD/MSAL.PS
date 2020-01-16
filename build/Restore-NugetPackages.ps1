@@ -3,19 +3,19 @@ param
 	# Directory used to base all relative paths
     [parameter(Mandatory=$false)]
     [string] $BaseDirectory = "..\",
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $PackagesConfigPath = ".\packages.config",
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $NuGetConfigPath,
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $OutputDirectory,
-    # 
+    #
     [parameter(Mandatory=$false)]
     [string] $NuGetPath = ".\build",
-    # 
+    #
     [parameter(Mandatory=$false)]
     [uri] $NuGetUri = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe'
 )
@@ -33,7 +33,7 @@ Import-Module $PSScriptRoot\CommonFunctions.psm1
 
 ## Download NuGet
 if (!$NuGetFileInfo.Exists) {
-    Invoke-WebRequest $NuGetUri.AbsoluteUri -UseBasicParsing -OutFile $itemNuGetPath.FullName
+    Invoke-WebRequest $NuGetUri.AbsoluteUri -UseBasicParsing -OutFile $NuGetFileInfo.FullName -ErrorAction Stop
 }
 
 ## Run NuGet
