@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.5.1.1'
+ModuleVersion = '4.7.1.1'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -25,10 +25,13 @@ Author = 'Jason Thompson'
 CompanyName = 'Microsoft Corporation'
 
 # Copyright statement for this module
-Copyright = '(c) 2019 Microsoft Corporation. All rights reserved.'
+Copyright = '(c) 2020 Jason Thompson. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'PowerShell module for MSAL. MSAL.NET (Microsoft.Identity.Client) is an authentication library which enables you to acquire tokens from Azure AD, to access protected Web APIs (Microsoft APIs or applications registered with Azure Active Directory).'
+Description = @'
+The MSAL.PS PowerShell module wraps MSAL.NET functionality into PowerShell-friendly cmdlets and is not supported by Microsoft. Microsoft support does not extend beyond the underlying MSAL.NET library. For any inquiries regarding the PowerShell module itself, you may contact the author on GitHub or PowerShell Gallery.
+MSAL.NET (Microsoft.Identity.Client) is an authentication library which enables you to acquire tokens from Azure AD, to access protected Web APIs (Microsoft APIs or applications registered with Azure Active Directory).
+'@
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '5.1'
@@ -43,22 +46,19 @@ PowerShellVersion = '5.1'
 DotNetFrameworkVersion = '4.5'
 
 # Minimum version of the common language runtime (CLR) required by this module
-#CLRVersion = ''
+# CLRVersion = ''
 
 # Processor architecture (None, X86, Amd64) required by this module
-#ProcessorArchitecture = ''
+# ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-#RequiredAssemblies =
-               #'..\build\packages\Microsoft.Identity.Client.4.1.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
+# RequiredAssemblies = '..\build\packages\Microsoft.Identity.Client.4.7.1\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
- ScriptsToProcess = @(
-    '.\MSAL.PS.ps1'
- )
+# ScriptsToProcess = '.\MSAL.PS.ps1'
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()
@@ -69,6 +69,7 @@ DotNetFrameworkVersion = '4.5'
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(
     '.\Clear-MsalCache.ps1'
+    '.\ConvertFrom-SecureStringAsPlainText.ps1'
     '.\Get-MsalAccount.ps1'
     '.\Get-MsalClientApplication.ps1'
     '.\Get-MsalToken.ps1'
@@ -100,16 +101,16 @@ AliasesToExport = @()
 # ModuleList = @()
 
 # List of all files packaged with this module
-#FileList = @(
-#    '..\build\packages\Microsoft.Identity.Client.4.2.1\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
-#    '..\build\packages\Microsoft.Identity.Client.4.2.1\lib\net45\Microsoft.Identity.Client.dll'
-#)
+# FileList = @(
+#     '..\build\packages\Microsoft.Identity.Client.4.7.1\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
+#     '..\build\packages\Microsoft.Identity.Client.4.7.1\lib\net45\Microsoft.Identity.Client.dll'
+# )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
     PSData = @{
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Microsoft', 'Identity', 'Azure', 'AzureActiveDirectory', 'AzureAD', 'AAD', 'ActiveDirectory', 'AD', 'Microsoft.Identity.Client', 'MicrosoftAuthenticationLibrary', 'MSAL', 'OAuth', 'OpenIdConnect', 'OIDC'
+        Tags = 'Microsoft', 'Identity', 'Azure', 'AzureActiveDirectory', 'AzureAD', 'AAD', 'ActiveDirectory', 'AD', 'Microsoft.Identity.Client', 'MicrosoftAuthenticationLibrary', 'MSAL', 'OAuth', 'OpenIdConnect', 'OIDC', 'AzureAutomationNotSupported'
 
         # A URL to the license for this module.
         LicenseUri = 'https://raw.githubusercontent.com/jasoth/MSAL.PS/master/LICENSE'
@@ -127,7 +128,7 @@ PrivateData = @{
         # Prerelease = ''
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-        # RequireLicenseAcceptance = $false
+        RequireLicenseAcceptance = $true
 
         # External dependent modules of this module
         # ExternalModuleDependencies = @()

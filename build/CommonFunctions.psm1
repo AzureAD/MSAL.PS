@@ -281,204 +281,6 @@ function Use-StartProcess {
     }
 }
 
-function New-AzureADUserTemporaryPassword {
-    [char[]] $Consonants = 'bcdfghjklmnpqrstvwxyz'
-    [char[]] $Vowels = 'aou'
-    [securestring] $Password = ConvertTo-SecureString ('{0}{1}{2}{3}{4}' -f (Get-Random -InputObject $Consonants).ToString().ToUpper(),(Get-Random -InputObject $Vowels),(Get-Random -InputObject $Consonants),(Get-Random -InputObject $Vowels),(Get-Random -Minimum 1000 -Maximum 9999)) -AsPlainText -Force
-    return $Password
-}
-
-function New-AzureADClientSecret ([int]$Length=32) {
-    [char[]] $Numbers = (48..57)
-    [char[]] $UpperCaseLetters = (65..90)
-    [char[]] $LowerCaseLetters = (97..122)
-    [char[]] $Symbols = '*+-./:=?@[]_'
-    [securestring] $Secret = ConvertTo-SecureString ((Get-Random -InputObject (($UpperCaseLetters+$LowerCaseLetters+$Numbers+$Symbols)*$Length) -Count $Length) -join '') -AsPlainText -Force
-    return $Secret
-}
-
-function New-AzureADApplicationPublicClient ($MsalToken) {
-    [hashtable] $Headers = @{
-        Authorization = $MsalToken.CreateAuthorizationHeader()
-    }
-
-    $appPublicClient = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/applications" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
-        displayName = "PublicClient"
-        signInAudience = "AzureADMyOrg"
-        isFallbackPublicClient = $true
-        publicClient = @{
-            redirectUris = @(
-                "urn:ietf:wg:oauth:2.0:oob"
-                "https://login.microsoftonline.com/common/oauth2/nativeclient"
-                "http://localhost/"
-            )
-        }
-        web = $null
-        requiredResourceAccess = @(
-            @{
-                resourceAppId = "00000003-0000-0000-c000-000000000000"
-                resourceAccess = @(
-                    @{
-                        id = "06da0dbc-49e2-44d2-8312-53f166ab848a"
-                        type = "Scope"
-                    }
-                    @{
-                        id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-                        type = "Scope"
-                    }
-                )
-            }
-        )
-        tags = @(
-            "Test"
-        )
-    })
-    return $appPublicClient
-}
-
-function New-AzureADApplicationConfidentialClient ($MsalToken) {
-    [hashtable] $Headers = @{
-        Authorization = $MsalToken.CreateAuthorizationHeader()
-    }
-
-    $appConfidentialClient = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/applications" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
-        displayName = "ConfidentialClient"
-        signInAudience = "AzureADMyOrg"
-        isFallbackPublicClient = $false
-        publicClient = $null
-        web = @{
-            redirectUris = @(
-                "urn:ietf:wg:oauth:2.0:oob"
-                "https://login.microsoftonline.com/common/oauth2/nativeclient"
-                "http://localhost/"
-            )
-        }
-        requiredResourceAccess = @(
-            @{
-                resourceAppId = "00000003-0000-0000-c000-000000000000"
-                resourceAccess = @(
-                    @{
-                        id = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
-                        type = "Role"
-                    }
-                    @{
-                        id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-                        type = "Scope"
-                    }
-                )
-            }
-        )
-        api = @{
-            oauth2PermissionScopes = @(
-                @{
-                    id = [guid]::NewGuid()
-                    value = "user_impersonation"
-                    type = "User"
-                    adminConsentDescription = "Allow the application to access ConfidentialClient on behalf of the signed-in user."
-                    adminConsentDisplayName = "Access ConfidentialClient"
-                    userConsentDescription = "Allow the application to access ConfidentialClient on your behalf."
-                    userConsentDisplayName = "Access ConfidentialClient"
-                    isEnabled = $true
-                }
-            )
-        }
-        tags = @(
-            "Test"
-        )
-    })
-    return $appConfidentialClient
-}
-
-function Add-AzureADApplicationClientSecret ($MsalToken,$ClientId) {
-    [hashtable] $Headers = @{
-        Authorization = $MsalToken.CreateAuthorizationHeader()
-    }
-
-    $appConfidentialClient = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/applications?`$filter=appId eq '$ClientId'" -Headers $Headers
-    if ($appConfidentialClient.value.Count) {
-        [securestring] $ClientSecret = New-AzureADClientSecret
-        Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/applications/$($appConfidentialClient.value[0].id)" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json @{
-            passwordCredentials = @(
-                $appConfidentialClient.value[0].passwordCredentials | Where-Object displayName -NE 'MSAL.PS'
-                @{
-                    endDateTime = (Get-Date).AddMonths(1).ToString('O')
-                    secretText = (ConvertFrom-SecureStringAsPlainText $ClientSecret)
-                    displayName = "MSAL.PS"
-                }
-            )
-        }) | Out-Null
-    }
-    return $ClientSecret
-}
-
-function Add-AzureADApplicationClientCertificate ($MsalToken,$ClientId) {
-    [hashtable] $Headers = @{
-        Authorization = $MsalToken.CreateAuthorizationHeader()
-    }
-
-    $appConfidentialClient = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/applications?`$filter=appId eq '$ClientId'" -Headers $Headers
-    if ($appConfidentialClient.value.Count) {
-        [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate = New-SelfSignedCertificate -Subject 'CN=ConfidentialClient' -KeyFriendlyName "Confidential Client" -HashAlgorithm sha256 -KeySpec Signature -KeyLength 2048 -Type Custom -NotBefore (Get-Date) -NotAfter (Get-Date).AddYears(1) -KeyExportPolicy ExportableEncrypted -CertStoreLocation Cert:\CurrentUser\My
-        Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/applications/$($appConfidentialClient.value[0].id)" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json @{
-            keyCredentials = @(
-                $appConfidentialClient.value[0].keyCredentials | Where-Object displayName -NE 'MSAL.PS'
-                @{
-                    type = "AsymmetricX509Cert"
-                    usage = "Verify"
-                    key = ConvertTo-Base64String $ClientCertificate.GetRawCertData()
-                    displayName = "MSAL.PS"
-                }
-            )
-        }) | Out-Null
-    }
-    return $ClientCertificate
-}
-
-function Add-AzureADServicePrincipalClientSecret ($MsalToken,$ClientId) {
-    [hashtable] $Headers = @{
-        Authorization = $MsalToken.CreateAuthorizationHeader()
-    }
-
-    $appConfidentialClient = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?`$filter=appId eq '$ClientId'" -Headers $Headers
-    if ($appConfidentialClient.value.Count) {
-        [securestring] $ClientSecret = New-AzureADClientSecret
-        Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($appConfidentialClient.value[0].id)" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json @{
-            passwordCredentials = @(
-                $appConfidentialClient.value[0].passwordCredentials | Where-Object displayName -NE 'MSAL.PS'
-                @{
-                    endDateTime = (Get-Date).AddMonths(1).ToString('O')
-                    secretText = (ConvertFrom-SecureStringAsPlainText $ClientSecret)
-                    displayName = "MSAL.PS"
-                }
-            )
-        }) | Out-Null
-    }
-    return $ClientSecret
-}
-
-function Add-AzureADServicePrincipalClientCertificate ($MsalToken,$ClientId) {
-    [hashtable] $Headers = @{
-        Authorization = $MsalToken.CreateAuthorizationHeader()
-    }
-
-    $appConfidentialClient = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?`$filter=appId eq '$ClientId'" -Headers $Headers
-    if ($appConfidentialClient.value.Count) {
-        [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate = New-SelfSignedCertificate -Subject 'CN=TestConfidentialClient' -KeyFriendlyName "Test ConfidentialClient" -HashAlgorithm sha256 -KeySpec Signature -KeyLength 2048 -Type Custom -NotBefore (Get-Date) -NotAfter (Get-Date).AddYears(1) -KeyExportPolicy ExportableEncrypted -CertStoreLocation Cert:\CurrentUser\My
-        Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($appConfidentialClient.value[0].id)" -Headers $Headers -ContentType 'application/json' -Body (ConvertTo-Json @{
-            keyCredentials = @(
-                $appConfidentialClient.value[0].keyCredentials | Where-Object displayName -NE 'MSAL.PS'
-                @{
-                    type = "AsymmetricX509Cert"
-                    usage = "Verify"
-                    key = ConvertTo-Base64String $ClientCertificate.GetRawCertData()
-                    displayName = "MSAL.PS"
-                }
-            )
-        }) | Out-Null
-    }
-    return $ClientCertificate
-}
-
 <#
 .SYNOPSIS
     Convert Byte Array or Plain Text String to Base64 String.
@@ -607,58 +409,253 @@ function ConvertFrom-Base64String {
 
 <#
 .SYNOPSIS
-   Convert Json Web Signature (JWS) structure to PowerShell object.
-.EXAMPLE
-    PS C:\>$MsalToken.IdToken | ConvertFrom-JsonWebSignature
-    Convert OAuth IdToken JWS to PowerShell object.
-.INPUTS
-    System.String
-#>
-function ConvertFrom-JsonWebSignature {
-    [CmdletBinding()]
-    [OutputType([PSCustomObject])]
-    param (
-        # JSON Web Signature (JWS)
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        [string] $InputObject,
-        # Content Type of the Payload
-        [Parameter(Mandatory=$false)]
-        [ValidateSet('text/plain','application/json','application/octet-stream')]
-        [string] $ContentType = 'application/json'
-    )
-    [string[]] $JwsComponents = $InputObject.Split('.')
-    switch ($ContentType) {
-        'application/octet-stream' { [byte[]] $JwsPayload = $JwsComponents[1] | ConvertFrom-Base64String -Base64Url -RawBytes }
-        'text/plain' { [string] $JwsPayload = $JwsComponents[1] | ConvertFrom-Base64String -Base64Url }
-        'application/json' { [PSCustomObject] $JwsPayload = $JwsComponents[1] | ConvertFrom-Base64String -Base64Url | ConvertFrom-Json }
-        Default { [string] $JwsPayload = $JwsComponents[1] | ConvertFrom-Base64String -Base64Url }
-    }
-    [PSCustomObject] $JwsDecoded = New-Object PSCustomObject -Property @{
-        Header = $JwsComponents[0] | ConvertFrom-Base64String -Base64Url | ConvertFrom-Json
-        Payload = $JwsPayload
-        Signature = $JwsComponents[2] | ConvertFrom-Base64String -Base64Url -RawBytes
-    }
-    return $JwsDecoded
-}
+    Convert PowerShell data types to PowerShell string syntax.
+.DESCRIPTION
 
-<#
-.SYNOPSIS
-   Extract Json Web Token (JWT) from JWS structure to PowerShell object.
 .EXAMPLE
-    PS C:\>$MsalToken.IdToken | Convert-JsonWebToken
-    Convert OAuth IdToken JWS to PowerShell object.
+    PS C:\>ConvertTo-PsString @{ key1='value1'; key2='value2' }
+    Convert hashtable to PowerShell string.
 .INPUTS
     System.String
 #>
-function Convert-JsonWebToken {
+function ConvertTo-PsString {
     [CmdletBinding()]
-    [OutputType([PSCustomObject])]
+    [OutputType([string])]
     param (
-        # JSON Web Signature (JWS)
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        [string] $InputObject
+        #
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=0)]
+        [AllowNull()]
+        [object] $InputObjects,
+        #
+        [Parameter(Mandatory=$false)]
+        [switch] $Compact,
+        #
+        [Parameter(Mandatory=$false, Position=1)]
+        [type[]] $RemoveTypes = ([string],[bool],[int],[long]),
+        #
+        [Parameter(Mandatory=$false)]
+        [switch] $NoEnumerate
     )
-    [string] $JwsPayload = $InputObject.Split('.')[1]
-    $JwtDecoded = $JwsPayload | ConvertFrom-Base64String -Base64Url | ConvertFrom-Json
-    return $JwtDecoded
+
+    begin {
+        if ($Compact) {
+            [System.Collections.Generic.Dictionary[string,type]] $TypeAccelerators = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')::get
+            [System.Collections.Generic.Dictionary[type,string]] $TypeAcceleratorsLookup = New-Object 'System.Collections.Generic.Dictionary[type,string]'
+            foreach ($TypeAcceleratorKey in $TypeAccelerators.Keys) {
+                if (!$TypeAcceleratorsLookup.ContainsKey($TypeAccelerators[$TypeAcceleratorKey])) {
+                    $TypeAcceleratorsLookup.Add($TypeAccelerators[$TypeAcceleratorKey],$TypeAcceleratorKey)
+                }
+            }
+        }
+
+        function Resolve-Type {
+            param (
+                #
+                [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=0)]
+                [type] $ObjectType,
+                #
+                [Parameter(Mandatory=$false, Position=1)]
+                [switch] $Compact,
+                #
+                [Parameter(Mandatory=$false, Position=1)]
+                [type[]] $RemoveTypes
+            )
+
+            [string] $OutputString = ''
+            if ($ObjectType.IsGenericType) {
+                if ($ObjectType.FullName.StartsWith('System.Collections.Generic.Dictionary')) {
+                    #$OutputString += '[hashtable]'
+                    if ($Compact) {
+                        $OutputString += '(Invoke-Command { $D = New-Object ''Collections.Generic.Dictionary['
+                    }
+                    else {
+                        $OutputString += '(Invoke-Command { $D = New-Object ''System.Collections.Generic.Dictionary['
+                    }
+                    $iInput = 0
+                    foreach ($GenericTypeArgument in $ObjectType.GenericTypeArguments) {
+                        if ($iInput -gt 0) { $OutputString += ',' }
+                        $OutputString += Resolve-Type $GenericTypeArgument -Compact:$Compact -RemoveTypes @()
+                        $iInput++
+                    }
+                    $OutputString += ']'''
+                }
+                elseif ($InputObject.GetType().FullName -match '^(System.(Collections.Generic.[a-zA-Z]+))`[0-9]\[(?:\[(.+?), .+?, Version=.+?, Culture=.+?, PublicKeyToken=.+?\],?)+?\]$') {
+                    if ($Compact) {
+                        $OutputString += '[{0}[' -f $Matches[2]
+                    }
+                    else {
+                        $OutputString += '[{0}[' -f $Matches[1]
+                    }
+                    $iInput = 0
+                    foreach ($GenericTypeArgument in $ObjectType.GenericTypeArguments) {
+                        if ($iInput -gt 0) { $OutputString += ',' }
+                        $OutputString += Resolve-Type $GenericTypeArgument -Compact:$Compact -RemoveTypes @()
+                        $iInput++
+                    }
+                    $OutputString += ']]'
+                }
+            }
+            elseif ($ObjectType -eq [System.Collections.Specialized.OrderedDictionary]) {
+                $OutputString += '[ordered]'  # Explicit cast does not work with full name. Only [ordered] works.
+            }
+            elseif ($Compact) {
+                if ($ObjectType -notin $RemoveTypes) {
+                    if ($TypeAcceleratorsLookup.ContainsKey($ObjectType)) {
+                        $OutputString += '[{0}]' -f $TypeAcceleratorsLookup[$ObjectType]
+                    }
+                    elseif ($ObjectType.FullName.StartsWith('System.')) {
+                        $OutputString += '[{0}]' -f $ObjectType.FullName.Substring(7)
+                    }
+                    else {
+                        $OutputString += '[{0}]' -f $ObjectType.FullName
+                    }
+                }
+            }
+            else {
+                $OutputString += '[{0}]' -f $ObjectType.FullName
+            }
+            return $OutputString
+        }
+
+        function GetPSString ($InputObject) {
+            $OutputString = New-Object System.Text.StringBuilder
+
+            if ($null -eq $InputObject) { [void]$OutputString.Append('$null') }
+            else {
+                ## Add Casting
+                [void]$OutputString.Append((Resolve-Type $InputObject.GetType() -Compact:$Compact -RemoveTypes $RemoveTypes))
+
+                ## Add Value
+                switch ($InputObject.GetType())
+                {
+                    {$_.Equals([String])} {
+                        [void]$OutputString.AppendFormat("'{0}'",$InputObject.Replace("'","''")) #.Replace('"','`"')
+                        break }
+                    {$_.Equals([Char])} {
+                        [void]$OutputString.AppendFormat("'{0}'",([string]$InputObject).Replace("'","''"))
+                        break }
+                    {$_.Equals([Boolean]) -or $_.Equals([switch])} {
+                        [void]$OutputString.AppendFormat('${0}',$InputObject)
+                        break }
+                    {$_.Equals([DateTime])} {
+                        [void]$OutputString.AppendFormat("'{0}'",$InputObject.ToString('O'))
+                        break }
+                    {$_.BaseType.Equals([Enum])} {
+                        [void]$OutputString.AppendFormat('::{0}',$InputObject)
+                        break }
+                    {$_.BaseType.Equals([ValueType])} {
+                        [void]$OutputString.AppendFormat('{0}',$InputObject)
+                        break }
+                    {$_.Equals([System.Xml.XmlDocument])} {
+                        [void]$OutputString.AppendFormat("'{0}'",$InputObject.OuterXml.Replace("'","''")) #.Replace('"','""')
+                        break }
+                    {$_.Equals([Hashtable]) -or $_.Equals([System.Collections.Specialized.OrderedDictionary])} {
+                        [void]$OutputString.Append('@{')
+                        $iInput = 0
+                        foreach ($enumHashtable in $InputObject.GetEnumerator()) {
+                            if ($iInput -gt 0) { [void]$OutputString.Append(';') }
+                            [void]$OutputString.AppendFormat('{0}={1}',(ConvertTo-PsString $enumHashtable.Key -Compact:$Compact -NoEnumerate),(ConvertTo-PsString $enumHashtable.Value -Compact:$Compact -NoEnumerate))
+                            $iInput++
+                        }
+                        [void]$OutputString.Append('}')
+                        break }
+                    {$_.FullName.StartsWith('System.Collections.Generic.Dictionary')} {
+                        $iInput = 0
+                        foreach ($enumHashtable in $InputObject.GetEnumerator()) {
+                            [void]$OutputString.AppendFormat('; $D.Add({0},{1})',(ConvertTo-PsString $enumHashtable.Key -Compact:$Compact -NoEnumerate),(ConvertTo-PsString $enumHashtable.Value -Compact:$Compact -NoEnumerate))
+                            $iInput++
+                        }
+                        [void]$OutputString.Append('; $D })')
+                        break }
+                    {$_.BaseType.Equals([Array])} {
+                        [void]$OutputString.Append('(Write-Output @(')
+                        $iInput = 0
+                        for ($iInput = 0; $iInput -lt $InputObject.Count; $iInput++) {
+                            if ($iInput -gt 0) { [void]$OutputString.Append(',') }
+                            [void]$OutputString.Append((ConvertTo-PsString $InputObject[$iInput] -Compact:$Compact -RemoveTypes $InputObject.GetType().DeclaredMembers.Where({$_.Name -eq 'Set'})[0].GetParameters()[1].ParameterType -NoEnumerate))
+                        }
+                        [void]$OutputString.Append(') -NoEnumerate)')
+                        break }
+                    {$_.Equals([System.Collections.ArrayList])} {
+                        [void]$OutputString.Append('@(')
+                        $iInput = 0
+                        for ($iInput = 0; $iInput -lt $InputObject.Count; $iInput++) {
+                            if ($iInput -gt 0) { [void]$OutputString.Append(',') }
+                            [void]$OutputString.Append((ConvertTo-PsString $InputObject[$iInput] -Compact:$Compact -NoEnumerate))
+                        }
+                        [void]$OutputString.Append(')')
+                        break }
+                    {$_.FullName.StartsWith('System.Collections.Generic.List')} {
+                        [void]$OutputString.Append('@(')
+                        $iInput = 0
+                        for ($iInput = 0; $iInput -lt $InputObject.Count; $iInput++) {
+                            if ($iInput -gt 0) { [void]$OutputString.Append(',') }
+                            [void]$OutputString.Append((ConvertTo-PsString $InputObject[$iInput] -Compact:$Compact -RemoveTypes $_.GenericTypeArguments -NoEnumerate))
+                        }
+                        [void]$OutputString.Append(')')
+                        break }
+                    ## Convert objects with object initializers
+                    {$_ -is [object] -and ($_.GetConstructors() | foreach { if ($_.IsPublic -and !$_.GetParameters()) { $true } })} {
+                        [void]$OutputString.Append('@{')
+                        $iInput = 0
+                        foreach ($Item in ($InputObject | Get-Member -MemberType Property,NoteProperty)) {
+                            if ($iInput -gt 0) { [void]$OutputString.Append(';') }
+                            $PropertyName = $Item.Name
+                            [void]$OutputString.AppendFormat('{0}={1}',(ConvertTo-PsString $PropertyName -Compact:$Compact -NoEnumerate),(ConvertTo-PsString $InputObject.$PropertyName -Compact:$Compact -NoEnumerate))
+                            $iInput++
+                        }
+                        [void]$OutputString.Append('}')
+                        break }
+                    Default {
+                        $Exception = New-Object ArgumentException -ArgumentList ('Cannot convert input of type {0} to PowerShell string.' -f $InputObject.GetType())
+                        Write-Error -Exception $Exception -Category ([System.Management.Automation.ErrorCategory]::ParserError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'ConvertPowerShellStringFailureTypeNotSupported' -TargetObject $InputObject
+                    }
+                }
+            }
+
+            if ($NoEnumerate) {
+                $listOutputString.Add($OutputString.ToString())
+            }
+            else {
+                Write-Output $OutputString.ToString()
+            }
+        }
+
+        if ($NoEnumerate) {
+            $listOutputString = New-Object System.Collections.Generic.List[string]
+        }
+    }
+
+    process {
+        if ($PSCmdlet.MyInvocation.ExpectingInput -or $NoEnumerate -or $null -eq $InputObjects) {
+            GetPSString $InputObjects
+        }
+        else {
+            foreach ($InputObject in $InputObjects) {
+                GetPSString $InputObject
+            }
+        }
+    }
+
+    end {
+        if ($NoEnumerate) {
+            if (($null -eq $InputObjects -and $listOutputString.Count -eq 0) -or $listOutputString.Count -gt 1) {
+                Write-Warning ('To avoid losing strong type on outermost enumerable type when piping, use "Write-Output $Array -NoEnumerate | {0}".' -f $MyInvocation.MyCommand)
+                $OutputArray = New-Object System.Text.StringBuilder
+                [void]$OutputArray.Append('(Write-Output @(')
+                if ($PSVersionTable.PSVersion -ge [version]'6.0') {
+                    [void]$OutputArray.AppendJoin(',',$listOutputString)
+                }
+                else {
+                    [void]$OutputArray.Append(($listOutputString -join ','))
+                }
+                [void]$OutputArray.Append(') -NoEnumerate)')
+                Write-Output $OutputArray.ToString()
+            }
+            else {
+                Write-Output $listOutputString[0]
+            }
+
+        }
+    }
 }

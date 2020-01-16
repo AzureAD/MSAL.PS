@@ -75,7 +75,7 @@ function New-MsalClientApplication {
                 $ClientApplicationBuilder = [Microsoft.Identity.Client.ConfidentialClientApplicationBuilder]::Create($ClientId)
             }
 
-            if ($ClientSecret) { [void] $ClientApplicationBuilder.WithClientSecret((ConvertFrom-SecureStringAsPlainText $ClientSecret)) }
+            if ($ClientSecret) { [void] $ClientApplicationBuilder.WithClientSecret((ConvertFrom-SecureStringAsPlainText $ClientSecret -Force)) }
             if ($ClientCertificate) { [void] $ClientApplicationBuilder.WithCertificate($ClientCertificate) }
             if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri) }
 

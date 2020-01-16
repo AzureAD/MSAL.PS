@@ -1,5 +1,6 @@
 # MSAL.PS
-This module is intended to wrap MSAL.NET functionality into PowerShell friendly cmdlets for easy generation and use of access tokens in PowerShell. This project is in no way supported by Microsoft.
+The MSAL.PS PowerShell module wraps MSAL.NET functionality into PowerShell-friendly cmdlets and is not supported by Microsoft. Microsoft support does not extend beyond the underlying MSAL.NET library. For any inquiries regarding the PowerShell module itself, you may contact the author on GitHub or PowerShell Gallery.
+MSAL.NET (Microsoft.Identity.Client) is an authentication library which enables you to acquire tokens from Azure AD, to access protected Web APIs (Microsoft APIs or applications registered with Azure Active Directory).
 
 ## Getting Started
 Dependencies: [MSAL.NET (Microsoft.Identity.Client)](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki)

@@ -50,6 +50,12 @@ function Get-MsalToken {
         [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
 
+        # # Client assertion certificate of the client requesting the token.
+        # [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
+        # [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
+        # [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
+        # [switch] $SendX5C,
+
         # The authorization code received from service authorization endpoint.
         [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
         [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
@@ -277,6 +283,7 @@ function Get-MsalToken {
             }
             else {
                 $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenForClient($Scopes)
+                #if ($SendX5C) { [void] $AquireTokenParameters.WithSendX5C($SendX5C) }
                 if ($ForceRefresh) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
             }
         }
