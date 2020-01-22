@@ -491,6 +491,9 @@ function New-TestAzureAdPublicClient {
         # Do not create a corresponding service principal.
         [Parameter(Mandatory=$false)]
         [switch] $NoServicePrincipal,
+        # Automatic admin consent
+        [Parameter(Mandatory=$false)]
+        [switch] $AdminConsent,
         # Specifies the access token to use for Microsoft Graph.
         [Parameter(Mandatory=$true)]
         [psobject] $MSGraphToken
@@ -553,6 +556,17 @@ function New-TestAzureAdPublicClient {
                 appId = $Application.appId
             })
             Write-Output $ServicePrincipal
+
+            if ($AdminConsent) {
+                $spMicrosoftGraph = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?`$filter=appId eq '00000003-0000-0000-c000-000000000000'" -Headers $MSGraphHeaders
+                $ServicePrincipalConsent = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/oAuth2Permissiongrants" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
+                    clientId = $ServicePrincipal.Id
+                    consentType = 'AllPrincipals'
+                    expiryTime = (Get-Date).AddDays(1).ToString('O')
+                    resourceId = $spMicrosoftGraph.value[0].id
+                    scope = 'User.Read User.ReadBasic.All email offline_access openid profile'
+                })
+            }
         }
     }
 }
@@ -566,6 +580,9 @@ function New-TestAzureAdConfidentialClient {
         # Do not create a corresponding service principal.
         [Parameter(Mandatory=$false)]
         [switch] $NoServicePrincipal,
+        # Automatic admin consent
+        [Parameter(Mandatory=$false)]
+        [switch] $AdminConsent,
         # Specifies the access token to use for Microsoft Graph.
         [Parameter(Mandatory=$true)]
         [psobject] $MSGraphToken
@@ -642,6 +659,17 @@ function New-TestAzureAdConfidentialClient {
                 appId = $Application.appId
             })
             Write-Output $ServicePrincipal
+
+            if ($AdminConsent) {
+                $spMicrosoftGraph = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?`$filter=appId eq '00000003-0000-0000-c000-000000000000'" -Headers $MSGraphHeaders
+                $ServicePrincipalConsent = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/oAuth2Permissiongrants" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
+                    clientId = $ServicePrincipal.Id
+                    consentType = 'AllPrincipals'
+                    expiryTime = (Get-Date).AddDays(1).ToString('O')
+                    resourceId = $spMicrosoftGraph.value[0].id
+                    scope = 'User.Read email offline_access openid profile'
+                })
+            }
         }
     }
 }
@@ -866,9 +894,9 @@ function Remove-TestAzureAdApplication {
     }
 
     process {
-        Invoke-RestMethod -Method Delete -Uri "https://graph.microsoft.com/v1.0/applications/$Id" -Headers $MSGraphHeaders
+        Invoke-RestMethod -Method Delete -Uri "https://graph.microsoft.com/v1.0/applications/$Id" -Headers $MSGraphHeaders | Out-Null
         if ($Permanently) {
-            Invoke-RestMethod -Method Delete -Uri "https://graph.microsoft.com/v1.0/directory/deleteditems/$Id" -Headers $MSGraphHeaders
+            Invoke-RestMethod -Method Delete -Uri "https://graph.microsoft.com/v1.0/directory/deleteditems/$Id" -Headers $MSGraphHeaders | Out-Null
         }
     }
 }

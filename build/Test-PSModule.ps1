@@ -25,8 +25,8 @@ Processor_Architecture: $env:Processor_Architecture
 "@
 
 ## Initialize
-Remove-Module CommonFunctions -ErrorAction SilentlyContinue
-Import-Module "$PSScriptRoot\CommonFunctions.psm1" -ErrorAction Stop
+Import-Module "$PSScriptRoot\CommonFunctions.psm1" -Force -WarningAction SilentlyContinue -ErrorAction Stop
+.\Build-PSModule.ps1
 
 [System.IO.DirectoryInfo] $BaseDirectoryInfo = Get-PathInfo $BaseDirectory -InputPathType Directory -ErrorAction Stop
 [System.IO.DirectoryInfo] $ModuleDirectoryInfo = Get-PathInfo $ModuleDirectory -InputPathType Directory -DefaultDirectory $BaseDirectoryInfo.FullName -ErrorAction SilentlyContinue
@@ -61,6 +61,6 @@ if ($NoNewWindow) {
     Start-Process powershell -ArgumentList ('-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest))) -NoNewWindow -Wait
 }
 else {
-    #Start-Process pwsh -ArgumentList ('-NoExit','-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest)))
+    Start-Process pwsh -ArgumentList ('-NoExit','-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest)))
     Start-Process powershell -ArgumentList ('-NoExit','-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest)))
 }

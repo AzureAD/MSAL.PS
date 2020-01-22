@@ -2,7 +2,7 @@ param
 (
     # Module to Launch
     [parameter(Mandatory=$false)]
-    [string] $ModuleManifestPath = ".\src\MSAL.PS.psd1",
+    [string] $ModuleManifestPath = ".\src\*.psd1",
     # Import Module into the same session
     [parameter(Mandatory=$false)]
     [switch] $NoNewWindow
@@ -11,7 +11,7 @@ param
 .\build\Restore-NugetPackages.ps1 -BaseDirectory ".\" -Verbose:$false
 
 if ($NoNewWindow) {
-    Import-Module $ModuleManifestPath -PassThru
+    Import-Module $ModuleManifestPath -PassThru -Force
 }
 else {
     $strScriptBlock = 'Import-Module {0} -PassThru' -f $ModuleManifestPath

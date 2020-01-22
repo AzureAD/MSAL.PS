@@ -20,8 +20,8 @@ $MSGraphToken = Get-MSGraphToken -ErrorAction Stop @AppConfigAutomation
 
 try {
     ## Create applications in tenant for testing.
-    $appPublicClient,$spPublicClient = New-TestAzureAdPublicClient -MSGraphToken $MSGraphToken
-    $appConfidentialClient,$spConfidentialClient = New-TestAzureAdConfidentialClient -MSGraphToken $MSGraphToken
+    $appPublicClient,$spPublicClient = New-TestAzureAdPublicClient -AdminConsent -MSGraphToken $MSGraphToken
+    $appConfidentialClient,$spConfidentialClient = New-TestAzureAdConfidentialClient -AdminConsent -MSGraphToken $MSGraphToken
     $appConfidentialClientSecret,$ClientSecret = $appConfidentialClient | Add-AzureAdClientSecret -MSGraphToken $MSGraphToken
     $appConfidentialClientCertificate,$ClientCertificate = $appConfidentialClient | Add-AzureAdClientCertificate -MSGraphToken $MSGraphToken
     $StartDelay = Get-Date
@@ -49,6 +49,11 @@ try {
             It 'Inline with Scope as Positional Parameter' {
                 $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/User.ReadBasic.All' -Interactive
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
+            }
+
+            It 'Inline with Prompt as Positional Parameter' {
+               $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -Prompt ([Microsoft.Identity.Client.Prompt]::NoPrompt)
+               $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline Silent as Positional Parameter' {
@@ -107,14 +112,6 @@ try {
         }
 
         Context 'Confidential Client' {
-            ## Admin Consent for Confidential Client
-            try {
-                $AdminConsent = Get-MsalToken -TenantId $appConfidentialClient.publisherDomain -ClientId $appConfidentialClient.appId -Interactive
-            }
-            catch {}
-            Write-Host "`nWaiting for admin consent to propogate..."
-            Start-Sleep -Seconds 30
-
             Write-Host
             It 'Inline ClientSecret as Positional Parameter' {
                 $Output = Get-MsalToken -TenantId $appConfidentialClient.publisherDomain -ClientId $appConfidentialClient.appId -ClientSecret $ClientSecret
@@ -172,5 +169,6 @@ finally {
     #$appConfidentialClient | Remove-AzureAdClientCertificate -KeyId $appConfidentialClientCertificate.keyId -MSGraphToken $MSGraphToken
 
     ## Remove test client applications
+    $MSGraphToken = Get-MSGraphToken @AppConfigAutomation
     $appPublicClient,$appConfidentialClient | Remove-TestAzureAdApplication -Permanently -MSGraphToken $MSGraphToken
 }

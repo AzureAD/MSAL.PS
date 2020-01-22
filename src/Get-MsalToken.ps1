@@ -154,11 +154,15 @@ function Get-MsalToken {
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
         [string] $LoginHint,
 
-        # Specifies the what the interactive experience is for the user.
+        # Specifies the what the interactive experience is for the user. To force an interactive authentication, use the -Interactive switch.
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Interactive')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
-        [Microsoft.Identity.Client.Prompt] $Prompt,
+        [ArgumentCompleter({
+            param ( $commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters )
+            [Microsoft.Identity.Client.Prompt].DeclaredFields | Where-Object { $_.IsPublic -eq $true -and $_.IsStatic -eq $true -and $_.Name -like "$wordToComplete*" } | Select-Object -ExpandProperty Name
+        })]
+        [string] $Prompt,
 
         # Identifier of the user with associated password.
         [Parameter(Mandatory=$true, ParameterSetName='PublicClient-UsernamePassword')]
@@ -237,7 +241,7 @@ function Get-MsalToken {
                 #if ($Account) { [void] $AquireTokenParameters.WithAccount($Account) }
                 if ($extraScopesToConsent) { [void] $AquireTokenParameters.WithExtraScopesToConsent($extraScopesToConsent) }
                 if ($LoginHint) { [void] $AquireTokenParameters.WithLoginHint($LoginHint) }
-                if ($Prompt) { [void] $AquireTokenParameters.WithPrompt($Prompt) }
+                if ($Prompt) { [void] $AquireTokenParameters.WithPrompt([Microsoft.Identity.Client.Prompt]::$Prompt) }
             }
             elseif ($PSBoundParameters.ContainsKey("IntegratedWindowsAuth") -and $IntegratedWindowsAuth) {
                 $AquireTokenParameters = $PublicClientApplication.AcquireTokenByIntegratedWindowsAuth($Scopes)
@@ -259,7 +263,8 @@ function Get-MsalToken {
             }
             else {
                 try {
-                    $AuthenticationResult = Get-MsalToken -Silent @PSBoundParameters
+                    $paramGetMsalTokenSilent = Select-PsBoundParameters -NamedParameter $PSBoundParameters -CommandName 'Get-MsalToken' -CommandParameterSet 'PublicClient-Silent','PublicClient-InputObject' -ExcludeParameters 'Silent','Prompt'
+                    $AuthenticationResult = Get-MsalToken -Silent @paramGetMsalTokenSilent
                 }
                 catch [Microsoft.Identity.Client.MsalUiRequiredException] {
                     try {
