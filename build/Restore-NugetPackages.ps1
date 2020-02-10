@@ -1,22 +1,22 @@
 param
 (
 	# Directory used to base all relative paths
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $BaseDirectory = "..\",
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $PackagesConfigPath = ".\packages.config",
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $NuGetConfigPath,
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $OutputDirectory,
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $NuGetPath = ".\build",
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [uri] $NuGetUri = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe'
 )
 

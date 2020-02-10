@@ -1,19 +1,19 @@
 param
 (
     # Directory used to base all relative paths
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $BaseDirectory = "..\",
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $ModuleDirectory = ".\build\release\MSAL.PS",
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $ModuleManifestPath,
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $ModuleTestsDirectory = ".\tests",
     #
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [switch] $NoNewWindow
 )
 

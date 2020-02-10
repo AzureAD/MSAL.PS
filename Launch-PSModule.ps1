@@ -1,10 +1,10 @@
 param
 (
     # Module to Launch
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $ModuleManifestPath = ".\src\*.psd1",
     # Import Module into the same session
-    [parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [switch] $NoNewWindow
 )
 

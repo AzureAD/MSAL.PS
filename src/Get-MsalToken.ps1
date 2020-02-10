@@ -24,116 +24,116 @@ function Get-MsalToken {
     param
     (
         # Identifier of the client requesting the token.
-        [parameter(Mandatory=$true, ParameterSetName='PublicClient')]
-        [parameter(Mandatory=$true, ParameterSetName='PublicClient-Interactive')]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient')]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-Interactive')]
         [Parameter(Mandatory=$true, ParameterSetName='PublicClient-IntegratedWindowsAuth')]
         [Parameter(Mandatory=$true, ParameterSetName='PublicClient-Silent')]
         [Parameter(Mandatory=$true, ParameterSetName='PublicClient-UsernamePassword')]
-        [parameter(Mandatory=$true, ParameterSetName='PublicClient-DeviceCode')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-DeviceCode')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [string] $ClientId,
 
         # Secure secret of the client requesting the token.
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
         [securestring] $ClientSecret,
 
         # Client assertion certificate of the client requesting the token.
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
 
         # # Client assertion certificate of the client requesting the token.
-        # [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        # [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
-        # [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
+        # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
+        # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
+        # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         # [switch] $SendX5C,
 
         # The authorization code received from service authorization endpoint.
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
         [string] $AuthorizationCode,
 
         # Assertion representing the user.
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [string] $UserAssertion,
 
         # Type of the assertion representing the user.
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [string] $UserAssertionType,
 
         # Address to return to upon receiving a response from the authority.
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient')]
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient-Interactive')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Interactive')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-IntegratedWindowsAuth')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Silent')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-UsernamePassword')]
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient-DeviceCode')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-DeviceCode')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [uri] $RedirectUri,
 
         # Tenant identifier of the authority to issue token. It can also contain the value "consumers" or "organizations".
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient')]
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient-Interactive')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Interactive')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-IntegratedWindowsAuth')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Silent')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-UsernamePassword')]
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient-DeviceCode')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-DeviceCode')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-AuthorizationCode')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret-OnBehalfOf')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [string] $TenantId,
 
         # Address of the authority to issue token.
-        [parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false)]
         [uri] $Authority,
 
         # Public client application
-        [parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='PublicClient-InputObject', Position=0)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='PublicClient-InputObject', Position=0)]
         [Microsoft.Identity.Client.PublicClientApplication] $PublicClientApplication,
 
         # Confidential client application
-        [parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ConfidentialClient-InputObject', Position=1)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ConfidentialClient-InputObject', Position=1)]
         [Microsoft.Identity.Client.ConfidentialClientApplication] $ConfidentialClientApplication,
 
         # Interactive request to acquire a token for the specified scopes.
-        [parameter(Mandatory=$true, ParameterSetName='PublicClient-Interactive')]
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-Interactive')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
         [switch] $Interactive,
 
         # Non-interactive request to acquire a security token for the signed-in user in Windows, via Integrated Windows Authentication.
-        [parameter(Mandatory=$true, ParameterSetName='PublicClient-IntegratedWindowsAuth')]
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-IntegratedWindowsAuth')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
         [switch] $IntegratedWindowsAuth,
 
         # Attempts to acquire an access token from the user token cache.
-        [parameter(Mandatory=$true, ParameterSetName='PublicClient-Silent')]
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-Silent')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
         [switch] $Silent,
 
         # Acquires a security token on a device without a Web browser, by letting the user authenticate on another device.
-        # [parameter(Mandatory=$true, ParameterSetName='PublicClient-DeviceCode')]
-        # [parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
+        # [Parameter(Mandatory=$true, ParameterSetName='PublicClient-DeviceCode')]
+        # [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
         # [switch] $DeviceCode,
 
         # Array of scopes requested for resource
@@ -180,12 +180,12 @@ function Get-MsalToken {
         [string] $extraQueryParameters,
 
         # Ignore any access token in the user token cache and attempt to acquire new access token using the refresh token for the account if one is available.
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Silent')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
         [switch] $ForceRefresh
     )
 
