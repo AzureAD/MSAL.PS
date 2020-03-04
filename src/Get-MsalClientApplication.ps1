@@ -22,37 +22,37 @@ function Get-MsalClientApplication {
     param
     (
         # Identifier of the client requesting the token.
-        [parameter(Mandatory=$true, ParameterSetName='PublicClient')]
-        [parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
         [string] $ClientId,
         # Secure secret of the client requesting the token.
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
         [securestring] $ClientSecret,
         # Client assertion certificate of the client requesting the token.
-        [parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
         # Address to return to upon receiving a response from the authority.
-        [parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false)]
         [uri] $RedirectUri,
         # Tenant identifier of the authority to issue token.
-        [parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false)]
         [string] $TenantId,
         # Address of the authority to issue token.
-        [parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false)]
         [uri] $Authority,
         # Public client application options
-        [parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='PublicClient-InputObject', Position=0)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='PublicClient-InputObject', Position=0)]
         [Microsoft.Identity.Client.PublicClientApplicationOptions] $PublicClientOptions,
         # Confidential client application options
-        [parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ConfidentialClient-InputObject', Position=0)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ConfidentialClient-InputObject', Position=0)]
         [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions,
         # Create application in cache if it does not already exist
-        [parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false)]
         [switch] $CreateIfMissing
     )
 
