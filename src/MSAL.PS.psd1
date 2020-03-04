@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.7.1.2'
+ModuleVersion = '4.8.2.1'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -30,6 +30,7 @@ Copyright = '(c) 2020 Jason Thompson. All rights reserved.'
 # Description of the functionality provided by this module
 Description = @'
 The MSAL.PS PowerShell module wraps MSAL.NET functionality into PowerShell-friendly cmdlets and is not supported by Microsoft. Microsoft support does not extend beyond the underlying MSAL.NET library. For any inquiries regarding the PowerShell module itself, you may contact the author on GitHub or PowerShell Gallery.
+
 MSAL.NET (Microsoft.Identity.Client) is an authentication library which enables you to acquire tokens from Azure AD, to access protected Web APIs (Microsoft APIs or applications registered with Azure Active Directory).
 '@
 
@@ -105,8 +106,8 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 FileList = @(
-    '..\build\packages\Microsoft.Identity.Client.4.7.1\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
-    '..\build\packages\Microsoft.Identity.Client.4.7.1\lib\net45\Microsoft.Identity.Client.dll'
+    '..\build\packages\Microsoft.Identity.Client.4.8.2\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
+    '..\build\packages\Microsoft.Identity.Client.4.8.2\lib\net45\Microsoft.Identity.Client.dll'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.

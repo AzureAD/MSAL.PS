@@ -5,7 +5,7 @@ param
     [string] $ModuleManifestPath = ".\src\*.psd1",
     # Import Module into the same session
     [parameter(Mandatory=$false)]
-    [switch] $NoNewWindow
+    [switch] $NoNewWindow #= $true
 )
 
 .\build\Restore-NugetPackages.ps1 -BaseDirectory ".\" -Verbose:$false

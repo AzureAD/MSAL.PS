@@ -186,7 +186,13 @@ function Get-MsalToken {
         [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
         [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
         [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
-        [switch] $ForceRefresh
+        [switch] $ForceRefresh,
+
+        # Specifies if the public client application should used an embedded web browser or the system default browser
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient')]
+        [parameter(Mandatory=$false, ParameterSetName='PublicClient-Interactive')]
+        [parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
+        [switch] $UseEmbeddedWebView
     )
 
     switch -Wildcard ($PSCmdlet.ParameterSetName) {
@@ -238,10 +244,13 @@ function Get-MsalToken {
             }
             elseif ($PSBoundParameters.ContainsKey("Interactive") -and $Interactive) {
                 $AquireTokenParameters = $PublicClientApplication.AcquireTokenInteractive($Scopes)
+                [IntPtr] $ParentWindow = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
+                if ($ParentWindow) { [void] $AquireTokenParameters.WithParentActivityOrWindow($ParentWindow) }
                 #if ($Account) { [void] $AquireTokenParameters.WithAccount($Account) }
                 if ($extraScopesToConsent) { [void] $AquireTokenParameters.WithExtraScopesToConsent($extraScopesToConsent) }
                 if ($LoginHint) { [void] $AquireTokenParameters.WithLoginHint($LoginHint) }
                 if ($Prompt) { [void] $AquireTokenParameters.WithPrompt([Microsoft.Identity.Client.Prompt]::$Prompt) }
+                if ($PSBoundParameters.ContainsKey('UseEmbeddedWebView')) { [void] $AquireTokenParameters.WithUseEmbeddedWebView($UseEmbeddedWebView) }
             }
             elseif ($PSBoundParameters.ContainsKey("IntegratedWindowsAuth") -and $IntegratedWindowsAuth) {
                 $AquireTokenParameters = $PublicClientApplication.AcquireTokenByIntegratedWindowsAuth($Scopes)
@@ -263,7 +272,7 @@ function Get-MsalToken {
             }
             else {
                 try {
-                    $paramGetMsalTokenSilent = Select-PsBoundParameters -NamedParameter $PSBoundParameters -CommandName 'Get-MsalToken' -CommandParameterSet 'PublicClient-Silent','PublicClient-InputObject' -ExcludeParameters 'Silent','Prompt'
+                    $paramGetMsalTokenSilent = Select-PsBoundParameters -NamedParameter $PSBoundParameters -CommandName 'Get-MsalToken' -CommandParameterSet 'PublicClient-Silent','PublicClient-InputObject' -ExcludeParameters 'Silent','Prompt','UseEmbeddedWebView'
                     $AuthenticationResult = Get-MsalToken -Silent @paramGetMsalTokenSilent
                 }
                 catch [Microsoft.Identity.Client.MsalUiRequiredException] {
