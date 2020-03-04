@@ -183,7 +183,6 @@ function Get-MsalToken {
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Silent')]
         [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
-<<<<<<< HEAD
         [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
         [parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
         [parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
@@ -194,12 +193,6 @@ function Get-MsalToken {
         [parameter(Mandatory=$false, ParameterSetName='PublicClient-Interactive')]
         [parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
         [switch] $UseEmbeddedWebView
-=======
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
-        [switch] $ForceRefresh
->>>>>>> db3bd28c6a9969971daa7b80af34705d8c2e3aaf
     )
 
     switch -Wildcard ($PSCmdlet.ParameterSetName) {
