@@ -67,7 +67,7 @@ foreach ($package in $xmlPackagesConfig.packages.package) {
         [System.IO.DirectoryInfo] $PackageOutputDirectory = "{0}\{1}.{2}\{3}" -f $ModuleOutputDirectoryInfo.FullName, $package.id, $package.version, $targetFramework
         $PackageOutputDirectory
         Assert-DirectoryExists $PackageOutputDirectory -ErrorAction Stop | Out-Null
-        Copy-Item ("{0}\*" -f $PackageDirectory) -Destination $PackageOutputDirectory.FullName -Recurse -Force
+        Copy-Item ("{0}\*" -f $PackageDirectory) -Destination $PackageOutputDirectory.FullName -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 

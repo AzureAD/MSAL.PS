@@ -77,7 +77,7 @@ try {
             }
 
             Context 'Public Client from ClientApplication' {
-                $ClientApplication = Get-MsalClientApplication -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId
+                $ClientApplication = New-MsalClientApplication -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId
 
                 It 'ClientApplication as Positional Parameter' {
                     $Output = Get-MsalToken -PublicClientApplication $ClientApplication
@@ -119,7 +119,7 @@ try {
             }
 
             Context 'Confidential Client from ClientApplication with ClientSecret' {
-                $ClientApplication = Get-MsalClientApplication -TenantId $appConfidentialClient.publisherDomain -ClientId $appConfidentialClient.appId -ClientSecret $ClientSecret
+                $ClientApplication = New-MsalClientApplication -TenantId $appConfidentialClient.publisherDomain -ClientId $appConfidentialClient.appId -ClientSecret $ClientSecret
 
                 It 'ClientApplication with ClientSecret as Positional Parameter' {
                     $Output = Get-MsalToken -ConfidentialClientApplication $ClientApplication

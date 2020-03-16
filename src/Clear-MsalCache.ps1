@@ -9,8 +9,17 @@
 #>
 function Clear-MsalCache {
     [CmdletBinding()]
-    param()
+    param(
+        # Clear the token cache from disk.
+        [Parameter(Mandatory=$false)]
+        [switch] $FromDisk
+    )
 
     $script:PublicClientApplications = New-Object 'System.Collections.Generic.List[Microsoft.Identity.Client.IPublicClientApplication]'
     $script:ConfidentialClientApplications = New-Object 'System.Collections.Generic.List[Microsoft.Identity.Client.IConfidentialClientApplication]'
+
+    if ($FromDisk) {
+        $TokenCachePath = Join-Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)) "MSAL.PS\MSAL.PS.msalcache.bin3"
+        if (Test-Path $TokenCachePath) { Remove-Item -LiteralPath $TokenCachePath -Force }
+    }
 }

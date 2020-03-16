@@ -50,7 +50,7 @@ function Get-MsalToken {
         [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
 
-        # # Client assertion certificate of the client requesting the token.
+        #
         # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
         # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
         # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
@@ -113,7 +113,7 @@ function Get-MsalToken {
         [Microsoft.Identity.Client.PublicClientApplication] $PublicClientApplication,
 
         # Confidential client application
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ConfidentialClient-InputObject', Position=1)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ConfidentialClient-InputObject', Position=0)]
         [Microsoft.Identity.Client.ConfidentialClientApplication] $ConfidentialClientApplication,
 
         # Interactive request to acquire a token for the specified scopes.
@@ -132,9 +132,10 @@ function Get-MsalToken {
         [switch] $Silent,
 
         # Acquires a security token on a device without a Web browser, by letting the user authenticate on another device.
-        # [Parameter(Mandatory=$true, ParameterSetName='PublicClient-DeviceCode')]
-        # [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
-        # [switch] $DeviceCode,
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-DeviceCode')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-Interactive')]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
+        [switch] $DeviceCode,
 
         # Array of scopes requested for resource
         [Parameter(Mandatory=$false)]
@@ -228,19 +229,7 @@ function Get-MsalToken {
                 $AquireTokenParameters = $PublicClientApplication.AcquireTokenByUsernamePassword($Scopes, $UserCredential.UserName, $UserCredential.Password)
             }
             elseif ($PSBoundParameters.ContainsKey("DeviceCode") -and $DeviceCode) {
-                # ToDo: Get callback working in the right runspace
-                # Some links that might be helpful:
-                # https://powershell.github.io/Polaris/docs/api/New-ScriptblockCallback.html
-                # https://github.com/PowerShell/Polaris/blob/master/Public/New-ScriptblockCallback.ps1
-                # https://stackoverflow.com/questions/49737016/powershell-runspace-delegates
-
-                [System.Func[Microsoft.Identity.Client.DeviceCodeResult, System.Threading.Tasks.Task]] $deviceCodeResultCallback = {
-                    param([Microsoft.Identity.Client.DeviceCodeResult]$deviceCodeResult)
-                    Write-Console $deviceCodeResult.Message
-                    return [System.Threading.Tasks.Task]::FromResult(0)
-                }
-
-                $AquireTokenParameters = $PublicClientApplication.AcquireTokenWithDeviceCode($Scopes, $deviceCodeResultCallback) # This is not working. No Runspace error.
+                $AquireTokenParameters = $PublicClientApplication.AcquireTokenWithDeviceCode($Scopes, [DeviceCodeHelper]::GetDeviceCodeResultCallback())
             }
             elseif ($PSBoundParameters.ContainsKey("Interactive") -and $Interactive) {
                 $AquireTokenParameters = $PublicClientApplication.AcquireTokenInteractive($Scopes)
