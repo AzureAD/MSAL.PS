@@ -48,5 +48,12 @@ if ([System.Environment]::OSVersion.Platform -eq 'Win32NT') {
 foreach ($Path in ($ModuleManifest.FileList -like "*\DeviceCodeHelper.cs")) {
     $srcDeviceCodeHelper = Join-Path $PSScriptRoot $Path
 }
-$RequiredAssemblies.Add('System.Console.dll')
-Add-Type -LiteralPath $srcDeviceCodeHelper -ReferencedAssemblies $RequiredAssemblies -IgnoreWarnings -WarningAction SilentlyContinue
+if ($PSVersionTable.PSVersion -ge [version]'6.0') {
+    $RequiredAssemblies.Add('System.Console.dll')
+}
+try {
+    Add-Type -LiteralPath $srcDeviceCodeHelper -ReferencedAssemblies $RequiredAssemblies -IgnoreWarnings -WarningAction SilentlyContinue
+}
+catch {
+    Write-Warning 'There was an error loading some dependencies. DeviceCode paramter will not function.'
+}
