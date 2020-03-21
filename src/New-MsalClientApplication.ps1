@@ -4,16 +4,16 @@
 .DESCRIPTION
     This cmdlet will return a new client application object which can be used with the Get-MsalToken cmdlet.
 .EXAMPLE
-    PS C:\>Get-MsalClientApplication -ClientId '00000000-0000-0000-0000-000000000000'
+    PS C:\>New-MsalClientApplication -ClientId '00000000-0000-0000-0000-000000000000'
     Get public client application using default settings.
 .EXAMPLE
-    PS C:\>$ConfidentialClientOptions = New-Object Microsoft.Identity.Client.ConfidentialClientApplicationOptions -Properties @{ ClientId = '00000000-0000-0000-0000-000000000000' }
-    PS C:\>$ConfidentialClientOptions | Get-MsalClientApplication -ClientSecret (ConvertTo-SecureString 'SuperSecretString' -AsPlainText -Force) -TenantId '00000000-0000-0000-0000-000000000000'
-    Pipe in confidential client options object to get a confidential client application using a client secret and target a specific tenant.
+    PS C:\>$PublicClientOptions = New-Object Microsoft.Identity.Client.PublicClientApplicationOptions -Property @{ ClientId = '00000000-0000-0000-0000-000000000000' }
+    PS C:\>$PublicClientOptions | New-MsalClientApplication -TenantId '00000000-0000-0000-0000-000000000000'
+    Pipe in public client options object to get a public client application and target a specific tenant.
 .EXAMPLE
     PS C:\>$ClientCertificate = Get-Item Cert:\CurrentUser\My\0000000000000000000000000000000000000000
-    PS C:\>$ConfidentialClientOptions = New-Object Microsoft.Identity.Client.ConfidentialClientApplicationOptions -Properties @{ ClientId = '00000000-0000-0000-0000-000000000000'; TenantId = '00000000-0000-0000-0000-000000000000' }
-    PS C:\>$ConfidentialClientOptions | Get-MsalClientApplication -ClientCertificate $ClientCertificate
+    PS C:\>$ConfidentialClientOptions = New-Object Microsoft.Identity.Client.ConfidentialClientApplicationOptions -Property @{ ClientId = '00000000-0000-0000-0000-000000000000'; TenantId = '00000000-0000-0000-0000-000000000000' }
+    PS C:\>$ConfidentialClientOptions | New-MsalClientApplication -ClientCertificate $ClientCertificate
     Pipe in confidential client options object to get a confidential client application using a client certificate and target a specific tenant.
 #>
 function New-MsalClientApplication {
@@ -22,57 +22,61 @@ function New-MsalClientApplication {
     param
     (
         # Identifier of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='PublicClient', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientClaims', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientAssertion', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject', Position=1, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientClaims', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientAssertion', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject', Position=1, ValueFromPipelineByPropertyName=$true)]
         [string] $ClientId,
         # Secure secret of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject', ValueFromPipelineByPropertyName=$true)]
+        #[AllowNull()]
         [securestring] $ClientSecret,
         # Client assertion certificate of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientClaims')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientClaims', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject', ValueFromPipelineByPropertyName=$true)]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
         # Set the specific client claims to sign. ClientCertificate must also be specified.
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientClaims')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientClaims', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject', ValueFromPipelineByPropertyName=$true)]
         [hashtable] $ClientClaims,
         # Set client assertion used to prove the identity of the application to Azure AD. This is a Base-64 encoded JWT.
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientAssertion')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientAssertion', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject', ValueFromPipelineByPropertyName=$true)]
         [string] $ClientAssertion,
         # Address to return to upon receiving a response from the authority.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
         [uri] $RedirectUri,
+        # Instance of Azure Cloud
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Microsoft.Identity.Client.AzureCloudInstance] $AzureCloudInstance,
         # Tenant identifier of the authority to issue token.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
         [string] $TenantId,
         # Address of the authority to issue token.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
         [uri] $Authority,
         # Sets Extra Query Parameters for the query string in the HTTP authentication request.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
         [hashtable] $ExtraQueryParameters,
         # Allows usage of experimental features and APIs.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
         [switch] $EnableExperimentalFeatures,
-        # Add TokenCache to list of  PowerShell sessions.
-        [Parameter(Mandatory=$false)]
-        [switch] $AddTokenCacheToModuleCache,
-        # Read and save encrypted TokenCache for persistance across PowerShell sessions.
-        [Parameter(Mandatory=$false)]
-        [switch] $UseTokenCacheOnDisk,
+        # Add Application and TokenCache to list for this PowerShell session.
+        #[Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        #[switch] $AddToSessionCache,
+        # Read and save encrypted TokenCache to disk for persistance across PowerShell sessions.
+        #[Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        #[switch] $UseTokenCacheOnDisk,
         # Public client application options
-        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-InputObject', Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-InputObject', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
         [Microsoft.Identity.Client.PublicClientApplicationOptions] $PublicClientOptions,
         # Confidential client application options
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClient-InputObject', Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClient-InputObject', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
         [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions
     )
 
@@ -108,7 +112,8 @@ function New-MsalClientApplication {
         }
         "*" {
             if ($ClientId) { [void] $ClientApplicationBuilder.WithClientId($ClientId) }
-            if ($TenantId) { [void] $ClientApplicationBuilder.WithTenantId($TenantId) }
+            if ($AzureCloudInstance -and $TenantId) { [void] $ClientApplicationBuilder.WithAuthority($AzureCloudInstance,$TenantId) }
+            elseif ($TenantId) { [void] $ClientApplicationBuilder.WithTenantId($TenantId) }
             if ($Authority) { [void] $ClientApplicationBuilder.WithAuthority($Authority) }
             if (!$ClientOptions -or !($ClientOptions.ClientName -or $ClientOptions.ClientVersion)) {
                 [void] $ClientApplicationBuilder.WithClientName("PowerShell $($PSVersionTable.PSEdition)")
@@ -123,18 +128,15 @@ function New-MsalClientApplication {
         }
     }
 
+    ## Add to local PowerShell session cache.
+    # if ($AddToSessionCache) {
+    #     Add-MsalClientApplication $ClientApplication
+    # }
+
     ## Enable custom serialization of TokenCache to disk
-    if ($UseTokenCacheOnDisk) {
-        if ([System.Environment]::OSVersion.Platform -eq 'Win32NT' -and $PSVersionTable.PSVersion -lt [version]'6.0') {
-            if ($ClientApplicationBuilder -is [Microsoft.Identity.Client.ConfidentialClientApplication]) {
-                [TokenCacheHelper]::EnableSerialization($ClientApplication.AppTokenCache)
-            }
-            [TokenCacheHelper]::EnableSerialization($ClientApplication.UserTokenCache)
-        }
-        else {
-            Write-Warning 'The -UseTokenCacheOnDisk parameter only works on Windows platform using Windows PowerShell. The token cache will stored in memory and not persisted on disk.'
-        }
-    }
+    # if ($UseTokenCacheOnDisk) {
+    #     Enable-MsalTokenCacheOnDisk $ClientApplication
+    # }
 
     return $ClientApplication
 }

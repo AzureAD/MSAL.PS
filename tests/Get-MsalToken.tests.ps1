@@ -42,45 +42,45 @@ try {
         Context 'Public Client' {
             Write-Host
             It 'Inline as Positional Parameter' {
-                $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId
+                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline with Scope as Positional Parameter' {
-                $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/User.ReadBasic.All' -Interactive
+                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/User.ReadBasic.All' -Interactive
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline with Prompt as Positional Parameter' {
-               $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -Prompt ([Microsoft.Identity.Client.Prompt]::NoPrompt)
+               $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Prompt ([Microsoft.Identity.Client.Prompt]::NoPrompt)
                $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline Silent as Positional Parameter' {
-                $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -Silent
+                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Silent
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline Interactive as Positional Parameter' {
-                $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -Interactive
+                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Interactive
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline IntegratedWindowsAuth as Positional Parameter' -Skip {
-                $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -IntegratedWindowsAuth
+                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -IntegratedWindowsAuth
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline ROPC as Positional Parameter' {
-                $Output = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -UserCredential $UserCredential
+                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -UserCredential $UserCredential
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             Context 'Public Client from ClientApplication' {
-                $ClientApplication = New-MsalClientApplication -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId
+                $ClientApplication = New-MsalClientApplication $appPublicClient.appId -TenantId $appPublicClient.publisherDomain
 
                 It 'ClientApplication as Positional Parameter' {
-                    $Output = Get-MsalToken -PublicClientApplication $ClientApplication
+                    $Output = Get-MsalToken $ClientApplication
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
                 }
 
@@ -90,7 +90,7 @@ try {
                 }
 
                 It 'ClientApplication with Scope as Positional Parameter' {
-                    $Output = Get-MsalToken -PublicClientApplication $ClientApplication -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/User.ReadBasic.All'
+                    $Output = Get-MsalToken $ClientApplication -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/User.ReadBasic.All'
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
                 }
 
@@ -100,7 +100,7 @@ try {
                 }
 
                 It 'ClientApplication ROPC as Positional Parameter' {
-                    $Output = Get-MsalToken -PublicClientApplication $ClientApplication -UserCredential $UserCredential
+                    $Output = Get-MsalToken $ClientApplication -UserCredential $UserCredential
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
                 }
 
@@ -114,15 +114,15 @@ try {
         Context 'Confidential Client' {
             Write-Host
             It 'Inline ClientSecret as Positional Parameter' {
-                $Output = Get-MsalToken -TenantId $appConfidentialClient.publisherDomain -ClientId $appConfidentialClient.appId -ClientSecret $ClientSecret
+                $Output = Get-MsalToken $appConfidentialClient.appId -TenantId $appConfidentialClient.publisherDomain -ClientSecret $ClientSecret
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             Context 'Confidential Client from ClientApplication with ClientSecret' {
-                $ClientApplication = New-MsalClientApplication -TenantId $appConfidentialClient.publisherDomain -ClientId $appConfidentialClient.appId -ClientSecret $ClientSecret
+                $ClientApplication = New-MsalClientApplication $appConfidentialClient.appId -TenantId $appConfidentialClient.publisherDomain -ClientSecret $ClientSecret
 
                 It 'ClientApplication with ClientSecret as Positional Parameter' {
-                    $Output = Get-MsalToken -ConfidentialClientApplication $ClientApplication
+                    $Output = Get-MsalToken $ClientApplication
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
                 }
 
@@ -134,15 +134,15 @@ try {
 
             Write-Host
             It 'Inline ClientCertificate as Positional Parameter' {
-                $Output = Get-MsalToken -TenantId $appConfidentialClient.publisherDomain -ClientId $appConfidentialClient.appId -ClientCertificate $ClientCertificate
+                $Output = Get-MsalToken $appConfidentialClient.appId -TenantId $appConfidentialClient.publisherDomain -ClientCertificate $ClientCertificate
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             Context 'Confidential Client from ClientApplication with ClientCertificate' {
-                $ClientApplication = New-MsalClientApplication -TenantId $appConfidentialClient.publisherDomain -ClientId $appConfidentialClient.appId -ClientCertificate $ClientCertificate
+                $ClientApplication = New-MsalClientApplication $appConfidentialClient.appId -TenantId $appConfidentialClient.publisherDomain -ClientCertificate $ClientCertificate
 
                 It 'ClientApplication with ClientCertificate as Positional Parameter' {
-                    $Output = Get-MsalToken -ConfidentialClientApplication $ClientApplication
+                    $Output = Get-MsalToken $ClientApplication
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
                 }
 
@@ -152,8 +152,8 @@ try {
                 }
 
                 It 'ClientApplication with ClientCertificate On-Behalf-Of User' {
-                    $OnBehalfOfToken = Get-MsalToken -TenantId $appPublicClient.publisherDomain -ClientId $appPublicClient.appId -Scopes "$($appConfidentialClient.appId)/user_impersonation"
-                    $Output = Get-MsalToken -ConfidentialClientApplication $ClientApplication -Scopes 'https://graph.microsoft.com/User.Read' -UserAssertion $OnBehalfOfToken.AccessToken
+                    $OnBehalfOfToken = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Scopes "$($appConfidentialClient.appId)/user_impersonation"
+                    $Output = Get-MsalToken $ClientApplication -Scopes 'https://graph.microsoft.com/User.Read' -UserAssertion $OnBehalfOfToken.AccessToken
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
                 }
             }

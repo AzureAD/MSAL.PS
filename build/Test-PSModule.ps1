@@ -14,6 +14,13 @@ param
     [string] $ModuleTestsDirectory = ".\tests",
     #
     [Parameter(Mandatory=$false)]
+    [string[]] $PowerShellPaths = @(
+        'pwsh'
+        'powershell'
+        'D:\Software\PowerShell-6.2.4-win-x64\pwsh.exe'
+    ),
+    #
+    [Parameter(Mandatory=$false)]
     [switch] $NoNewWindow
 )
 
@@ -56,11 +63,8 @@ $strScriptBlockTest = 'Invoke-Command -ScriptBlock {{ {0} }} -ArgumentList {1}' 
 
 #[string] $strScriptBlockTest = Get-Content (Join-Path $BaseDirectoryInfo.FullName 'tests\Get-X509Certificate.tests.ps1') -Raw
 
-if ($NoNewWindow) {
-    Start-Process pwsh -ArgumentList ('-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest))) -NoNewWindow -Wait
-    Start-Process powershell -ArgumentList ('-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest))) -NoNewWindow -Wait
-}
-else {
-    Start-Process pwsh -ArgumentList ('-NoExit','-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest)))
-    Start-Process powershell -ArgumentList ('-NoExit','-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest)))
+[string[]] $ArgumentList = ('-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest)))
+if (!$NoNewWindow) { $ArgumentList += '-NoExit' }
+foreach ($Path in $PowerShellPaths) {
+    Start-Process $Path -ArgumentList $ArgumentList -NoNewWindow:$NoNewWindow -Wait:$NoNewWindow
 }

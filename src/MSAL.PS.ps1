@@ -40,7 +40,12 @@ if ([System.Environment]::OSVersion.Platform -eq 'Win32NT') {
     }
     elseif ($PSVersionTable.PSVersion -ge [version]'5.1') {
         $RequiredAssemblies.Add('System.Security.dll')
-        Add-Type -LiteralPath $srcTokenCacheHelper -ReferencedAssemblies $RequiredAssemblies
+        #try {
+            Add-Type -LiteralPath $srcTokenCacheHelper -ReferencedAssemblies $RequiredAssemblies
+        #}
+        #catch {
+        #    Write-Warning 'There was an error loading some dependencies. Storing TokenCache on disk will not function.'
+        #}
     }
 }
 

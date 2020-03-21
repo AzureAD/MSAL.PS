@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.9.0.1'
+ModuleVersion = '4.10.0.1'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -71,23 +71,31 @@ DotNetFrameworkVersion = '4.5'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(
-    '.\Clear-MsalCache.ps1'
+    '.\Add-MsalClientApplication.ps1'
+    '.\Clear-MsalTokenCache.ps1'
     '.\ConvertFrom-SecureStringAsPlainText.ps1'
     '.\ConvertTo-Dictionary.ps1'
+    '.\Enable-MsalTokenCacheOnDisk.ps1'
     '.\Get-MsalAccount.ps1'
     '.\Get-MsalClientApplication.ps1'
     '.\Get-MsalToken.ps1'
     '.\New-MsalClientApplication.ps1'
+    '.\Remove-MsalClientApplication.ps1'
+    '.\Select-MsalClientApplication.ps1'
     '.\Select-PsBoundParameters.ps1'
 )
 
 # Functions to export from this module
 FunctionsToExport = @(
-    'Clear-MsalCache'
+    'Add-MsalClientApplication'
+    'Clear-MsalTokenCache'
+    'Enable-MsalTokenCacheOnDisk'
     'Get-MsalAccount'
     'Get-MsalClientApplication'
     'Get-MsalToken'
     'New-MsalClientApplication'
+    'Remove-MsalClientApplication'
+    'Select-MsalClientApplication'
 )
 
 # Cmdlets to export from this module
@@ -107,8 +115,8 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 FileList = @(
-    '..\build\packages\Microsoft.Identity.Client.4.9.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
-    '..\build\packages\Microsoft.Identity.Client.4.9.0\lib\net45\Microsoft.Identity.Client.dll'
+    '..\build\packages\Microsoft.Identity.Client.4.10.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
+    '..\build\packages\Microsoft.Identity.Client.4.10.0\lib\net45\Microsoft.Identity.Client.dll'
     #'..\build\packages\System.Security.Cryptography.ProtectedData.4.7.0\lib\netstandard1.3\System.Security.Cryptography.ProtectedData.dll'
     '.\TokenCacheHelper.cs'
     '.\DeviceCodeHelper.cs'

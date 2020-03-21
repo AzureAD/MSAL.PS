@@ -1,20 +1,14 @@
 <#
 .SYNOPSIS
-    Get client application from local session cache.
+    Get client applications from local session cache.
 .DESCRIPTION
-    This cmdlet will return a client application object from the local session cache. If it does not yet exist, a new client application will be created and added to the cache.
+    This cmdlet will return client applications from the local session cache.
+.EXAMPLE
+    PS C:\>Get-MsalClientApplication
+    Get all client applications in the local session cache.
 .EXAMPLE
     PS C:\>Get-MsalClientApplication -ClientId '00000000-0000-0000-0000-000000000000'
-    Get public client application using default settings.
-.EXAMPLE
-    PS C:\>$ConfidentialClientOptions = New-Object Microsoft.Identity.Client.ConfidentialClientApplicationOptions -Properties @{ ClientId = '00000000-0000-0000-0000-000000000000' }
-    PS C:\>$ConfidentialClientOptions | Get-MsalClientApplication -ClientSecret (ConvertTo-SecureString 'SuperSecretString' -AsPlainText -Force) -TenantId '00000000-0000-0000-0000-000000000000'
-    Pipe in confidential client options object to get a confidential client application using a client secret and target a specific tenant.
-.EXAMPLE
-    PS C:\>$ClientCertificate = Get-Item Cert:\CurrentUser\My\0000000000000000000000000000000000000000
-    PS C:\>$ConfidentialClientOptions = New-Object Microsoft.Identity.Client.ConfidentialClientApplicationOptions -Properties @{ ClientId = '00000000-0000-0000-0000-000000000000'; TenantId = '00000000-0000-0000-0000-000000000000' }
-    PS C:\>$ConfidentialClientOptions | Get-MsalClientApplication -ClientCertificate $ClientCertificate
-    Pipe in confidential client options object to get a confidential client application using a client certificate and target a specific tenant.
+    Get client application with specific ClientId from local session cache.
 #>
 function Get-MsalClientApplication {
     [CmdletBinding(DefaultParameterSetName='PublicClient')]
@@ -22,82 +16,61 @@ function Get-MsalClientApplication {
     param
     (
         # Identifier of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='PublicClient')]
-        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject')]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
         [string] $ClientId,
         # Secure secret of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret', ValueFromPipelineByPropertyName=$true)]
         [securestring] $ClientSecret,
         # Client assertion certificate of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject')]
+        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate', ValueFromPipelineByPropertyName=$true)]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
         # Address to return to upon receiving a response from the authority.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
         [uri] $RedirectUri,
         # Tenant identifier of the authority to issue token.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
         [string] $TenantId,
         # Address of the authority to issue token.
-        [Parameter(Mandatory=$false)]
-        [uri] $Authority,
-        # Public client application options
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='PublicClient-InputObject', Position=0)]
-        [Microsoft.Identity.Client.PublicClientApplicationOptions] $PublicClientOptions,
-        # Confidential client application options
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ConfidentialClient-InputObject', Position=0)]
-        [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions,
-        # Create application in cache if it does not already exist
-        [Parameter(Mandatory=$false)]
-        [switch] $CreateIfMissing
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [uri] $Authority
     )
 
-    [hashtable] $paramMsalClientApplication = $PSBoundParameters
-    if ($paramMsalClientApplication.ContainsKey('CreateIfMissing')) { [void] $paramMsalClientApplication.Remove('CreateIfMissing') }
-    $NewClientApplication = New-MsalClientApplication -ErrorAction Stop @paramMsalClientApplication
+    [System.Collections.Generic.List[Microsoft.Identity.Client.IClientApplicationBase]] $listClientApplications = New-Object System.Collections.Generic.List[Microsoft.Identity.Client.IClientApplicationBase]
+
     switch -Wildcard ($PSCmdlet.ParameterSetName) {
         "PublicClient*" {
-            [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
-            break
-        }
-        "ConfidentialClientSecret" {
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientSecret -eq $NewClientApplication.AppConfig.ClientSecret -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
-            break
-        }
-        "ConfidentialClientCertificate" {
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientCredentialCertificate -eq $NewClientApplication.AppConfig.ClientCredentialCertificate -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
-            break
-        }
-        "ConfidentialClient-InputObject" {
-            if ($NewClientApplication.AppConfig.ClientSecret) {
-                [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientSecret -eq $NewClientApplication.AppConfig.ClientSecret -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
+            foreach ($PublicClientApplication in $PublicClientApplications) {
+                if ((!$ClientId -or $PublicClientApplication.ClientId -eq $ClientId) -and (!$RedirectUri -or $PublicClientApplication.AppConfig.RedirectUri -eq $RedirectUri) -and (!$TenantId -or $PublicClientApplication.AppConfig.TenantId -eq $TenantId) -and (!$Authority -or $PublicClientApplication.Authority -eq $Authority)) {
+                    $listClientApplications.Add($PublicClientApplication)
+                }
             }
-            else {
-                [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.ClientCredentialCertificate -eq $NewClientApplication.AppConfig.ClientCredentialCertificate -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -First 1
+
+            #$listClientApplications.AddRange(($PublicClientApplications | Where-Object ClientId -eq $ClientId))
+        }
+        "*" {
+            foreach ($ConfidentialClientApplication in $ConfidentialClientApplications) {
+                if ((!$ClientId -or $ConfidentialClientApplication.ClientId -eq $ClientId) -and (!$RedirectUri -or $ConfidentialClientApplication.AppConfig.RedirectUri -eq $RedirectUri) -and (!$TenantId -or $ConfidentialClientApplication.AppConfig.TenantId -eq $TenantId) -and (!$Authority -or $ConfidentialClientApplication.Authority -eq $Authority)) {
+                    switch ($PSCmdlet.ParameterSetName) {
+                        "ConfidentialClientSecret" {
+                            if ($ConfidentialClientApplication.AppConfig.ClientSecret -eq $ClientSecret) {
+                                $listClientApplications.Add($ConfidentialClientApplication)
+                            }
+                            break
+                        }
+                        "ConfidentialClientCertificate" {
+                            if ($ConfidentialClientApplication.AppConfig.ClientCredentialCertificate -eq $ClientCertificate) {
+                                $listClientApplications.Add($ConfidentialClientApplication)
+                            }
+                            break
+                        }
+                        Default {
+                            $listClientApplications.Add($ConfidentialClientApplication)
+                        }
+                    }
+                }
             }
-            break
         }
     }
 
-    if (!$ClientApplication) {
-        if ($CreateIfMissing) {
-            $ClientApplication = $NewClientApplication
-            Write-Verbose ('Adding Application with ClientId [{0}] and RedirectUri [{1}] to cache.' -f $ClientApplication.AppConfig.ClientId, $ClientApplication.AppConfig.RedirectUri)
-            if ($ClientApplication -is [Microsoft.Identity.Client.IPublicClientApplication]) {
-                $PublicClientApplications.Add($ClientApplication)
-            }
-            else {
-                $ConfidentialClientApplications.Add($ClientApplication)
-            }
-        }
-    }
-    else {
-        Write-Debug ('Application with ClientId [{0}] and RedirectUri [{1}] already exists. Using application from cache.' -f $ClientApplication.AppConfig.ClientId, $ClientApplication.AppConfig.RedirectUri)
-    }
-
-    return $ClientApplication
+    return $listClientApplications
 }
