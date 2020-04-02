@@ -81,11 +81,11 @@ function Select-MsalClientApplication {
 
     if (!$ClientApplication) {
         $ClientApplication = $NewClientApplication
-        Write-Verbose ('Adding Application with ClientId [{0}] and RedirectUri [{1}] to cache.' -f $ClientApplication.AppConfig.ClientId, $ClientApplication.AppConfig.RedirectUri)
+        Write-Debug ('Adding Application with ClientId [{0}] and RedirectUri [{1}] to cache.' -f $ClientApplication.AppConfig.ClientId, $ClientApplication.AppConfig.RedirectUri)
         Add-MsalClientApplication $ClientApplication
     }
     else {
-        Write-Debug ('Application with ClientId [{0}] and RedirectUri [{1}] already exists. Using application from cache.' -f $ClientApplication.AppConfig.ClientId, $ClientApplication.AppConfig.RedirectUri)
+        Write-Debug ('Using Application with ClientId [{0}] and RedirectUri [{1}] from cache.' -f $ClientApplication.AppConfig.ClientId, $ClientApplication.AppConfig.RedirectUri)
     }
 
     return $ClientApplication

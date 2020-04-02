@@ -189,130 +189,144 @@ function Get-MsalToken {
         [switch] $UseEmbeddedWebView
     )
 
-    switch -Wildcard ($PSCmdlet.ParameterSetName) {
-         "PublicClient-InputObject" {
-            [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplication
-            break
-         }
-         "ConfidentialClient-InputObject" {
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplication
-            break
-         }
-        "PublicClient*" {
-            $paramResolveMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName Select-MsalClientApplication -CommandParameterSets "PublicClient"
-            [Microsoft.Identity.Client.IPublicClientApplication] $PublicClientApplication = Select-MsalClientApplication @paramResolveMsalClientApplication
-            [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplication
-            break
+    begin {
+        function CheckForMissingScopes([Microsoft.Identity.Client.AuthenticationResult]$AuthenticationResult, [string[]]$Scopes) {
+            foreach ($Scope in $Scopes) {
+                if ($AuthenticationResult.Scopes -notcontains $Scope) { return $true }
+            }
+            return $false
         }
-        "ConfidentialClientSecret" {
-            $paramResolveMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName Select-MsalClientApplication -CommandParameterSets "ConfidentialClientSecret"
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication = Select-MsalClientApplication @paramResolveMsalClientApplication
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplication
-            break
-        }
-        "ConfidentialClientCertificate" {
-            $paramResolveMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName Select-MsalClientApplication -CommandParameterSets "ConfidentialClientCertificate"
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication = Select-MsalClientApplication @paramResolveMsalClientApplication
-            [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplication
-            break
-        }
+
     }
 
-    [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $null
-    switch -Wildcard ($PSCmdlet.ParameterSetName) {
-        "PublicClient*" {
-            if ($PSBoundParameters.ContainsKey("UserCredential") -and $UserCredential) {
-                $AquireTokenParameters = $PublicClientApplication.AcquireTokenByUsernamePassword($Scopes, $UserCredential.UserName, $UserCredential.Password)
+    process {
+        switch -Wildcard ($PSCmdlet.ParameterSetName) {
+            "PublicClient-InputObject" {
+                [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplication
+                break
             }
-            elseif ($PSBoundParameters.ContainsKey("DeviceCode") -and $DeviceCode) {
-                $AquireTokenParameters = $PublicClientApplication.AcquireTokenWithDeviceCode($Scopes, [DeviceCodeHelper]::GetDeviceCodeResultCallback())
+            "ConfidentialClient-InputObject" {
+                [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplication
+                break
             }
-            elseif ($PSBoundParameters.ContainsKey("Interactive") -and $Interactive) {
-                $AquireTokenParameters = $PublicClientApplication.AcquireTokenInteractive($Scopes)
-                [IntPtr] $ParentWindow = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
-                if ($ParentWindow) { [void] $AquireTokenParameters.WithParentActivityOrWindow($ParentWindow) }
-                #if ($Account) { [void] $AquireTokenParameters.WithAccount($Account) }
-                if ($extraScopesToConsent) { [void] $AquireTokenParameters.WithExtraScopesToConsent($extraScopesToConsent) }
-                if ($LoginHint) { [void] $AquireTokenParameters.WithLoginHint($LoginHint) }
-                if ($Prompt) { [void] $AquireTokenParameters.WithPrompt([Microsoft.Identity.Client.Prompt]::$Prompt) }
-                if ($PSBoundParameters.ContainsKey('UseEmbeddedWebView')) { [void] $AquireTokenParameters.WithUseEmbeddedWebView($UseEmbeddedWebView) }
+            "PublicClient*" {
+                $paramSelectMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName Select-MsalClientApplication -CommandParameterSets "PublicClient"
+                [Microsoft.Identity.Client.IPublicClientApplication] $PublicClientApplication = Select-MsalClientApplication @paramSelectMsalClientApplication
+                [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplication
+                break
             }
-            elseif ($PSBoundParameters.ContainsKey("IntegratedWindowsAuth") -and $IntegratedWindowsAuth) {
-                $AquireTokenParameters = $PublicClientApplication.AcquireTokenByIntegratedWindowsAuth($Scopes)
-                if ($LoginHint) { [void] $AquireTokenParameters.WithUsername($LoginHint) }
+            "ConfidentialClientSecret" {
+                $paramSelectMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName Select-MsalClientApplication -CommandParameterSets "ConfidentialClientSecret"
+                [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication = Select-MsalClientApplication @paramSelectMsalClientApplication
+                [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplication
+                break
             }
-            elseif ($PSBoundParameters.ContainsKey("Silent") -and $Silent) {
-                if ($LoginHint) {
-                    $AquireTokenParameters = $PublicClientApplication.AcquireTokenSilent($Scopes, $LoginHint)
-                    if ($ForceRefresh) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
+            "ConfidentialClientCertificate" {
+                $paramSelectMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName Select-MsalClientApplication -CommandParameterSets "ConfidentialClientCertificate"
+                [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication = Select-MsalClientApplication @paramSelectMsalClientApplication
+                [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplication
+                break
+            }
+        }
+
+        [Microsoft.Identity.Client.AuthenticationResult] $AuthenticationResult = $null
+        switch -Wildcard ($PSCmdlet.ParameterSetName) {
+            "PublicClient*" {
+                if ($PSBoundParameters.ContainsKey("UserCredential") -and $UserCredential) {
+                    $AquireTokenParameters = $PublicClientApplication.AcquireTokenByUsernamePassword($Scopes, $UserCredential.UserName, $UserCredential.Password)
+                }
+                elseif ($PSBoundParameters.ContainsKey("DeviceCode") -and $DeviceCode) {
+                    $AquireTokenParameters = $PublicClientApplication.AcquireTokenWithDeviceCode($Scopes, [DeviceCodeHelper]::GetDeviceCodeResultCallback())
+                }
+                elseif ($PSBoundParameters.ContainsKey("Interactive") -and $Interactive) {
+                    $AquireTokenParameters = $PublicClientApplication.AcquireTokenInteractive($Scopes)
+                    [IntPtr] $ParentWindow = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
+                    if ($ParentWindow) { [void] $AquireTokenParameters.WithParentActivityOrWindow($ParentWindow) }
+                    #if ($Account) { [void] $AquireTokenParameters.WithAccount($Account) }
+                    if ($extraScopesToConsent) { [void] $AquireTokenParameters.WithExtraScopesToConsent($extraScopesToConsent) }
+                    if ($LoginHint) { [void] $AquireTokenParameters.WithLoginHint($LoginHint) }
+                    if ($Prompt) { [void] $AquireTokenParameters.WithPrompt([Microsoft.Identity.Client.Prompt]::$Prompt) }
+                    if ($PSBoundParameters.ContainsKey('UseEmbeddedWebView')) { [void] $AquireTokenParameters.WithUseEmbeddedWebView($UseEmbeddedWebView) }
+                }
+                elseif ($PSBoundParameters.ContainsKey("IntegratedWindowsAuth") -and $IntegratedWindowsAuth) {
+                    $AquireTokenParameters = $PublicClientApplication.AcquireTokenByIntegratedWindowsAuth($Scopes)
+                    if ($LoginHint) { [void] $AquireTokenParameters.WithUsername($LoginHint) }
+                }
+                elseif ($PSBoundParameters.ContainsKey("Silent") -and $Silent) {
+                    if ($LoginHint) {
+                        $AquireTokenParameters = $PublicClientApplication.AcquireTokenSilent($Scopes, $LoginHint)
+                    }
+                    else {
+                        [Microsoft.Identity.Client.IAccount] $Account = $PublicClientApplication.GetAccountsAsync().GetAwaiter().GetResult() | Select-Object -First 1
+                        $AquireTokenParameters = $PublicClientApplication.AcquireTokenSilent($Scopes, $Account)
+                    }
+                    if ($PSBoundParameters.ContainsKey('ForceRefresh')) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
                 }
                 else {
-                    [Microsoft.Identity.Client.IAccount[]] $Accounts = $PublicClientApplication.GetAccountsAsync().GetAwaiter().GetResult()
-                    if ($Accounts.Count) {
-                        $AquireTokenParameters = $PublicClientApplication.AcquireTokenSilent($Scopes, $Accounts[0])
-                        if ($ForceRefresh) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
-                    }
-                    else { throw (New-Object Microsoft.Identity.Client.MsalUiRequiredException -ArgumentList 0, "No account was found in the token cache.") } # ToDo: Revisit proper creation of exception
-                }
-            }
-            else {
-                try {
-                    $paramGetMsalTokenSilent = Select-PsBoundParameters -NamedParameter $PSBoundParameters -CommandName 'Get-MsalToken' -CommandParameterSet 'PublicClient-Silent','PublicClient-InputObject' -ExcludeParameters 'Silent','Prompt','UseEmbeddedWebView'
-                    $AuthenticationResult = Get-MsalToken -Silent @paramGetMsalTokenSilent
-                    ## Check for requested scopes
-                    foreach ($Scope in $Scopes) {
-                        if ($AuthenticationResult.Scopes -notcontains $Scope) {
-                            $AuthenticationResult = Get-MsalToken -Interactive @PSBoundParameters
-                            break
+                    $paramGetMsalToken = Select-PsBoundParameters -NamedParameter $PSBoundParameters -CommandName 'Get-MsalToken' -CommandParameterSet 'PublicClient-InputObject'
+                    ## Try Silent Authentication
+                    Write-Verbose ('Attempting Silent Authentication to Application with ClientId [{0}]' -f $ClientApplication.ClientId)
+                    try {
+                        $AuthenticationResult = Get-MsalToken -Silent -PublicClientApplication $PublicClientApplication @paramGetMsalToken
+                        ## Check for requested scopes
+                        if (CheckForMissingScopes $AuthenticationResult $Scopes) {
+                            $AuthenticationResult = Get-MsalToken -Interactive -PublicClientApplication $PublicClientApplication @paramGetMsalToken
                         }
                     }
-                }
-                catch [Microsoft.Identity.Client.MsalUiRequiredException] {
-                    try {
-                        $paramGetMsalTokenIntegratedWindowsAuth = Select-PsBoundParameters -NamedParameter $PSBoundParameters -CommandName 'Get-MsalToken' -CommandParameterSet 'PublicClient-IntegratedWindowsAuth','PublicClient-InputObject' -ExcludeParameters 'Silent','Prompt','UseEmbeddedWebView'
-                        $AuthenticationResult = Get-MsalToken -IntegratedWindowsAuth @paramGetMsalTokenIntegratedWindowsAuth
-                        ## Check for requested scopes
-                        foreach ($Scope in $Scopes) {
-                            if ($AuthenticationResult.Scopes -notcontains $Scope) {
-                                $AuthenticationResult = Get-MsalToken -Interactive @PSBoundParameters
-                                break
+                    catch [Microsoft.Identity.Client.MsalUiRequiredException] {
+                        Write-Debug ('{0}: {1}' -f $_.Exception.GetType().Name, $_.Exception.Message)
+                        ## Try Integrated Windows Authentication
+                        Write-Verbose ('Attempting Integrated Windows Authentication to Application with ClientId [{0}]' -f $ClientApplication.ClientId)
+                        try {
+                            $AuthenticationResult = Get-MsalToken -IntegratedWindowsAuth -PublicClientApplication $PublicClientApplication @paramGetMsalToken
+                            ## Check for requested scopes
+                            if (CheckForMissingScopes $AuthenticationResult $Scopes) {
+                                $AuthenticationResult = Get-MsalToken -Interactive -PublicClientApplication $PublicClientApplication @paramGetMsalToken
                             }
                         }
+                        catch {
+                            Write-Debug ('{0}: {1}' -f $_.Exception.GetType().Name, $_.Exception.Message)
+                            ## Revert to Interactive Authentication
+                            Write-Verbose ('Attempting Interactive Authentication to Application with ClientId [{0}]' -f $ClientApplication.ClientId)
+                            $AuthenticationResult = Get-MsalToken -Interactive -PublicClientApplication $PublicClientApplication @paramGetMsalToken
+                        }
                     }
-                    catch {
-                        $AuthenticationResult = Get-MsalToken -Interactive @PSBoundParameters
-                    }
+                    break
+                }
+            }
+            "ConfidentialClient*" {
+                if ($PSBoundParameters.ContainsKey("AuthorizationCode")) {
+                    $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenByAuthorizationCode($Scopes, $AuthorizationCode)
+                }
+                elseif ($PSBoundParameters.ContainsKey("UserAssertion")) {
+                    if ($UserAssertionType) { [Microsoft.Identity.Client.UserAssertion] $UserAssertionObj = New-Object Microsoft.Identity.Client.UserAssertion -ArgumentList $UserAssertion, $UserAssertionType }
+                    else { [Microsoft.Identity.Client.UserAssertion] $UserAssertionObj = New-Object Microsoft.Identity.Client.UserAssertion -ArgumentList $UserAssertion }
+                    $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenOnBehalfOf($Scopes, $UserAssertionObj)
+                }
+                else {
+                    $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenForClient($Scopes)
+                    #if ($SendX5C) { [void] $AquireTokenParameters.WithSendX5C($SendX5C) }
+                    if ($PSBoundParameters.ContainsKey('ForceRefresh')) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
+                }
+            }
+            "*" {
+                if ($AzureCloudInstance -and $TenantId) { [void] $AquireTokenParameters.WithAuthority($AzureCloudInstance,$TenantId) }
+                elseif ($AzureCloudInstance) { [void] $AquireTokenParameters.WithAuthority($AzureCloudInstance,'common') }
+                elseif ($TenantId) { [void] $AquireTokenParameters.WithAuthority(('https://{0}' -f $ClientApplication.AppConfig.AuthorityInfo.Host),$TenantId) }
+                if ($Authority) { [void] $AquireTokenParameters.WithAuthority($Authority.AbsoluteUri) }
+                if ($CorrelationId) { [void] $AquireTokenParameters.WithCorrelationId($CorrelationId) }
+                if ($ExtraQueryParameters) { [void] $AquireTokenParameters.WithExtraQueryParameters((ConvertTo-Dictionary $ExtraQueryParameters -KeyType ([string]) -ValueType ([string]))) }
+                Write-Debug ('Aquiring Token for Application with ClientId [{0}]' -f $ClientApplication.ClientId)
+                try {
+                    $AuthenticationResult = $AquireTokenParameters.ExecuteAsync().GetAwaiter().GetResult()
+                }
+                catch {
+                    Write-Error -Exception $_.Exception.InnerException -Category ([System.Management.Automation.ErrorCategory]::AuthenticationError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'GetMsalTokenFailureAuthenticationError' -TargetObject $AquireTokenParameters -ErrorAction Stop
                 }
                 break
             }
         }
-        "ConfidentialClient*" {
-            if ($PSBoundParameters.ContainsKey("AuthorizationCode")) {
-                $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenByAuthorizationCode($Scopes, $AuthorizationCode)
-            }
-            elseif ($PSBoundParameters.ContainsKey("UserAssertion")) {
-                if ($UserAssertionType) { [Microsoft.Identity.Client.UserAssertion] $UserAssertionObj = New-Object Microsoft.Identity.Client.UserAssertion -ArgumentList $UserAssertion, $UserAssertionType }
-                else { [Microsoft.Identity.Client.UserAssertion] $UserAssertionObj = New-Object Microsoft.Identity.Client.UserAssertion -ArgumentList $UserAssertion }
-                $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenOnBehalfOf($Scopes, $UserAssertionObj)
-            }
-            else {
-                $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenForClient($Scopes)
-                #if ($SendX5C) { [void] $AquireTokenParameters.WithSendX5C($SendX5C) }
-                if ($ForceRefresh) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
-            }
-        }
-        "*" {
-            if ($AzureCloudInstance -and $TenantId) { [void] $AquireTokenParameters.WithAuthority($AzureCloudInstance,$TenantId) }
-            elseif ($AzureCloudInstance) { [void] $AquireTokenParameters.WithAuthority($AzureCloudInstance,'common') }
-            elseif ($TenantId) { [void] $AquireTokenParameters.WithAuthority(('https://{0}' -f $ClientApplication.AppConfig.AuthorityInfo.Host),$TenantId) }
-            if ($Authority) { [void] $AquireTokenParameters.WithAuthority($Authority.AbsoluteUri) }
-            if ($CorrelationId) { [void] $AquireTokenParameters.WithCorrelationId($CorrelationId) }
-            if ($ExtraQueryParameters) { [void] $AquireTokenParameters.WithExtraQueryParameters((ConvertTo-Dictionary $ExtraQueryParameters -KeyType ([string]) -ValueType ([string]))) }
-            Write-Verbose ('Aquiring Token for Application with ClientId [{0}]' -f $ClientApplication.ClientId)
-            $AuthenticationResult = $AquireTokenParameters.ExecuteAsync().GetAwaiter().GetResult()
-            break
-        }
-    }
 
-    return $AuthenticationResult
+        return $AuthenticationResult
+    }
 }

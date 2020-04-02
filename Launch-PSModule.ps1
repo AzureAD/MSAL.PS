@@ -6,7 +6,7 @@ param
     # Paths to PowerShell Executables
     [Parameter(Mandatory=$false)]
     [string[]] $PowerShellPaths = @(
-        'pwsh'
+        #'pwsh'
         'powershell'
         #'D:\Software\PowerShell-6.2.4-win-x64\pwsh.exe'
     ),
