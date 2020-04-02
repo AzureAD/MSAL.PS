@@ -31,8 +31,7 @@ Processor_Architecture: $env:Processor_Architecture
 "@
 
 ## Initialize
-Remove-Module CommonFunctions -ErrorAction SilentlyContinue
-Import-Module "$PSScriptRoot\CommonFunctions.psm1" -ErrorAction Stop
+Import-Module "$PSScriptRoot\CommonFunctions.psm1" -Force -WarningAction SilentlyContinue -ErrorAction Stop
 
 [System.IO.DirectoryInfo] $BaseDirectoryInfo = Get-PathInfo $BaseDirectory -InputPathType Directory -ErrorAction Stop
 [System.IO.DirectoryInfo] $OutputDirectoryInfo = Get-PathInfo $OutputDirectory -InputPathType Directory -DefaultDirectory $BaseDirectoryInfo.FullName -ErrorAction SilentlyContinue
@@ -86,3 +85,6 @@ $ModuleRequiredAssemblies = Get-RelativePath $ModuleRequiredAssembliesFileInfo.F
 ## Update Module Manifest in Module Output Directory
 Update-ModuleManifest -Path $ModuleManifestOutputFileInfo.FullName -FileList $ModuleFileList -NestedModules $ModuleManifest.NestedModules -CmdletsToExport $ModuleManifest.CmdletsToExport -AliasesToExport $ModuleManifest.AliasesToExport #-RequiredAssemblies $ModuleRequiredAssemblies
 #Write-Warning "PowerShell Core fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList so fix the order before publishing."
+
+## Sign Module
+&$PSScriptRoot\Sign-PSModule.ps1 | Format-Table Path,Status,StatusMessage

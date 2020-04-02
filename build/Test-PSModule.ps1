@@ -57,13 +57,14 @@ $ScriptBlockTest = {
     Import-Module Pester
     $PSModule = Import-Module $ModulePath -PassThru
 
+    Set-ExecutionPolicy Bypass -Scope Process
     $CodeCoverage = Invoke-Pester @{ Path = (Join-Path $TestsDirectory "*"); Parameters = @{ ModulePath = $ModulePath } } -CodeCoverage (Join-Path $PSModule.ModuleBase "*") -PassThru
 }
 $strScriptBlockTest = 'Invoke-Command -ScriptBlock {{ {0} }} -ArgumentList {1}' -f $ScriptBlockTest,(($ModulePath,$ModuleTestsDirectoryInfo.FullName | ConvertTo-PSString -Compact) -join ',')
 
 #[string] $strScriptBlockTest = Get-Content (Join-Path $BaseDirectoryInfo.FullName 'tests\Get-X509Certificate.tests.ps1') -Raw
 
-[string[]] $ArgumentList = ('-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest)))
+[string[]] $ArgumentList = ('-NoProfile','-ExecutionPolicy','AllSigned','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlockTest)))
 if (!$NoNewWindow) { $ArgumentList += '-NoExit' }
 foreach ($Path in $PowerShellPaths) {
     Start-Process $Path -ArgumentList $ArgumentList -NoNewWindow:$NoNewWindow -Wait:$NoNewWindow
