@@ -11,18 +11,18 @@
     Enable client application to use persistent token cache on disk and return the object.
 #>
 function Enable-MsalTokenCacheOnDisk {
-    [CmdletBinding(DefaultParameterSetName='PublicClient')]
-    [OutputType([Microsoft.Identity.Client.PublicClientApplication],[Microsoft.Identity.Client.ConfidentialClientApplication])]
+    [CmdletBinding(DefaultParameterSetName = 'PublicClient')]
+    [OutputType([Microsoft.Identity.Client.PublicClientApplication], [Microsoft.Identity.Client.ConfidentialClientApplication])]
     param
     (
         # Public client application
-        [Parameter(Mandatory=$true, ParameterSetName='PublicClient', Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'PublicClient', Position = 0, ValueFromPipeline = $true)]
         [Microsoft.Identity.Client.IPublicClientApplication] $PublicClientApplication,
         # Confidential client application
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClient', Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClient', Position = 0, ValueFromPipeline = $true)]
         [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication,
         # Returns client application
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $PassThru
     )
 

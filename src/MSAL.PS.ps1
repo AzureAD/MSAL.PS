@@ -4,7 +4,7 @@ $ModuleManifest = Import-PowershellDataFile (Join-Path $PSScriptRoot 'MSAL.PS.ps
 [System.Collections.Generic.List[string]] $RequiredAssemblies = New-Object System.Collections.Generic.List[string]
 
 ## Select the correct assemblies for the PowerShell platform
-if($PSEdition -eq 'Desktop') {
+if ($PSEdition -eq 'Desktop') {
     foreach ($Path in ($ModuleManifest.FileList -like "*\Microsoft.Identity.Client.*\net45\*.dll")) {
         $RequiredAssemblies.Add((Join-Path $PSScriptRoot $Path))
     }
@@ -41,7 +41,7 @@ if ([System.Environment]::OSVersion.Platform -eq 'Win32NT') {
     elseif ($PSVersionTable.PSVersion -ge [version]'5.1') {
         $RequiredAssemblies.Add('System.Security.dll')
         #try {
-            Add-Type -LiteralPath $srcTokenCacheHelper -ReferencedAssemblies $RequiredAssemblies
+        Add-Type -LiteralPath $srcTokenCacheHelper -ReferencedAssemblies $RequiredAssemblies
         #}
         #catch {
         #    Write-Warning 'There was an error loading some dependencies. Storing TokenCache on disk will not function.'

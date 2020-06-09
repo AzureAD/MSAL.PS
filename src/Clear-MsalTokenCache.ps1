@@ -14,7 +14,7 @@ function Clear-MsalTokenCache {
     [CmdletBinding()]
     param(
         # Clear the token cache from disk.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $FromDisk
     )
 

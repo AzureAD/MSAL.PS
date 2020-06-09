@@ -12,13 +12,13 @@ function Get-MsalAccount {
     param
     (
         # Client application
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='ClientApplication', Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ClientApplication', Position = 0)]
         [Microsoft.Identity.Client.IClientApplicationBase] $ClientApplication,
         # Information of a single account.
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName='Accounts', Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'Accounts', Position = 0)]
         [Microsoft.Identity.Client.IAccount[]] $Accounts,
         # The username in UserPrincipalName (UPN) format.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $Username
     )
 

@@ -19,13 +19,13 @@ function ConvertTo-Base64String {
     [OutputType([string])]
     param (
         # Value to convert
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [object] $InputObjects,
         # Use base64url variant
-        [Parameter (Mandatory=$false)]
+        [Parameter (Mandatory = $false)]
         [switch] $Base64Url,
         # Output encoding to use for text strings
-        [Parameter (Mandatory=$false)]
+        [Parameter (Mandatory = $false)]
         [ValidateSet('Ascii', 'UTF32', 'UTF7', 'UTF8', 'BigEndianUnicode', 'Unicode')]
         [string] $Encoding = 'Default'
     )
@@ -33,7 +33,7 @@ function ConvertTo-Base64String {
     begin {
         function Transform ([byte[]]$InputBytes) {
             [string] $outBase64String = [System.Convert]::ToBase64String($InputBytes)
-            if ($Base64Url) { $outBase64String = $outBase64String.Replace('+','-').Replace('/','_').Replace('=','') }
+            if ($Base64Url) { $outBase64String = $outBase64String.Replace('+', '-').Replace('/', '_').Replace('=', '') }
             return $outBase64String
         }
 
@@ -41,10 +41,8 @@ function ConvertTo-Base64String {
         [System.Collections.Generic.List[byte]] $listBytes = New-Object System.Collections.Generic.List[byte]
     }
 
-    process
-    {
-        if ($InputObjects -is [byte[]])
-        {
+    process {
+        if ($InputObjects -is [byte[]]) {
             Write-Output (Transform $InputObjects)
         }
         else {
@@ -58,24 +56,19 @@ function ConvertTo-Base64String {
                     }
                     $listBytes.Add($InputObject)
                 }
-                elseif ($InputObject -is [byte[]])
-                {
+                elseif ($InputObject -is [byte[]]) {
                     $InputBytes = $InputObject
                 }
-                elseif ($InputObject -is [string])
-                {
+                elseif ($InputObject -is [string]) {
                     $InputBytes = [Text.Encoding]::$Encoding.GetBytes($InputObject)
                 }
-                elseif ($InputObject -is [bool] -or $InputObject -is [char] -or $InputObject -is [single] -or $InputObject -is [double] -or $InputObject -is [int16] -or $InputObject -is [int32] -or $InputObject -is [int64] -or $InputObject -is [uint16] -or $InputObject -is [uint32] -or $InputObject -is [uint64])
-                {
+                elseif ($InputObject -is [bool] -or $InputObject -is [char] -or $InputObject -is [single] -or $InputObject -is [double] -or $InputObject -is [int16] -or $InputObject -is [int32] -or $InputObject -is [int64] -or $InputObject -is [uint16] -or $InputObject -is [uint32] -or $InputObject -is [uint64]) {
                     $InputBytes = [System.BitConverter]::GetBytes($InputObject)
                 }
-                elseif ($InputObject -is [guid])
-                {
+                elseif ($InputObject -is [guid]) {
                     $InputBytes = $InputObject.ToByteArray()
                 }
-                elseif ($InputObject -is [System.IO.FileSystemInfo])
-                {
+                elseif ($InputObject -is [System.IO.FileSystemInfo]) {
                     if ($PSVersionTable.PSVersion -ge [version]'6.0') {
                         $InputBytes = Get-Content $InputObject.FullName -Raw -AsByteStream
                     }
@@ -83,8 +76,7 @@ function ConvertTo-Base64String {
                         $InputBytes = Get-Content $InputObject.FullName -Raw -Encoding Byte
                     }
                 }
-                else
-                {
+                else {
                     ## Non-Terminating Error
                     $Exception = New-Object ArgumentException -ArgumentList ('Cannot convert input of type {0} to Base64 string.' -f $InputObject.GetType())
                     Write-Error -Exception $Exception -Category ([System.Management.Automation.ErrorCategory]::ParserError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'ConvertBase64StringFailureTypeNotSupported' -TargetObject $InputObject
@@ -119,10 +111,10 @@ function ConvertFrom-SecureStringAsPlainText {
     [OutputType([string])]
     param (
         # Secure String Value
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [securestring] $SecureString,
         # Confirms that you understand the implications of using the AsPlainText parameter and still want to use it.
-        [Parameter(Mandatory=$true, Position=1)]
+        [Parameter(Mandatory = $true, Position = 1)]
         [switch] $Force
     )
 
@@ -153,21 +145,21 @@ function Remove-SensitiveData {
     [OutputType([object])]
     param (
         # Object from which to remove sensitive data.
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [object] $InputObjects,
         # Sensitive string values to remove from input object.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [AllowNull()]
         [AllowEmptyString()]
         [string[]] $FilterValues,
         # Replacement value for senstive data.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $ReplacementValue = '********',
         # Copy the input object rather than remove data directly from input.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $Clone,
         # Output object with sensitive data removed.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $PassThru
     )
 
@@ -186,7 +178,7 @@ function Remove-SensitiveData {
 
         if ($OutputObjects.Value -is [string]) {
             foreach ($FilterValue in $FilterValues) {
-                if ($OutputObjects.Value -and $FilterValue) { $OutputObjects.Value = $OutputObjects.Value.Replace($FilterValue,$ReplacementValue) }
+                if ($OutputObjects.Value -and $FilterValue) { $OutputObjects.Value = $OutputObjects.Value.Replace($FilterValue, $ReplacementValue) }
             }
         }
         elseif ($OutputObjects.Value -is [array] -or $OutputObjects.Value -is [System.Collections.ArrayList] -or $OutputObjects.Value.GetType().FullName.StartsWith('System.Collections.Generic.List')) {
@@ -204,9 +196,8 @@ function Remove-SensitiveData {
                 }
             }
         }
-        elseif ($OutputObjects.Value -is [object] -and $OutputObjects.Value -isnot [ValueType])
-        {
-            [array] $PropertyNames = $OutputObjects.Value | Get-Member -MemberType Property,NoteProperty
+        elseif ($OutputObjects.Value -is [object] -and $OutputObjects.Value -isnot [ValueType]) {
+            [array] $PropertyNames = $OutputObjects.Value | Get-Member -MemberType Property, NoteProperty
             for ($ii = 0; $ii -lt $PropertyNames.Count; $ii++) {
                 $PropertyName = $PropertyNames[$ii].Name
                 if ($null -ne $OutputObjects.Value.$PropertyName -and $OutputObjects.Value.$PropertyName -isnot [ValueType]) {
@@ -214,8 +205,7 @@ function Remove-SensitiveData {
                 }
             }
         }
-        else
-        {
+        else {
             ## Non-Terminating Error
             $Exception = New-Object ArgumentException -ArgumentList ('Cannot remove senstive data from input of type {0}.' -f $OutputObjects.Value.GetType())
             Write-Error -Exception $Exception -Category ([System.Management.Automation.ErrorCategory]::ParserError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'RemoveSensitiveDataFailureTypeNotSupported' -TargetObject $OutputObjects.Value
@@ -239,14 +229,14 @@ function New-OAuthClientAssertionJwt {
     param
     (
         #
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable] $Payload,
         #
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
         #
-        [Parameter(Mandatory=$false)]
-        [ValidateSet('RS256','RS384','RS512','ES256','ES384','ES512','PS256','PS384','PS512')]
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'PS256', 'PS384', 'PS512')]
         [string] $Algorithm = "RS256"
     )
 
@@ -255,88 +245,88 @@ function New-OAuthClientAssertionJwt {
         kid = ConvertTo-Base64String $ClientCertificate.GetCertHash() -Base64Url
     }
     $JwtPayload = ConvertTo-Json $Payload
-    $JwtData = (ConvertTo-Base64String $JwtHeader,$JwtPayload -Base64Url) -join '.'
+    $JwtData = (ConvertTo-Base64String $JwtHeader, $JwtPayload -Base64Url) -join '.'
 
     [Security.Cryptography.HashAlgorithmName] $HashAlgorithm = [Security.Cryptography.HashAlgorithmName]::"SHA$($Algorithm.Substring(2,3))"
-    switch ($Algorithm.Substring(0,2)) {
+    switch ($Algorithm.Substring(0, 2)) {
         'RS' {
             $RSAPrivateKey = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($ClientCertificate)
-            [byte[]] $Signature = $RSAPrivateKey.SignData([System.Text.Encoding]::UTF8.GetBytes($JwtData),$HashAlgorithm,[Security.Cryptography.RSASignaturePadding]::Pkcs1)
+            [byte[]] $Signature = $RSAPrivateKey.SignData([System.Text.Encoding]::UTF8.GetBytes($JwtData), $HashAlgorithm, [Security.Cryptography.RSASignaturePadding]::Pkcs1)
         }
         'PS' {
             $RSAPrivateKey = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($ClientCertificate)
-            [byte[]] $Signature = $RSAPrivateKey.SignData([System.Text.Encoding]::UTF8.GetBytes($JwtData),$HashAlgorithm,[Security.Cryptography.RSASignaturePadding]::Pss)
+            [byte[]] $Signature = $RSAPrivateKey.SignData([System.Text.Encoding]::UTF8.GetBytes($JwtData), $HashAlgorithm, [Security.Cryptography.RSASignaturePadding]::Pss)
         }
         'ES' {
             $ECDsaPrivateKey = [System.Security.Cryptography.X509Certificates.ECDsaCertificateExtensions]::GetECDsaPrivateKey($ClientCertificate)
-            [byte[]] $Signature = $ECDsaPrivateKey.SignData([System.Text.Encoding]::UTF8.GetBytes($JwtData),$HashAlgorithm)
+            [byte[]] $Signature = $ECDsaPrivateKey.SignData([System.Text.Encoding]::UTF8.GetBytes($JwtData), $HashAlgorithm)
         }
     }
     $JwtSignature = ConvertTo-Base64String $Signature -Base64Url
 
-    $ClientAssertion = $JwtData,$JwtSignature -join '.'
+    $ClientAssertion = $JwtData, $JwtSignature -join '.'
     return $ClientAssertion
 }
 
 function Get-OAuthToken {
-    [CmdletBinding(DefaultParameterSetName="ClientCredential")]
+    [CmdletBinding(DefaultParameterSetName = "ClientCredential")]
     param
     (
         #
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [uri] $Endpoint,
         #
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string] $ClientId,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [uri] $RedirectUri = "urn:ietf:wg:oauth:2.0:oob",
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string[]] $Scope,
         #
-        [Parameter(Mandatory=$false, ParameterSetName="ClientCredential")]
-        [Parameter(Mandatory=$false, ParameterSetName="AuthorizationCode")]
-        [Parameter(Mandatory=$false, ParameterSetName="RefreshToken")]
-        [Parameter(Mandatory=$false, ParameterSetName="PasswordCredential")]
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false, ParameterSetName = "ClientCredential")]
+        [Parameter(Mandatory = $false, ParameterSetName = "AuthorizationCode")]
+        [Parameter(Mandatory = $false, ParameterSetName = "RefreshToken")]
+        [Parameter(Mandatory = $false, ParameterSetName = "PasswordCredential")]
+        [Parameter(Mandatory = $false)]
         [securestring] $ClientSecret,
         #
-        [Parameter(Mandatory=$true, ParameterSetName="AuthorizationCode")]
+        [Parameter(Mandatory = $true, ParameterSetName = "AuthorizationCode")]
         [string] $AuthorizationCode,
         #
-        [Parameter(Mandatory=$true, ParameterSetName="RefreshToken")]
+        [Parameter(Mandatory = $true, ParameterSetName = "RefreshToken")]
         [string] $RefreshToken,
         #
-        [Parameter(Mandatory=$true, ParameterSetName="PasswordCredential")]
+        [Parameter(Mandatory = $true, ParameterSetName = "PasswordCredential")]
         [pscredential] $UserCredential,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $Assertion,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $ClientAssertion,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $ClientAssertionType,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $CodeVerifier,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $CodeChallenge,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $CodeChallengeMethod,
         #
-        [Parameter(Mandatory=$false)]
-        [hashtable] $Parameters = @{}
+        [Parameter(Mandatory = $false)]
+        [hashtable] $Parameters = @{ }
     )
 
     [hashtable] $PostParameters = $Parameters.Clone()
-    if ($ClientId) { $PostParameters.Add('client_id',$ClientId) }
-    if ($RedirectUri) { $PostParameters.Add('redirect_uri',$RedirectUri.AbsoluteUri) }
-    if ($Scope) { $PostParameters.Add('scope',$Scope -join ' ') }
+    if ($ClientId) { $PostParameters.Add('client_id', $ClientId) }
+    if ($RedirectUri) { $PostParameters.Add('redirect_uri', $RedirectUri.AbsoluteUri) }
+    if ($Scope) { $PostParameters.Add('scope', $Scope -join ' ') }
 
     [string] $GrantType = $null
     if (!$GrantType) {
@@ -346,29 +336,29 @@ function Get-OAuthToken {
         elseif ($PSCmdlet.ParameterSetName -eq 'ClientCredential') { $GrantType = 'client_credentials' }
         elseif ($ClientSecret) { $GrantType = 'client_credentials' }
     }
-    if ($GrantType) { $PostParameters.Add('grant_type',$GrantType) }
-    if ($AuthorizationCode) { $PostParameters.Add('code',$AuthorizationCode) }
-    if ($RefreshToken) { $PostParameters.Add('refresh_token',$RefreshToken) }
+    if ($GrantType) { $PostParameters.Add('grant_type', $GrantType) }
+    if ($AuthorizationCode) { $PostParameters.Add('code', $AuthorizationCode) }
+    if ($RefreshToken) { $PostParameters.Add('refresh_token', $RefreshToken) }
     if ($UserCredential) {
-        $PostParameters.Add('username',$UserCredential.UserName)
-        $PostParameters.Add('password',(ConvertFrom-SecureStringAsPlainText $UserCredential.Password -Force))
+        $PostParameters.Add('username', $UserCredential.UserName)
+        $PostParameters.Add('password', (ConvertFrom-SecureStringAsPlainText $UserCredential.Password -Force))
     }
-    if ($ClientSecret) { $PostParameters.Add('client_secret',(ConvertFrom-SecureStringAsPlainText $ClientSecret -Force)) }
-    if ($Assertion) { $PostParameters.Add('assertion',$Assertion) }
-    if ($ClientAssertion) { $PostParameters.Add('client_assertion',$ClientAssertion) }
-    if ($ClientAssertionType) { $PostParameters.Add('client_assertion_type',$ClientAssertionType) }
-    if ($CodeVerifier) { $PostParameters.Add('code_verifier',$CodeVerifier) }
-    if ($CodeChallenge) { $PostParameters.Add('code_challenge',$CodeChallenge) }
-    if ($CodeChallengeMethod) { $PostParameters.Add('code_challenge_method',$CodeChallengeMethod) }
+    if ($ClientSecret) { $PostParameters.Add('client_secret', (ConvertFrom-SecureStringAsPlainText $ClientSecret -Force)) }
+    if ($Assertion) { $PostParameters.Add('assertion', $Assertion) }
+    if ($ClientAssertion) { $PostParameters.Add('client_assertion', $ClientAssertion) }
+    if ($ClientAssertionType) { $PostParameters.Add('client_assertion_type', $ClientAssertionType) }
+    if ($CodeVerifier) { $PostParameters.Add('code_verifier', $CodeVerifier) }
+    if ($CodeChallenge) { $PostParameters.Add('code_challenge', $CodeChallenge) }
+    if ($CodeChallengeMethod) { $PostParameters.Add('code_challenge_method', $CodeChallengeMethod) }
 
     $Headers = @{
-        Authorization = 'Basic {0}' -f (ConvertTo-Base64String ('{0}:{1}' -f $ClientId,''))
+        Authorization = 'Basic {0}' -f (ConvertTo-Base64String ('{0}:{1}' -f $ClientId, ''))
     }
-    if ($ClientSecret) { $Headers["Authorization"] = 'Basic {0}' -f (ConvertTo-Base64String ('{0}:{1}' -f $ClientId,(ConvertFrom-SecureStringAsPlainText $ClientSecret -Force))) }
+    if ($ClientSecret) { $Headers["Authorization"] = 'Basic {0}' -f (ConvertTo-Base64String ('{0}:{1}' -f $ClientId, (ConvertFrom-SecureStringAsPlainText $ClientSecret -Force))) }
 
     Write-Verbose ('Invoking POST to URI [{0}]' -f $Endpoint.AbsoluteUri)
     Write-Verbose ('Headers: {0}' -f (ConvertTo-Json (Remove-SensitiveData $Headers -FilterValues $Headers['Authorization'].Substring(20) -Clone)))
-    Write-Verbose ('Post Parameters: {0}' -f (ConvertTo-Json (Remove-SensitiveData $PostParameters -FilterValues $PostParameters['password'],$PostParameters['client_secret'] -Clone)))
+    Write-Verbose ('Post Parameters: {0}' -f (ConvertTo-Json (Remove-SensitiveData $PostParameters -FilterValues $PostParameters['password'], $PostParameters['client_secret'] -Clone)))
     $TokenResponse = Invoke-RestMethod -Method Post -Uri $Endpoint.AbsoluteUri -ContentType "application/x-www-form-urlencoded" -Headers $Headers -Body $PostParameters
     if ($TokenResponse) {
         $TokenResponse | Add-Member "_issued_at" -MemberType NoteProperty -Value (Get-Date)
@@ -377,7 +367,8 @@ function Get-OAuthToken {
         }
         if ($TokenResponse.refresh_token) {
             $TokenResponse | Add-Member "_refresh_token" -MemberType NoteProperty -Value $TokenResponse.refresh_token
-        } elseif ($PSCmdlet.ParameterSetName -eq 'RefreshToken') {
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'RefreshToken') {
             $TokenResponse | Add-Member "_refresh_token" -MemberType NoteProperty -Value $RefreshToken
         }
     }
@@ -399,18 +390,17 @@ function New-AzureAdClientCertificate {
     [OutputType([securestring])]
     param (
         # Name of Application.
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string] $ApplicationName,
         # Allows certificate private key to be exported from local machine.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $MakePrivateKeyExportable,
         # Valid lifetime of client certificate.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [timespan] $Lifetime
     )
 
-    begin
-    {
+    begin {
         ## Initialize
         [string] $KeyExportPolicy = 'NonExportable'
         if ($MakePrivateKeyExportable) { $KeyExportPolicy = 'ExportableEncrypted' }
@@ -428,12 +418,12 @@ function New-AzureAdClientCertificate {
             $UniqueId = New-Guid
             #. (Join-Path $PSScriptRoot makecert.exe) -r -n ('CN={0} ({1})' -f $ApplicationName,$UniqueId) -a sha256 -sky Signature -len 2048 -b $StartTime.ToString('MM/dd/yyyy') -e $EndTime.ToString('MM/dd/yyyy') -sr CurrentUser -ss My | Out-Null
             $ScriptBlock = {
-                param ([string]$ApplicationName,[datetime]$StartTime,[datetime]$EndTime,[string]$KeyExportPolicy)
+                param ([string]$ApplicationName, [datetime]$StartTime, [datetime]$EndTime, [string]$KeyExportPolicy)
                 [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate = New-SelfSignedCertificate -Subject ('CN={0}' -f $ApplicationName) -KeyFriendlyName $ApplicationName -HashAlgorithm sha256 -KeySpec Signature -KeyLength 2048 -Type Custom -NotBefore $StartTime -NotAfter $EndTime -KeyExportPolicy $KeyExportPolicy -CertStoreLocation Cert:\CurrentUser\My
             }
-            $strScriptBlock = 'Invoke-Command -ScriptBlock {{ {0} }} -ArgumentList {1}' -f $ScriptBlock,"'$ApplicationName ($UniqueId)',([datetime]'$($StartTime.ToString('O'))'),([datetime]'$($EndTime.ToString('O'))'),'$KeyExportPolicy'"
-            Start-Process powershell -ArgumentList ('-NoProfile','-EncodedCommand',[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlock))) -NoNewWindow -Wait
-            [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate = Get-ChildItem -LiteralPath Cert:\CurrentUser\My | Where-Object { $_.HasPrivateKey -and $_.Subject -eq ('CN={0} ({1})' -f $ApplicationName,$UniqueId) -and $_.Issuer -eq ('CN={0} ({1})' -f $ApplicationName,$UniqueId) } | Select-Object -First 1
+            $strScriptBlock = 'Invoke-Command -ScriptBlock {{ {0} }} -ArgumentList {1}' -f $ScriptBlock, "'$ApplicationName ($UniqueId)',([datetime]'$($StartTime.ToString('O'))'),([datetime]'$($EndTime.ToString('O'))'),'$KeyExportPolicy'"
+            Start-Process powershell -ArgumentList ('-NoProfile', '-EncodedCommand', [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($strScriptBlock))) -NoNewWindow -Wait
+            [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate = Get-ChildItem -LiteralPath Cert:\CurrentUser\My | Where-Object { $_.HasPrivateKey -and $_.Subject -eq ('CN={0} ({1})' -f $ApplicationName, $UniqueId) -and $_.Issuer -eq ('CN={0} ({1})' -f $ApplicationName, $UniqueId) } | Select-Object -First 1
         }
         Write-Output $ClientCertificate
     }
@@ -443,25 +433,25 @@ function Get-MSGraphToken {
     [CmdletBinding()]
     param(
         # Specifies the ID of a tenant.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $TenantId = 'common',
         #
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string] $ClientId,
         #
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [uri] $RedirectUri = "http://localhost/"
     )
 
     process {
         [hashtable] $TestAutomationApp = @{
-            Endpoint = "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token"
-            ClientId = $ClientId
+            Endpoint            = "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token"
+            ClientId            = $ClientId
             ClientAssertionType = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
-            ClientAssertion = New-OAuthClientAssertionJwt -ClientCertificate $ClientCertificate -Payload @{
+            ClientAssertion     = New-OAuthClientAssertionJwt -ClientCertificate $ClientCertificate -Payload @{
                 aud = "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token"
                 exp = [DateTimeOffset]::Now.AddMinutes(1).ToUnixTimeSeconds()
                 iss = $ClientId
@@ -469,8 +459,8 @@ function Get-MSGraphToken {
                 nbf = [DateTimeOffset]::Now.ToUnixTimeSeconds()
                 sub = $ClientId
             }
-            RedirectUri = $RedirectUri
-            Scope = 'https://graph.microsoft.com/.default'
+            RedirectUri         = $RedirectUri
+            Scope               = 'https://graph.microsoft.com/.default'
         }
         $MSGraphToken = Get-OAuthToken @TestAutomationApp
 
@@ -486,16 +476,16 @@ function New-TestAzureAdPublicClient {
     [CmdletBinding()]
     param(
         # Specifies the display name of the application.
-        [Parameter(Mandatory=$false, Position=1, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [string] $DisplayName = 'MSAL.PS Test Public Client',
         # Do not create a corresponding service principal.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $NoServicePrincipal,
         # Automatic admin consent
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $AdminConsent,
         # Specifies the access token to use for Microsoft Graph.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [psobject] $MSGraphToken
     )
 
@@ -507,65 +497,65 @@ function New-TestAzureAdPublicClient {
 
     process {
         $Application = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/applications" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
-            displayName = $DisplayName
-            signInAudience = "AzureADMyOrg"
-            isFallbackPublicClient = $true
-            publicClient = @{
-                redirectUris = @(
-                    "urn:ietf:wg:oauth:2.0:oob"
-                    "https://login.microsoftonline.com/common/oauth2/nativeclient"
-                    "http://localhost/"
-                )
-            }
-            web = $null
-            requiredResourceAccess = @(
-                @{
-                    resourceAppId = "00000003-0000-0000-c000-000000000000"
-                    resourceAccess = @(
-                        @{
-                            id = "14dad69e-099b-42c9-810b-d002981feec1"
-                            type = "Scope"
-                        }
-                        @{
-                            id = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0"
-                            type = "Scope"
-                        }
-                        @{
-                            id = "37f7f235-527c-4136-accd-4a02d197296e"
-                            type = "Scope"
-                        }
-                        @{
-                            id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-                            type = "Scope"
-                        }
-                        @{
-                            id = "7427e0e9-2fba-42fe-b0c0-848c9e6a8182"
-                            type = "Scope"
-                        }
+                displayName            = $DisplayName
+                signInAudience         = "AzureADMyOrg"
+                isFallbackPublicClient = $true
+                publicClient           = @{
+                    redirectUris = @(
+                        "urn:ietf:wg:oauth:2.0:oob"
+                        "https://login.microsoftonline.com/common/oauth2/nativeclient"
+                        "http://localhost/"
                     )
                 }
-            )
-            tags = @(
-                "Test"
-            )
-        })
+                web                    = $null
+                requiredResourceAccess = @(
+                    @{
+                        resourceAppId  = "00000003-0000-0000-c000-000000000000"
+                        resourceAccess = @(
+                            @{
+                                id   = "14dad69e-099b-42c9-810b-d002981feec1"
+                                type = "Scope"
+                            }
+                            @{
+                                id   = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0"
+                                type = "Scope"
+                            }
+                            @{
+                                id   = "37f7f235-527c-4136-accd-4a02d197296e"
+                                type = "Scope"
+                            }
+                            @{
+                                id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
+                                type = "Scope"
+                            }
+                            @{
+                                id   = "7427e0e9-2fba-42fe-b0c0-848c9e6a8182"
+                                type = "Scope"
+                            }
+                        )
+                    }
+                )
+                tags                   = @(
+                    "Test"
+                )
+            })
         Write-Output $Application
 
         if (!$NoServicePrincipal) {
-            $ServicePrincipal = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/servicePrincipals" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
-                appId = $Application.appId
-            })
+            $ServicePrincipal = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/servicePrincipals" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
+                    appId = $Application.appId
+                })
             Write-Output $ServicePrincipal
 
             if ($AdminConsent) {
-                $spMicrosoftGraph = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?`$filter=appId eq '00000003-0000-0000-c000-000000000000'" -Headers $MSGraphHeaders
-                $ServicePrincipalConsent = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/oAuth2Permissiongrants" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
-                    clientId = $ServicePrincipal.Id
-                    consentType = 'AllPrincipals'
-                    expiryTime = (Get-Date).AddDays(1).ToString('O')
-                    resourceId = $spMicrosoftGraph.value[0].id
-                    scope = 'User.Read User.ReadBasic.All email offline_access openid profile'
-                })
+                $spMicrosoftGraph = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=appId eq '00000003-0000-0000-c000-000000000000'" -Headers $MSGraphHeaders
+                $ServicePrincipalConsent = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/oAuth2Permissiongrants" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
+                        clientId    = $ServicePrincipal.Id
+                        consentType = 'AllPrincipals'
+                        expiryTime  = (Get-Date).AddDays(1).ToString('O')
+                        resourceId  = $spMicrosoftGraph.value[0].id
+                        scope       = 'User.Read User.ReadBasic.All email offline_access openid profile'
+                    })
             }
         }
     }
@@ -575,16 +565,16 @@ function New-TestAzureAdConfidentialClient {
     [CmdletBinding()]
     param(
         # Specifies the display name of the application.
-        [Parameter(Mandatory=$false, Position=1, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [string] $DisplayName = 'MSAL.PS Test Confidential Client',
         # Do not create a corresponding service principal.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $NoServicePrincipal,
         # Automatic admin consent
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $AdminConsent,
         # Specifies the access token to use for Microsoft Graph.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [psobject] $MSGraphToken
     )
 
@@ -596,79 +586,79 @@ function New-TestAzureAdConfidentialClient {
 
     process {
         $Application = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/applications" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
-            displayName = $DisplayName
-            signInAudience = "AzureADMyOrg"
-            isFallbackPublicClient = $false
-            publicClient = $null
-            web = @{
-                redirectUris = @(
-                    "urn:ietf:wg:oauth:2.0:oob"
-                    "https://login.microsoftonline.com/common/oauth2/nativeclient"
-                    "http://localhost/"
+                displayName            = $DisplayName
+                signInAudience         = "AzureADMyOrg"
+                isFallbackPublicClient = $false
+                publicClient           = $null
+                web                    = @{
+                    redirectUris = @(
+                        "urn:ietf:wg:oauth:2.0:oob"
+                        "https://login.microsoftonline.com/common/oauth2/nativeclient"
+                        "http://localhost/"
+                    )
+                }
+                requiredResourceAccess = @(
+                    @{
+                        resourceAppId  = "00000003-0000-0000-c000-000000000000"
+                        resourceAccess = @(
+                            @{
+                                id   = "14dad69e-099b-42c9-810b-d002981feec1"
+                                type = "Scope"
+                            }
+                            @{
+                                id   = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0"
+                                type = "Scope"
+                            }
+                            @{
+                                id   = "37f7f235-527c-4136-accd-4a02d197296e"
+                                type = "Scope"
+                            }
+                            @{
+                                id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
+                                type = "Scope"
+                            }
+                            @{
+                                id   = "7427e0e9-2fba-42fe-b0c0-848c9e6a8182"
+                                type = "Scope"
+                            }
+                        )
+                    }
                 )
-            }
-            requiredResourceAccess = @(
-                @{
-                    resourceAppId = "00000003-0000-0000-c000-000000000000"
-                    resourceAccess = @(
+                api                    = @{
+                    oauth2PermissionScopes = @(
                         @{
-                            id = "14dad69e-099b-42c9-810b-d002981feec1"
-                            type = "Scope"
-                        }
-                        @{
-                            id = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0"
-                            type = "Scope"
-                        }
-                        @{
-                            id = "37f7f235-527c-4136-accd-4a02d197296e"
-                            type = "Scope"
-                        }
-                        @{
-                            id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-                            type = "Scope"
-                        }
-                        @{
-                            id = "7427e0e9-2fba-42fe-b0c0-848c9e6a8182"
-                            type = "Scope"
+                            id                      = [guid]::NewGuid()
+                            value                   = "user_impersonation"
+                            type                    = "User"
+                            adminConsentDescription = "Allow the application to access $DisplayName on behalf of the signed-in user."
+                            adminConsentDisplayName = "Access $DisplayName"
+                            userConsentDescription  = "Allow the application to access $DisplayName on your behalf."
+                            userConsentDisplayName  = "Access $DisplayName"
+                            isEnabled               = $true
                         }
                     )
                 }
-            )
-            api = @{
-                oauth2PermissionScopes = @(
-                    @{
-                        id = [guid]::NewGuid()
-                        value = "user_impersonation"
-                        type = "User"
-                        adminConsentDescription = "Allow the application to access $DisplayName on behalf of the signed-in user."
-                        adminConsentDisplayName = "Access $DisplayName"
-                        userConsentDescription = "Allow the application to access $DisplayName on your behalf."
-                        userConsentDisplayName = "Access $DisplayName"
-                        isEnabled = $true
-                    }
+                tags                   = @(
+                    "Test"
                 )
-            }
-            tags = @(
-                "Test"
-            )
-        })
+            })
         Write-Output $Application
 
         if (!$NoServicePrincipal) {
-            $ServicePrincipal = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/servicePrincipals" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
-                appId = $Application.appId
-            })
+            $ServicePrincipal = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/servicePrincipals" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
+                    appId = $Application.appId
+                })
             Write-Output $ServicePrincipal
 
             if ($AdminConsent) {
-                $spMicrosoftGraph = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?`$filter=appId eq '00000003-0000-0000-c000-000000000000'" -Headers $MSGraphHeaders
-                $ServicePrincipalConsent = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/oAuth2Permissiongrants" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
-                    clientId = $ServicePrincipal.Id
-                    consentType = 'AllPrincipals'
-                    expiryTime = (Get-Date).AddDays(1).ToString('O')
-                    resourceId = $spMicrosoftGraph.value[0].id
-                    scope = 'User.Read email offline_access openid profile'
-                })
+                $spMicrosoftGraph = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=appId eq '00000003-0000-0000-c000-000000000000'" -Headers $MSGraphHeaders
+                $ServicePrincipalConsent = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/oAuth2Permissiongrants" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
+                        clientId    = $ServicePrincipal.Id
+                        consentType = 'AllPrincipals'
+                        expiryTime  = (Get-Date).AddDays(1).ToString('O')
+                        resourceId  = $spMicrosoftGraph.value[0].id
+                        scope       = 'User.Read email offline_access openid profile'
+                    })
             }
         }
     }
@@ -679,11 +669,11 @@ function Add-AzureAdClientSecret {
     [OutputType([securestring])]
     param(
         # Specifies the object id of the application or service principal.
-        [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('ObjectId')]
         [string] $Id,
         # Specifies the access token to use for Microsoft Graph.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [psobject] $MSGraphToken
     )
 
@@ -699,20 +689,20 @@ function Add-AzureAdClientSecret {
         switch ($AzureADObject.'@odata.type') {
             '#microsoft.graph.application' {
                 $PasswordCredential = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/applications/$($AzureADObject.id)/addPassword" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
-                    passwordCredential = @{
-                        endDateTime = (Get-Date).AddDays(1).ToString('O')
-                        displayName = "MSAL.PS"
-                    }
-                })
+                        passwordCredential = @{
+                            endDateTime = (Get-Date).AddDays(1).ToString('O')
+                            displayName = "MSAL.PS"
+                        }
+                    })
                 break
             }
             '#microsoft.graph.servicePrincipal' {
-                $PasswordCredential = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($AzureADObject.id)/addPassword" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
-                    passwordCredential = @{
-                        endDateTime = (Get-Date).AddDays(1).ToString('O')
-                        displayName = "MSAL.PS"
-                    }
-                })
+                $PasswordCredential = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$($AzureADObject.id)/addPassword" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
+                        passwordCredential = @{
+                            endDateTime = (Get-Date).AddDays(1).ToString('O')
+                            displayName = "MSAL.PS"
+                        }
+                    })
                 break
             }
         }
@@ -727,11 +717,11 @@ function Add-AzureAdClientCertificate {
     [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2])]
     param(
         # Specifies the object id of the application or service principal.
-        [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('ObjectId')]
         [string] $Id,
         # Specifies the access token to use for Microsoft Graph.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [psobject] $MSGraphToken
     )
 
@@ -749,31 +739,31 @@ function Add-AzureAdClientCertificate {
         switch ($AzureADObject.'@odata.type') {
             '#microsoft.graph.application' {
                 Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/v1.0/applications/$($AzureADObject.id)" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
-                    keyCredentials = @(
-                        $AzureADObject.keyCredentials
-                        @{
-                            type = "AsymmetricX509Cert"
-                            usage = "Verify"
-                            key = ConvertTo-Base64String $ClientCertificate.GetRawCertData()
-                            displayName = "MSAL.PS"
-                        }
-                    )
-                }) | Out-Null
+                        keyCredentials = @(
+                            $AzureADObject.keyCredentials
+                            @{
+                                type        = "AsymmetricX509Cert"
+                                usage       = "Verify"
+                                key         = ConvertTo-Base64String $ClientCertificate.GetRawCertData()
+                                displayName = "MSAL.PS"
+                            }
+                        )
+                    }) | Out-Null
                 $AzureADObject = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/v1.0/applications/$($AzureADObject.id)" -Headers $MSGraphHeaders
                 break
             }
             '#microsoft.graph.servicePrincipal' {
-                Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($AzureADObject.id)" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
-                    keyCredentials = @(
-                        $AzureADObject.keyCredentials
-                        @{
-                            type = "AsymmetricX509Cert"
-                            usage = "Verify"
-                            key = ConvertTo-Base64String $ClientCertificate.GetRawCertData()
-                            displayName = "MSAL.PS"
-                        }
-                    )
-                }) | Out-Null
+                Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$($AzureADObject.id)" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
+                        keyCredentials = @(
+                            $AzureADObject.keyCredentials
+                            @{
+                                type        = "AsymmetricX509Cert"
+                                usage       = "Verify"
+                                key         = ConvertTo-Base64String $ClientCertificate.GetRawCertData()
+                                displayName = "MSAL.PS"
+                            }
+                        )
+                    }) | Out-Null
                 $AzureADObject = Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$($AzureADObject.id)" -Headers $MSGraphHeaders
                 break
             }
@@ -789,14 +779,14 @@ function Remove-AzureAdClientSecret {
     [OutputType([securestring])]
     param(
         # Specifies the object id of the application or service principal.
-        [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('ObjectId')]
         [string] $Id,
         # Specifies the key id of the credential to remove.
-        [Parameter(Mandatory=$true, Position=2)]
+        [Parameter(Mandatory = $true, Position = 2)]
         [string] $KeyId,
         # Specifies the access token to use for Microsoft Graph.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [psobject] $MSGraphToken
     )
 
@@ -812,14 +802,14 @@ function Remove-AzureAdClientSecret {
         switch ($AzureADObject.'@odata.type') {
             '#microsoft.graph.application' {
                 Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/applications/$($AzureADObject.id)/removePassword" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
-                    keyId = $KeyId
-                })
+                        keyId = $KeyId
+                    })
                 break
             }
             '#microsoft.graph.servicePrincipal' {
-                Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($AzureADObject.id)/removePassword" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
-                    keyId = $KeyId
-                })
+                Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$($AzureADObject.id)/removePassword" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
+                        keyId = $KeyId
+                    })
                 break
             }
         }
@@ -831,14 +821,14 @@ function Remove-AzureAdClientCertificate {
     [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2])]
     param(
         # Specifies the object id of the application or service principal.
-        [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('ObjectId')]
         [string] $Id,
         # Specifies the key id of the credential to remove.
-        [Parameter(Mandatory=$true, Position=2)]
+        [Parameter(Mandatory = $true, Position = 2)]
         [string] $KeyId,
         # Specifies the access token to use for Microsoft Graph.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [psobject] $MSGraphToken
     )
 
@@ -854,18 +844,18 @@ function Remove-AzureAdClientCertificate {
         switch ($AzureADObject.'@odata.type') {
             '#microsoft.graph.application' {
                 $KeyCredential = Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/v1.0/applications/$($AzureADObject.id)" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
-                    keyCredentials = @(
-                        $AzureADObject.keyCredentials | Where-Object keyId -ne $KeyId
-                    )
-                })
+                        keyCredentials = @(
+                            $AzureADObject.keyCredentials | Where-Object keyId -ne $KeyId
+                        )
+                    })
                 break
             }
             '#microsoft.graph.servicePrincipal' {
-                $KeyCredential = Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($AzureADObject.id)" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
-                    keyCredentials = @(
-                        $AzureADObject.keyCredentials | Where-Object keyId -ne $KeyId
-                    )
-                })
+                $KeyCredential = Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$($AzureADObject.id)" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json @{
+                        keyCredentials = @(
+                            $AzureADObject.keyCredentials | Where-Object keyId -ne $KeyId
+                        )
+                    })
                 break
             }
         }
@@ -876,14 +866,14 @@ function Remove-TestAzureAdApplication {
     [CmdletBinding()]
     param(
         # Specifies the object id of the application.
-        [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('ObjectId')]
         [string] $Id,
         # Delete the application permanently.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $Permanently,
         # Specifies the access token to use for Microsoft Graph.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [psobject] $MSGraphToken
     )
 
@@ -902,7 +892,7 @@ function Remove-TestAzureAdApplication {
 }
 
 function AutoEnumerate ($Output) {
-    if ($null -eq $Output) {}
+    if ($null -eq $Output) { }
     elseif ($Output -is [array] -or $Output -is [System.Collections.ArrayList] -or $Output.GetType().FullName.StartsWith('System.Collections.Generic.List')) { Write-Output $Output -NoEnumerate }
     else { Write-Output $Output }
 }
@@ -922,7 +912,7 @@ function GetInput ([hashtable[]]$TestIO, [type]$AssertType) {
     }
 }
 
-function Test-ComparisionAssertions ($Reference,$Difference,[switch]$ArrayBaseTypeMatch) {
+function Test-ComparisionAssertions ($Reference, $Difference, [switch]$ArrayBaseTypeMatch) {
     ## Check Type
     # if ($Reference -is [array] -or $Reference -is [System.Collections.ArrayList] -or $Reference.GetType().FullName.StartsWith('System.Collections.Generic.List')) {
     #     Write-Output $Difference -NoEnumerate | Should -BeOfType $Reference.GetType()
@@ -945,7 +935,7 @@ function Test-ComparisionAssertions ($Reference,$Difference,[switch]$ArrayBaseTy
     }
     elseif ($Reference -is [array] -or $Reference -is [System.Collections.ArrayList] -or $Reference.GetType().FullName.StartsWith('System.Collections.Generic.List')) {
         $Difference | Should -HaveCount $Reference.Count
-        for ($i=0; $i -lt $Reference.Count; $i++) {
+        for ($i = 0; $i -lt $Reference.Count; $i++) {
             Test-ComparisionAssertions $Reference[$i] $Difference[$i]
         }
     }
@@ -959,10 +949,10 @@ function Test-ComparisionAssertions ($Reference,$Difference,[switch]$ArrayBaseTy
         $Difference.OuterXml | Should -BeExactly $Reference.OuterXml
     }
     elseif ($Reference -is [psobject]) {
-        $ReferenceProperty = $Reference | Get-Member -MemberType Property,NoteProperty
-        $DifferenceProperty = $Difference | Get-Member -MemberType Property,NoteProperty
+        $ReferenceProperty = $Reference | Get-Member -MemberType Property, NoteProperty
+        $DifferenceProperty = $Difference | Get-Member -MemberType Property, NoteProperty
         $ReferenceProperty | Should -HaveCount $DifferenceProperty.Count
-        for ($i=0; $i -lt $ReferenceProperty.Count; $i++) {
+        for ($i = 0; $i -lt $ReferenceProperty.Count; $i++) {
             $ReferencePropertyName = $ReferenceProperty[$i].Name
             $DifferencePropertyName = $DifferenceProperty[$i].Name
             Test-ComparisionAssertions $Reference.$ReferencePropertyName $Difference.$DifferencePropertyName
@@ -977,7 +967,7 @@ function Test-ComparisionAssertions ($Reference,$Difference,[switch]$ArrayBaseTy
     }
 }
 
-function Test-ErrorOutput ($ErrorRecord,[switch]$SkipCategory,[switch]$SkipErrorId,[switch]$SkipTargetObject) {
+function Test-ErrorOutput ($ErrorRecord, [switch]$SkipCategory, [switch]$SkipErrorId, [switch]$SkipTargetObject) {
     $ErrorRecord | Should -BeOfType [System.Management.Automation.ErrorRecord]
     $ErrorRecord.Exception | Should -Not -BeOfType [Microsoft.PowerShell.Commands.WriteErrorException]
     $ErrorRecord.Exception.Message | Should -Not -BeNullOrEmpty
@@ -987,20 +977,20 @@ function Test-ErrorOutput ($ErrorRecord,[switch]$SkipCategory,[switch]$SkipError
     if (!$SkipTargetObject) { $ErrorRecord.TargetObject | Should -Not -BeNullOrEmpty }
 }
 
-    # It 'Non-Terminating Errors' {
-    #     $ScriptBlock = { ([int]127),([decimal]127),([long]127) | ConvertTo-HexString -ErrorAction SilentlyContinue }
-    #     $ScriptBlock | Should -Not -Throw
-    #     $Output = Invoke-Expression $ScriptBlock.ToString() -ErrorVariable ErrorObjects
-    #     $ErrorObjects | Should -HaveCount 1
-    #     $Output | Should -HaveCount (3 - $ErrorObjects.Count)
-    #     foreach ($ErrorObject in $ErrorObjects) {
-    #         [System.Management.Automation.ErrorRecord] $ErrorRecord = $null
-    #         if ($ErrorObject -is [System.Management.Automation.ErrorRecord]) { $ErrorRecord = $ErrorObject }
-    #         else { $ErrorRecord = $ErrorObject.ErrorRecord }
+# It 'Non-Terminating Errors' {
+#     $ScriptBlock = { ([int]127),([decimal]127),([long]127) | ConvertTo-HexString -ErrorAction SilentlyContinue }
+#     $ScriptBlock | Should -Not -Throw
+#     $Output = Invoke-Expression $ScriptBlock.ToString() -ErrorVariable ErrorObjects
+#     $ErrorObjects | Should -HaveCount 1
+#     $Output | Should -HaveCount (3 - $ErrorObjects.Count)
+#     foreach ($ErrorObject in $ErrorObjects) {
+#         [System.Management.Automation.ErrorRecord] $ErrorRecord = $null
+#         if ($ErrorObject -is [System.Management.Automation.ErrorRecord]) { $ErrorRecord = $ErrorObject }
+#         else { $ErrorRecord = $ErrorObject.ErrorRecord }
 
-    #         Test-ErrorOutput $ErrorRecord
-    #     }
-    # }
+#         Test-ErrorOutput $ErrorRecord
+#     }
+# }
 
 function TestGroup ([type]$TestClass, [int]$StartIndex = 0) {
     Context $TestClass.Name {
@@ -1014,7 +1004,7 @@ function TestGroup ([type]$TestClass, [int]$StartIndex = 0) {
                 $Input = GetInput $TestIO -AssertType $TestValues.ExpectedInputType
                 $Output = & $TestValues.CommandName $Input -ErrorAction SilentlyContinue -ErrorVariable ErrorObjects @BoundParameters
                 $ErrorObjects | Should -HaveCount $TestIO.Error.Count
-                AutoEnumerate $Output | Should -HaveCount (1-$TestIO.Error.Count)
+                AutoEnumerate $Output | Should -HaveCount (1 - $TestIO.Error.Count)
                 if ($TestIO.ContainsKey('Error')) {
                     Test-ErrorOutput $ErrorObjects
                 }
@@ -1029,7 +1019,7 @@ function TestGroup ([type]$TestClass, [int]$StartIndex = 0) {
                 $Input = GetInput $TestIO -AssertType $TestValues.ExpectedInputType
                 $Output = $Input | & $TestValues.CommandName -ErrorAction SilentlyContinue -ErrorVariable ErrorObjects @BoundParameters
                 $ErrorObjects | Should -HaveCount $TestIO.Error.Count
-                AutoEnumerate $Output | Should -HaveCount (1-$TestIO.Error.Count)
+                AutoEnumerate $Output | Should -HaveCount (1 - $TestIO.Error.Count)
                 if ($TestIO.ContainsKey('Error')) {
                     Test-ErrorOutput $ErrorObjects
                 }
@@ -1048,7 +1038,7 @@ function TestGroup ([type]$TestClass, [int]$StartIndex = 0) {
                 $Input = GetInput $TestIO -AssertType $TestValues.ExpectedInputType
                 $Output = & $TestValues.CommandName $Input -ErrorAction SilentlyContinue -ErrorVariable ErrorObjects @BoundParameters
                 $ErrorObjects | Should -HaveCount $TestIO.Error.Count
-                $Output | Should -HaveCount ($TestIO.Count-$TestIO.Error.Count)
+                $Output | Should -HaveCount ($TestIO.Count - $TestIO.Error.Count)
                 [int] $iError = 0
                 for ($i = 0; $i -lt $TestIO.Count; $i++) {
                     if ($TestIO[$i].ContainsKey('Error')) {
@@ -1056,9 +1046,9 @@ function TestGroup ([type]$TestClass, [int]$StartIndex = 0) {
                         $iError++
                     }
                     else {
-                        AutoEnumerate $Output[$i-$iError] | Should -BeOfType $TestIO[$i].Output.GetType()
+                        AutoEnumerate $Output[$i - $iError] | Should -BeOfType $TestIO[$i].Output.GetType()
                         #$Output[$i] | Should -BeExactly $TestIO[$i].Output
-                        Test-ComparisionAssertions $TestIO[$i].Output $Output[$i-$iError]
+                        Test-ComparisionAssertions $TestIO[$i].Output $Output[$i - $iError]
                     }
                 }
             }
@@ -1067,7 +1057,7 @@ function TestGroup ([type]$TestClass, [int]$StartIndex = 0) {
                 $Input = GetInput $TestIO -AssertType $TestValues.ExpectedInputType
                 $Output = $Input | & $TestValues.CommandName -ErrorAction SilentlyContinue -ErrorVariable ErrorObjects @BoundParameters
                 $ErrorObjects | Should -HaveCount $TestIO.Error.Count
-                $Output | Should -HaveCount ($TestIO.Count-$TestIO.Error.Count)
+                $Output | Should -HaveCount ($TestIO.Count - $TestIO.Error.Count)
                 [int] $iError = 0
                 for ($i = 0; $i -lt $TestIO.Count; $i++) {
                     if ($TestIO[$i].ContainsKey('Error')) {
@@ -1075,9 +1065,9 @@ function TestGroup ([type]$TestClass, [int]$StartIndex = 0) {
                         $iError++
                     }
                     else {
-                        AutoEnumerate $Output[$i-$iError] | Should -BeOfType $TestIO[$i].Output.GetType()
+                        AutoEnumerate $Output[$i - $iError] | Should -BeOfType $TestIO[$i].Output.GetType()
                         #$Output[$i] | Should -BeExactly $TestIO[$i].Output
-                        Test-ComparisionAssertions $TestIO[$i].Output $Output[$i-$iError]
+                        Test-ComparisionAssertions $TestIO[$i].Output $Output[$i - $iError]
                     }
                 }
             }

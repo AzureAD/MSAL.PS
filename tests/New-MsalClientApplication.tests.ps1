@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $ModulePath = "..\src\*.psd1"
 )
 
@@ -32,7 +32,7 @@ Describe 'New-MsalClientApplication' {
             $Output.ClientId | Should -Be 'da616bc2-4047-43c7-9e1d-3fda870e8e7b'
             $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
             $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-            Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+            Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
             $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
         }
 
@@ -42,7 +42,7 @@ Describe 'New-MsalClientApplication' {
             $Output.ClientId | Should -Be 'da616bc2-4047-43c7-9e1d-3fda870e8e7b'
             $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
             $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-            Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+            Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
             $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
         }
 
@@ -70,7 +70,7 @@ Describe 'New-MsalClientApplication' {
             $Output.ClientId | Should -Be 'da616bc2-4047-43c7-9e1d-3fda870e8e7b'
             $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
             $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-            Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+            Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
             $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
         }
 
@@ -82,7 +82,7 @@ Describe 'New-MsalClientApplication' {
             $Output.ClientId | Should -Be 'da616bc2-4047-43c7-9e1d-3fda870e8e7b'
             $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
             $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-            Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+            Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
             $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
         }
     }
@@ -114,7 +114,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.ClientSecret | Should -Be 'supersecretstring'
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -125,7 +125,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.ClientSecret | Should -Be 'supersecretstring'
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -156,7 +156,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.ClientSecret | Should -Be 'supersecretstring'
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -169,7 +169,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.ClientSecret | Should -Be 'supersecretstring'
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
         }
@@ -199,7 +199,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -210,7 +210,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -241,7 +241,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -254,7 +254,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
         }
@@ -269,7 +269,7 @@ Describe 'New-MsalClientApplication' {
                 $Output | Should -BeOfType [Microsoft.Identity.Client.ConfidentialClientApplication]
                 $Output.ClientId | Should -Be '70558b77-ccf2-4bef-9e04-e90f01c88bb1'
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
-                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress','127.0.0.1'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress', '127.0.0.1'); $D })
             }
 
             It 'ClientId as Pipeline Input with ClientClaims' {
@@ -277,7 +277,7 @@ Describe 'New-MsalClientApplication' {
                 $Output | Should -BeOfType [Microsoft.Identity.Client.ConfidentialClientApplication]
                 $Output.ClientId | Should -Be '70558b77-ccf2-4bef-9e04-e90f01c88bb1'
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
-                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress','127.0.0.1'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress', '127.0.0.1'); $D })
             }
 
             It 'ClientId as Positional Parameter with ClientClaims and Additional Parameters' {
@@ -285,10 +285,10 @@ Describe 'New-MsalClientApplication' {
                 $Output | Should -BeOfType [Microsoft.Identity.Client.ConfidentialClientApplication]
                 $Output.ClientId | Should -Be '70558b77-ccf2-4bef-9e04-e90f01c88bb1'
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
-                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress','127.0.0.1'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress', '127.0.0.1'); $D })
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -297,10 +297,10 @@ Describe 'New-MsalClientApplication' {
                 $Output | Should -BeOfType [Microsoft.Identity.Client.ConfidentialClientApplication]
                 $Output.ClientId | Should -Be '70558b77-ccf2-4bef-9e04-e90f01c88bb1'
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
-                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress','127.0.0.1'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress', '127.0.0.1'); $D })
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -311,7 +311,7 @@ Describe 'New-MsalClientApplication' {
                 $Output | Should -BeOfType [Microsoft.Identity.Client.ConfidentialClientApplication]
                 $Output.ClientId | Should -Be '70558b77-ccf2-4bef-9e04-e90f01c88bb1'
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
-                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress','127.0.0.1'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress', '127.0.0.1'); $D })
             }
 
             It 'ConfidentialClientApplicationOptions as Pipeline Input with ClientClaims' {
@@ -321,7 +321,7 @@ Describe 'New-MsalClientApplication' {
                 $Output | Should -BeOfType [Microsoft.Identity.Client.ConfidentialClientApplication]
                 $Output.ClientId | Should -Be '70558b77-ccf2-4bef-9e04-e90f01c88bb1'
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
-                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress','127.0.0.1'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress', '127.0.0.1'); $D })
             }
 
             It 'ConfidentialClientApplicationOptions as Positional Parameter with ClientClaims and Additional Parameters' {
@@ -331,10 +331,10 @@ Describe 'New-MsalClientApplication' {
                 $Output | Should -BeOfType [Microsoft.Identity.Client.ConfidentialClientApplication]
                 $Output.ClientId | Should -Be '70558b77-ccf2-4bef-9e04-e90f01c88bb1'
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
-                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress','127.0.0.1'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress', '127.0.0.1'); $D })
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -345,10 +345,10 @@ Describe 'New-MsalClientApplication' {
                 $Output | Should -BeOfType [Microsoft.Identity.Client.ConfidentialClientApplication]
                 $Output.ClientId | Should -Be '70558b77-ccf2-4bef-9e04-e90f01c88bb1'
                 $Output.AppConfig.ClientCredentialCertificate | Should -Be $ClientCertificate
-                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress','127.0.0.1'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ClaimsToSign (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('ipaddress', '127.0.0.1'); $D })
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
         }
@@ -378,7 +378,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.SignedClientAssertion | Should -Be $ClientAssertion
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -389,7 +389,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.SignedClientAssertion | Should -Be $ClientAssertion
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -420,7 +420,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.SignedClientAssertion | Should -Be $ClientAssertion
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
 
@@ -433,7 +433,7 @@ Describe 'New-MsalClientApplication' {
                 $Output.AppConfig.SignedClientAssertion | Should -Be $ClientAssertion
                 $Output.AppConfig.RedirectUri | Should -Be 'https://testhost/'
                 $Output.AppConfig.TenantId | Should -Be 'test.onmicrosoft.com'
-                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state','appState'); $D })
+                Test-ComparisionAssertions $Output.AppConfig.ExtraQueryParameters (Invoke-Command { $D = New-Object 'System.Collections.Generic.Dictionary[[string],[string]]'; $D.Add('state', 'appState'); $D })
                 $Output.AppConfig.ExperimentalFeaturesEnabled | Should -Be $true
             }
         }

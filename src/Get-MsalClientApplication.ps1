@@ -11,27 +11,27 @@
     Get client application with specific ClientId from local session cache.
 #>
 function Get-MsalClientApplication {
-    [CmdletBinding(DefaultParameterSetName='PublicClient')]
-    [OutputType([Microsoft.Identity.Client.PublicClientApplication],[Microsoft.Identity.Client.ConfidentialClientApplication])]
+    [CmdletBinding(DefaultParameterSetName = 'PublicClient')]
+    [OutputType([Microsoft.Identity.Client.PublicClientApplication], [Microsoft.Identity.Client.ConfidentialClientApplication])]
     param
     (
         # Identifier of the client requesting the token.
-        [Parameter(Mandatory=$false, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [string] $ClientId,
         # Secure secret of the client requesting the token.
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientSecret', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret', ValueFromPipelineByPropertyName = $true)]
         [securestring] $ClientSecret,
         # Client assertion certificate of the client requesting the token.
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClientCertificate', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate', ValueFromPipelineByPropertyName = $true)]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
         # Address to return to upon receiving a response from the authority.
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [uri] $RedirectUri,
         # Tenant identifier of the authority to issue token.
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [string] $TenantId,
         # Address of the authority to issue token.
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [uri] $Authority
     )
 

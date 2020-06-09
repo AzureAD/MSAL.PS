@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.10.0.2'
+ModuleVersion = '4.14.0.1'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -115,8 +115,8 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 FileList = @(
-    '..\build\packages\Microsoft.Identity.Client.4.10.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
-    '..\build\packages\Microsoft.Identity.Client.4.10.0\lib\net45\Microsoft.Identity.Client.dll'
+    '..\build\packages\Microsoft.Identity.Client.4.14.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
+    '..\build\packages\Microsoft.Identity.Client.4.14.0\lib\net45\Microsoft.Identity.Client.dll'
     #'..\build\packages\System.Security.Cryptography.ProtectedData.4.7.0\lib\netstandard1.3\System.Security.Cryptography.ProtectedData.dll'
     '.\TokenCacheHelper.cs'
     '.\DeviceCodeHelper.cs'

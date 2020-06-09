@@ -8,15 +8,15 @@
     Remove specified client application from local session cache.
 #>
 function Remove-MsalClientApplication {
-    [CmdletBinding(DefaultParameterSetName='PublicClient')]
-    [OutputType([Microsoft.Identity.Client.PublicClientApplication],[Microsoft.Identity.Client.ConfidentialClientApplication])]
+    [CmdletBinding(DefaultParameterSetName = 'PublicClient')]
+    [OutputType([Microsoft.Identity.Client.PublicClientApplication], [Microsoft.Identity.Client.ConfidentialClientApplication])]
     param
     (
         # Public client application
-        [Parameter(Mandatory=$true, ParameterSetName='PublicClient', Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'PublicClient', Position = 0, ValueFromPipeline = $true)]
         [Microsoft.Identity.Client.IPublicClientApplication] $PublicClientApplication,
         # Confidential client application
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClient', Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClient', Position = 0, ValueFromPipeline = $true)]
         [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication
     )
 

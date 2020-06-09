@@ -12,10 +12,10 @@ function ConvertFrom-SecureStringAsPlainText {
     [OutputType([string])]
     param (
         # Secure String Value
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [securestring] $SecureString,
         # Confirms that you understand the implications of using the AsPlainText parameter and still want to use it.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [switch] $Force
     )
 

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $ModulePath = "..\src\*.psd1"
 )
 

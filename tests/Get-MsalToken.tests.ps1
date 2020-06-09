@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $ModulePath = "..\src\*.psd1"
 )
 
@@ -11,19 +11,19 @@ Import-Module $ModulePath -Force
 
 ## Get Test Automation Token
 [hashtable] $AppConfigAutomation = @{
-    ClientId = 'ada4b466-ae54-45f8-98fc-13b22708b978'
+    ClientId          = 'ada4b466-ae54-45f8-98fc-13b22708b978'
     ClientCertificate = (Get-ChildItem Cert:\CurrentUser\My\7103A1080D8611BD2CE8A5026D148938F787B12C)
-    RedirectUri = 'http://localhost/'
-    TenantId = 'jasoth.onmicrosoft.com'
+    RedirectUri       = 'http://localhost/'
+    TenantId          = 'jasoth.onmicrosoft.com'
 }
 $MSGraphToken = Get-MSGraphToken -ErrorAction Stop @AppConfigAutomation
 
 try {
     ## Create applications in tenant for testing.
-    $appPublicClient,$spPublicClient = New-TestAzureAdPublicClient -AdminConsent -MSGraphToken $MSGraphToken
-    $appConfidentialClient,$spConfidentialClient = New-TestAzureAdConfidentialClient -AdminConsent -MSGraphToken $MSGraphToken
-    $appConfidentialClientSecret,$ClientSecret = $appConfidentialClient | Add-AzureAdClientSecret -MSGraphToken $MSGraphToken
-    $appConfidentialClientCertificate,$ClientCertificate = $appConfidentialClient | Add-AzureAdClientCertificate -MSGraphToken $MSGraphToken
+    $appPublicClient, $spPublicClient = New-TestAzureAdPublicClient -AdminConsent -MSGraphToken $MSGraphToken
+    $appConfidentialClient, $spConfidentialClient = New-TestAzureAdConfidentialClient -AdminConsent -MSGraphToken $MSGraphToken
+    $appConfidentialClientSecret, $ClientSecret = $appConfidentialClient | Add-AzureAdClientSecret -MSGraphToken $MSGraphToken
+    $appConfidentialClientCertificate, $ClientCertificate = $appConfidentialClient | Add-AzureAdClientCertificate -MSGraphToken $MSGraphToken
     $StartDelay = Get-Date
 
     ## Get Credential for ROPC flow.
@@ -47,13 +47,13 @@ try {
             }
 
             It 'Inline with Scope as Positional Parameter' {
-                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/User.ReadBasic.All' -Interactive
+                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Scopes 'https://graph.microsoft.com/User.Read', 'https://graph.microsoft.com/User.ReadBasic.All' -Interactive
                 $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline with Prompt as Positional Parameter' {
-               $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Prompt ([Microsoft.Identity.Client.Prompt]::NoPrompt)
-               $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
+                $Output = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Prompt ([Microsoft.Identity.Client.Prompt]::NoPrompt)
+                $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
             }
 
             It 'Inline Silent as Positional Parameter' {
@@ -90,12 +90,12 @@ try {
                 }
 
                 It 'ClientApplication with Scope as Positional Parameter' {
-                    $Output = Get-MsalToken $ClientApplication -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/User.ReadBasic.All'
+                    $Output = Get-MsalToken $ClientApplication -Scopes 'https://graph.microsoft.com/User.Read', 'https://graph.microsoft.com/User.ReadBasic.All'
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
                 }
 
                 It 'ClientApplication with Scope as Pipeline Input' {
-                    $Output = $ClientApplication | Get-MsalToken -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/User.ReadBasic.All'
+                    $Output = $ClientApplication | Get-MsalToken -Scopes 'https://graph.microsoft.com/User.Read', 'https://graph.microsoft.com/User.ReadBasic.All'
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]
                 }
 
@@ -170,5 +170,5 @@ finally {
 
     ## Remove test client applications
     $MSGraphToken = Get-MSGraphToken @AppConfigAutomation
-    $appPublicClient,$appConfidentialClient | Remove-TestAzureAdApplication -Permanently -MSGraphToken $MSGraphToken
+    $appPublicClient, $appConfidentialClient | Remove-TestAzureAdApplication -Permanently -MSGraphToken $MSGraphToken
 }

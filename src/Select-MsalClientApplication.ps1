@@ -8,43 +8,43 @@
     Select a public client application from local session cache with client id 00000000-0000-0000-0000-000000000000 and default settings.
 #>
 function Select-MsalClientApplication {
-    [CmdletBinding(DefaultParameterSetName='PublicClient')]
-    [OutputType([Microsoft.Identity.Client.PublicClientApplication],[Microsoft.Identity.Client.ConfidentialClientApplication])]
+    [CmdletBinding(DefaultParameterSetName = 'PublicClient')]
+    [OutputType([Microsoft.Identity.Client.PublicClientApplication], [Microsoft.Identity.Client.ConfidentialClientApplication])]
     param
     (
         # Identifier of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='PublicClient', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$false, ParameterSetName='PublicClient-InputObject', Position=1, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject', Position=1, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'PublicClient', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-InputObject', Position = 1, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientSecret', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClient-InputObject', Position = 1, ValueFromPipelineByPropertyName = $true)]
         [string] $ClientId,
         # Secure secret of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientSecret', ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientSecret', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClient-InputObject', ValueFromPipelineByPropertyName = $true)]
         #[AllowNull()]
         [securestring] $ClientSecret,
         # Client assertion certificate of the client requesting the token.
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate', ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$false, ParameterSetName='ConfidentialClient-InputObject', ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClient-InputObject', ValueFromPipelineByPropertyName = $true)]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
         # Address to return to upon receiving a response from the authority.
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [uri] $RedirectUri,
         # Instance of Azure Cloud
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Microsoft.Identity.Client.AzureCloudInstance] $AzureCloudInstance,
         # Tenant identifier of the authority to issue token.
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [string] $TenantId,
         # Address of the authority to issue token.
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [uri] $Authority,
         # Public client application options
-        [Parameter(Mandatory=$true, ParameterSetName='PublicClient-InputObject', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'PublicClient-InputObject', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Microsoft.Identity.Client.PublicClientApplicationOptions] $PublicClientOptions,
         # Confidential client application options
-        [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClient-InputObject', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClient-InputObject', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions
     )
 

@@ -14,7 +14,7 @@ Set-StrictMode -Version 3.0
 # }
 
 ## Azure Automation module import fails when ScriptsToProcess is specified in manifest. Referencing import script directly.
-. (Join-Path $PSScriptRoot $MyInvocation.MyCommand.Name.Replace('.psm1','.ps1'))
+. (Join-Path $PSScriptRoot $MyInvocation.MyCommand.Name.Replace('.psm1', '.ps1'))
 
 ## Global Variables
 [System.Collections.Generic.List[Microsoft.Identity.Client.IPublicClientApplication]] $PublicClientApplications = New-Object 'System.Collections.Generic.List[Microsoft.Identity.Client.IPublicClientApplication]'

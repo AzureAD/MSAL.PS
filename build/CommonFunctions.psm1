@@ -5,10 +5,10 @@ function Get-RelativePath {
     [OutputType([string[]])]
     param (
         # Input Paths
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=1)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 1)]
         [string[]] $Paths,
         # Directory to base relative paths. Default is current directory.
-        [Parameter(Mandatory=$false, Position=2)]
+        [Parameter(Mandatory = $false, Position = 2)]
         [string] $BaseDirectory = (Get-Location).ProviderPath
     )
 
@@ -29,10 +29,10 @@ function Get-FullPath {
     [OutputType([string[]])]
     param (
         # Input Paths
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=1)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 1)]
         [string[]] $Paths,
         # Directory to base relative paths. Default is current directory.
-        [Parameter(Mandatory=$false, Position=2)]
+        [Parameter(Mandatory = $false, Position = 2)]
         [string] $BaseDirectory = (Get-Location).ProviderPath
     )
 
@@ -53,16 +53,16 @@ function Resolve-FullPath {
     [OutputType([string[]])]
     param (
         # Input Paths
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=1)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 1)]
         [string[]] $Paths,
         # Directory to base relative paths. Default is current directory.
-        [Parameter(Mandatory=$false, Position=2)]
+        [Parameter(Mandatory = $false, Position = 2)]
         [string] $BaseDirectory = (Get-Location).ProviderPath,
         # Resolves items in all child directories of the specified locations.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $Recurse,
         # Resolves items in all parent directories of the specified locations.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $RecurseUp
     )
 
@@ -99,21 +99,21 @@ function Get-PathInfo {
     [CmdletBinding()]
     param (
         # Input Paths
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=1)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 1)]
         [AllowEmptyString()]
         [string[]] $Paths,
         # Specifies the type of output path when the path does not exist. By default, it will guess path type. If path exists, this parameter is ignored.
-        [Parameter(Mandatory=$false, Position=2)]
+        [Parameter(Mandatory = $false, Position = 2)]
         [ValidateSet("Directory", "File")]
         [string] $InputPathType,
         # Root directory to base relative paths. Default is current directory.
-        [Parameter(Mandatory=$false, Position=3)]
+        [Parameter(Mandatory = $false, Position = 3)]
         [string] $DefaultDirectory = (Get-Location).ProviderPath,
         # Filename to append to path if no filename is present.
-        [Parameter(Mandatory=$false, Position=4)]
+        [Parameter(Mandatory = $false, Position = 4)]
         [string] $DefaultFilename,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $SkipEmptyPaths
     )
 
@@ -129,7 +129,7 @@ function Get-PathInfo {
                     $ResolvePath = Resolve-FullPath $Path -BaseDirectory $DefaultDirectory -ErrorAction SilentlyContinue
                     $OutputPath = Get-Item $ResolvePath -ErrorAction SilentlyContinue
                 }
-                catch {}
+                catch { }
                 ## If path could not be found and there are no wildcards, then create a FileSystemInfo object for the path.
                 if (!$OutputPath -and $Path -notmatch '[*?]') {
                     ## Get Absolute Path
@@ -150,7 +150,7 @@ function Get-PathInfo {
                         $ResolvePath = Resolve-FullPath $AbsolutePath -BaseDirectory $DefaultDirectory -ErrorAction SilentlyContinue
                         $OutputPath = Get-Item $ResolvePath -ErrorAction SilentlyContinue
                     }
-                    catch {}
+                    catch { }
                     if (!$OutputPath -and $AbsolutePath -notmatch '[*?]') {
                         $OutputPath = New-Object System.IO.FileInfo -ArgumentList $AbsolutePath
                     }
@@ -173,19 +173,19 @@ function Assert-DirectoryExists {
     [OutputType([string[]])]
     param (
         # Directories
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
         [object[]] $InputObjects,
         # Directory to base relative paths. Default is current directory.
-        [Parameter(Mandatory=$false, Position=2)]
+        [Parameter(Mandatory = $false, Position = 2)]
         [string] $BaseDirectory = (Get-Location).ProviderPath
     )
     process {
         foreach ($InputObject in $InputObjects) {
             ## InputObject Casting
-            if($InputObject -is [System.IO.DirectoryInfo]) {
+            if ($InputObject -is [System.IO.DirectoryInfo]) {
                 [System.IO.DirectoryInfo] $DirectoryInfo = $InputObject
             }
-            elseif($InputObject -is [System.IO.FileInfo]) {
+            elseif ($InputObject -is [System.IO.FileInfo]) {
                 [System.IO.DirectoryInfo] $DirectoryInfo = $InputObject.Directory
             }
             elseif ($InputObject -is [string]) {
@@ -203,35 +203,35 @@ function New-LogFilename ([string] $Path) { return ('{0}.{1}.log' -f $Path, (Get
 function Get-ExtractionFolder ([System.IO.FileInfo] $Path) { return Join-Path $Path.DirectoryName $Path.BaseName }
 
 function Use-StartBitsTransfer {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     param (
         # Specifies the source location and the names of the files that you want to transfer.
-        [Parameter(Mandatory=$true, Position=0)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string] $Source,
         # Specifies the destination location and the names of the files that you want to transfer.
-        [Parameter(Mandatory=$false, Position=1)]
+        [Parameter(Mandatory = $false, Position = 1)]
         [string] $Destination,
         # Specifies the proxy usage settings
-        [Parameter(Mandatory=$false, Position=3)]
-        [ValidateSet('SystemDefault','NoProxy','AutoDetect','Override')]
+        [Parameter(Mandatory = $false, Position = 3)]
+        [ValidateSet('SystemDefault', 'NoProxy', 'AutoDetect', 'Override')]
         [string] $ProxyUsage,
         # Specifies a list of proxies to use
-        [Parameter(Mandatory=$false, Position=4)]
+        [Parameter(Mandatory = $false, Position = 4)]
         [uri[]] $ProxyList,
         # Specifies the authentication mechanism to use at the Web proxy
-        [Parameter(Mandatory=$false, Position=5)]
-        [ValidateSet('Basic','Digest','NTLM','Negotiate','Passport')]
+        [Parameter(Mandatory = $false, Position = 5)]
+        [ValidateSet('Basic', 'Digest', 'NTLM', 'Negotiate', 'Passport')]
         [string] $ProxyAuthentication,
         # Specifies the credentials to use to authenticate the user at the proxy
-        [Parameter(Mandatory=$false, Position=6)]
+        [Parameter(Mandatory = $false, Position = 6)]
         [pscredential] $ProxyCredential,
         # Returns an object representing transfered item.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $PassThru
     )
     [hashtable] $paramStartBitsTransfer = $PSBoundParameters
     foreach ($Parameter in $PSBoundParameters.Keys) {
-        if ($Parameter -notin 'ProxyUsage','ProxyList','ProxyAuthentication','ProxyCredential') {
+        if ($Parameter -notin 'ProxyUsage', 'ProxyList', 'ProxyAuthentication', 'ProxyCredential') {
             $paramStartBitsTransfer.Remove($Parameter)
         }
     }
@@ -247,22 +247,22 @@ function Use-StartBitsTransfer {
 }
 
 function Use-StartProcess {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     param (
         # Specifies the path (optional) and file name of the program that runs in the process.
-        [Parameter(Mandatory=$true, Position=0)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string] $FilePath,
         # Specifies parameters or parameter values to use when starting the process.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string[]] $ArgumentList,
         # Specifies the working directory for the process.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string] $WorkingDirectory,
         # Specifies a user account that has permission to perform this action.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [pscredential] $Credential,
         # Regex pattern in cmdline to replace with '**********'
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string[]] $SensitiveDataFilters
     )
     [hashtable] $paramStartProcess = $PSBoundParameters
@@ -273,7 +273,7 @@ function Use-StartProcess {
     }
     [string] $cmd = '"{0}" {1}' -f $FilePath, ($ArgumentList -join ' ')
     foreach ($Filter in $SensitiveDataFilters) {
-        $cmd = $cmd -replace $Filter,'**********'
+        $cmd = $cmd -replace $Filter, '**********'
     }
     if ($PSCmdlet.ShouldProcess([System.Environment]::MachineName, $cmd)) {
         [System.Diagnostics.Process] $process = Start-Process -PassThru -Wait -NoNewWindow @paramStartProcess
@@ -303,42 +303,35 @@ function ConvertTo-Base64String {
     [OutputType([string])]
     param (
         # Value to convert
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [object] $InputObject,
         # Use base64url variant
-        [Parameter (Mandatory=$false)]
+        [Parameter (Mandatory = $false)]
         [switch] $Base64Url,
         # Output encoding to use for text strings
-        [Parameter (Mandatory=$false)]
+        [Parameter (Mandatory = $false)]
         [ValidateSet("Ascii", "UTF32", "UTF7", "UTF8", "BigEndianUnicode", "Unicode")]
         [string] $Encoding = "Default"
     )
 
-    process
-    {
+    process {
         [byte[]] $inputBytes = $null
-        if ($InputObject -is [byte[]] -or $InputObject -is [byte])
-        {
+        if ($InputObject -is [byte[]] -or $InputObject -is [byte]) {
             $inputBytes = $InputObject
         }
-        elseif ($InputObject -is [string])
-        {
+        elseif ($InputObject -is [string]) {
             $inputBytes = [Text.Encoding]::$Encoding.GetBytes($InputObject)
         }
-        elseif ($InputObject -is [bool] -or $InputObject -is [char] -or $InputObject -is [single] -or $InputObject -is [double] -or $InputObject -is [int16] -or $InputObject -is [int32] -or $InputObject -is [int64] -or $InputObject -is [uint16] -or $InputObject -is [uint32] -or $InputObject -is [uint64])
-        {
+        elseif ($InputObject -is [bool] -or $InputObject -is [char] -or $InputObject -is [single] -or $InputObject -is [double] -or $InputObject -is [int16] -or $InputObject -is [int32] -or $InputObject -is [int64] -or $InputObject -is [uint16] -or $InputObject -is [uint32] -or $InputObject -is [uint64]) {
             $inputBytes = [System.BitConverter]::GetBytes($InputObject)
         }
-        elseif ($InputObject -is [guid])
-        {
+        elseif ($InputObject -is [guid]) {
             $inputBytes = $InputObject.ToByteArray()
         }
-        elseif ($InputObject -is [System.IO.FileSystemInfo])
-        {
+        elseif ($InputObject -is [System.IO.FileSystemInfo]) {
             $inputBytes = Get-Content $InputObject.FullName -Raw -Encoding Byte
         }
-        else
-        {
+        else {
             # Otherwise, write a non-terminating error message indicating that input object type is not supported.
             $errorMessage = "Cannot convert input of type {0} to Base64 string." -f $InputObject.GetType()
             Write-Error -Message $errorMessage -Category ([System.Management.Automation.ErrorCategory]::ParserError) -ErrorId "ConvertBase64StringFailureTypeNotSupported"
@@ -346,7 +339,7 @@ function ConvertTo-Base64String {
 
         if ($inputBytes) {
             [string] $outBase64String = [System.Convert]::ToBase64String($inputBytes)
-            if ($Base64Url) { $outBase64String = $outBase64String.Replace('+','-').Replace('/','_').Replace('=','') }
+            if ($Base64Url) { $outBase64String = $outBase64String.Replace('+', '-').Replace('/', '_').Replace('=', '') }
             return $outBase64String
         }
     }
@@ -371,29 +364,28 @@ function ConvertTo-Base64String {
 #>
 function ConvertFrom-Base64String {
     [CmdletBinding()]
-    [OutputType([byte[]],[string])]
+    [OutputType([byte[]], [string])]
     param (
         # Value to convert
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [string[]] $InputObject,
         # Use base64url variant
-        [Parameter (Mandatory=$false)]
+        [Parameter (Mandatory = $false)]
         [switch] $Base64Url,
         # Output raw byte array
-        [Parameter (Mandatory=$false)]
+        [Parameter (Mandatory = $false)]
         [switch] $RawBytes,
         # Encoding to use for text strings
-        [Parameter (Mandatory=$false)]
+        [Parameter (Mandatory = $false)]
         [ValidateSet("Ascii", "UTF32", "UTF7", "UTF8", "BigEndianUnicode", "Unicode")]
         [string] $Encoding = "Default"
     )
 
-    process
-    {
+    process {
         $listBytes = New-Object object[] $InputObject.Count
         for ($iString = 0; $iString -lt $InputObject.Count; $iString++) {
             [string] $strBase64 = $InputObject[$iString]
-            if ($Base64Url) { $strBase64 = $strBase64.Replace('-','+').Replace('_','/').PadRight($strBase64.Length + (4 - $strBase64.Length % 4) % 4, '=') }
+            if ($Base64Url) { $strBase64 = $strBase64.Replace('-', '+').Replace('_', '/').PadRight($strBase64.Length + (4 - $strBase64.Length % 4) % 4, '=') }
             [byte[]] $outBytes = [System.Convert]::FromBase64String($strBase64)
             if ($RawBytes) { $listBytes[$iString] = $outBytes }
             else {
@@ -423,27 +415,27 @@ function ConvertTo-PsString {
     [OutputType([string])]
     param (
         #
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
         [AllowNull()]
         [object] $InputObjects,
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $Compact,
         #
-        [Parameter(Mandatory=$false, Position=1)]
-        [type[]] $RemoveTypes = ([string],[bool],[int],[long]),
+        [Parameter(Mandatory = $false, Position = 1)]
+        [type[]] $RemoveTypes = ([string], [bool], [int], [long]),
         #
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $NoEnumerate
     )
 
     begin {
         if ($Compact) {
-            [System.Collections.Generic.Dictionary[string,type]] $TypeAccelerators = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')::get
-            [System.Collections.Generic.Dictionary[type,string]] $TypeAcceleratorsLookup = New-Object 'System.Collections.Generic.Dictionary[type,string]'
+            [System.Collections.Generic.Dictionary[string, type]] $TypeAccelerators = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')::get
+            [System.Collections.Generic.Dictionary[type, string]] $TypeAcceleratorsLookup = New-Object 'System.Collections.Generic.Dictionary[type,string]'
             foreach ($TypeAcceleratorKey in $TypeAccelerators.Keys) {
                 if (!$TypeAcceleratorsLookup.ContainsKey($TypeAccelerators[$TypeAcceleratorKey])) {
-                    $TypeAcceleratorsLookup.Add($TypeAccelerators[$TypeAcceleratorKey],$TypeAcceleratorKey)
+                    $TypeAcceleratorsLookup.Add($TypeAccelerators[$TypeAcceleratorKey], $TypeAcceleratorKey)
                 }
             }
         }
@@ -451,13 +443,13 @@ function ConvertTo-PsString {
         function Resolve-Type {
             param (
                 #
-                [Parameter(Mandatory=$true, ValueFromPipeline=$true, Position=0)]
+                [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
                 [type] $ObjectType,
                 #
-                [Parameter(Mandatory=$false, Position=1)]
+                [Parameter(Mandatory = $false, Position = 1)]
                 [switch] $Compact,
                 #
-                [Parameter(Mandatory=$false, Position=1)]
+                [Parameter(Mandatory = $false, Position = 1)]
                 [type[]] $RemoveTypes
             )
 
@@ -526,57 +518,66 @@ function ConvertTo-PsString {
                 [void]$OutputString.Append((Resolve-Type $InputObject.GetType() -Compact:$Compact -RemoveTypes $RemoveTypes))
 
                 ## Add Value
-                switch ($InputObject.GetType())
-                {
-                    {$_.Equals([String])} {
-                        [void]$OutputString.AppendFormat("'{0}'",$InputObject.Replace("'","''")) #.Replace('"','`"')
-                        break }
-                    {$_.Equals([Char])} {
-                        [void]$OutputString.AppendFormat("'{0}'",([string]$InputObject).Replace("'","''"))
-                        break }
-                    {$_.Equals([Boolean]) -or $_.Equals([switch])} {
-                        [void]$OutputString.AppendFormat('${0}',$InputObject)
-                        break }
-                    {$_.Equals([DateTime])} {
-                        [void]$OutputString.AppendFormat("'{0}'",$InputObject.ToString('O'))
-                        break }
-                    {$_.BaseType.Equals([Enum])} {
-                        [void]$OutputString.AppendFormat('::{0}',$InputObject)
-                        break }
-                    {$_.BaseType.Equals([ValueType])} {
-                        [void]$OutputString.AppendFormat('{0}',$InputObject)
-                        break }
-                    {$_.Equals([System.Xml.XmlDocument])} {
-                        [void]$OutputString.AppendFormat("'{0}'",$InputObject.OuterXml.Replace("'","''")) #.Replace('"','""')
-                        break }
-                    {$_.Equals([Hashtable]) -or $_.Equals([System.Collections.Specialized.OrderedDictionary])} {
+                switch ($InputObject.GetType()) {
+                    { $_.Equals([String]) } {
+                        [void]$OutputString.AppendFormat("'{0}'", $InputObject.Replace("'", "''")) #.Replace('"','`"')
+                        break
+                    }
+                    { $_.Equals([Char]) } {
+                        [void]$OutputString.AppendFormat("'{0}'", ([string]$InputObject).Replace("'", "''"))
+                        break
+                    }
+                    { $_.Equals([Boolean]) -or $_.Equals([switch]) } {
+                        [void]$OutputString.AppendFormat('${0}', $InputObject)
+                        break
+                    }
+                    { $_.Equals([DateTime]) } {
+                        [void]$OutputString.AppendFormat("'{0}'", $InputObject.ToString('O'))
+                        break
+                    }
+                    { $_.BaseType.Equals([Enum]) } {
+                        [void]$OutputString.AppendFormat('::{0}', $InputObject)
+                        break
+                    }
+                    { $_.BaseType.Equals([ValueType]) } {
+                        [void]$OutputString.AppendFormat('{0}', $InputObject)
+                        break
+                    }
+                    { $_.Equals([System.Xml.XmlDocument]) } {
+                        [void]$OutputString.AppendFormat("'{0}'", $InputObject.OuterXml.Replace("'", "''")) #.Replace('"','""')
+                        break
+                    }
+                    { $_.Equals([Hashtable]) -or $_.Equals([System.Collections.Specialized.OrderedDictionary]) } {
                         [void]$OutputString.Append('@{')
                         $iInput = 0
                         foreach ($enumHashtable in $InputObject.GetEnumerator()) {
                             if ($iInput -gt 0) { [void]$OutputString.Append(';') }
-                            [void]$OutputString.AppendFormat('{0}={1}',(ConvertTo-PsString $enumHashtable.Key -Compact:$Compact -NoEnumerate),(ConvertTo-PsString $enumHashtable.Value -Compact:$Compact -NoEnumerate))
+                            [void]$OutputString.AppendFormat('{0}={1}', (ConvertTo-PsString $enumHashtable.Key -Compact:$Compact -NoEnumerate), (ConvertTo-PsString $enumHashtable.Value -Compact:$Compact -NoEnumerate))
                             $iInput++
                         }
                         [void]$OutputString.Append('}')
-                        break }
-                    {$_.FullName.StartsWith('System.Collections.Generic.Dictionary')} {
+                        break
+                    }
+                    { $_.FullName.StartsWith('System.Collections.Generic.Dictionary') } {
                         $iInput = 0
                         foreach ($enumHashtable in $InputObject.GetEnumerator()) {
-                            [void]$OutputString.AppendFormat('; $D.Add({0},{1})',(ConvertTo-PsString $enumHashtable.Key -Compact:$Compact -NoEnumerate),(ConvertTo-PsString $enumHashtable.Value -Compact:$Compact -NoEnumerate))
+                            [void]$OutputString.AppendFormat('; $D.Add({0},{1})', (ConvertTo-PsString $enumHashtable.Key -Compact:$Compact -NoEnumerate), (ConvertTo-PsString $enumHashtable.Value -Compact:$Compact -NoEnumerate))
                             $iInput++
                         }
                         [void]$OutputString.Append('; $D })')
-                        break }
-                    {$_.BaseType.Equals([Array])} {
+                        break
+                    }
+                    { $_.BaseType.Equals([Array]) } {
                         [void]$OutputString.Append('(Write-Output @(')
                         $iInput = 0
                         for ($iInput = 0; $iInput -lt $InputObject.Count; $iInput++) {
                             if ($iInput -gt 0) { [void]$OutputString.Append(',') }
-                            [void]$OutputString.Append((ConvertTo-PsString $InputObject[$iInput] -Compact:$Compact -RemoveTypes $InputObject.GetType().DeclaredMembers.Where({$_.Name -eq 'Set'})[0].GetParameters()[1].ParameterType -NoEnumerate))
+                            [void]$OutputString.Append((ConvertTo-PsString $InputObject[$iInput] -Compact:$Compact -RemoveTypes $InputObject.GetType().DeclaredMembers.Where( { $_.Name -eq 'Set' })[0].GetParameters()[1].ParameterType -NoEnumerate))
                         }
                         [void]$OutputString.Append(') -NoEnumerate)')
-                        break }
-                    {$_.Equals([System.Collections.ArrayList])} {
+                        break
+                    }
+                    { $_.Equals([System.Collections.ArrayList]) } {
                         [void]$OutputString.Append('@(')
                         $iInput = 0
                         for ($iInput = 0; $iInput -lt $InputObject.Count; $iInput++) {
@@ -584,8 +585,9 @@ function ConvertTo-PsString {
                             [void]$OutputString.Append((ConvertTo-PsString $InputObject[$iInput] -Compact:$Compact -NoEnumerate))
                         }
                         [void]$OutputString.Append(')')
-                        break }
-                    {$_.FullName.StartsWith('System.Collections.Generic.List')} {
+                        break
+                    }
+                    { $_.FullName.StartsWith('System.Collections.Generic.List') } {
                         [void]$OutputString.Append('@(')
                         $iInput = 0
                         for ($iInput = 0; $iInput -lt $InputObject.Count; $iInput++) {
@@ -593,19 +595,21 @@ function ConvertTo-PsString {
                             [void]$OutputString.Append((ConvertTo-PsString $InputObject[$iInput] -Compact:$Compact -RemoveTypes $_.GenericTypeArguments -NoEnumerate))
                         }
                         [void]$OutputString.Append(')')
-                        break }
+                        break
+                    }
                     ## Convert objects with object initializers
-                    {$_ -is [object] -and ($_.GetConstructors() | foreach { if ($_.IsPublic -and !$_.GetParameters()) { $true } })} {
+                    { $_ -is [object] -and ($_.GetConstructors() | foreach { if ($_.IsPublic -and !$_.GetParameters()) { $true } }) } {
                         [void]$OutputString.Append('@{')
                         $iInput = 0
-                        foreach ($Item in ($InputObject | Get-Member -MemberType Property,NoteProperty)) {
+                        foreach ($Item in ($InputObject | Get-Member -MemberType Property, NoteProperty)) {
                             if ($iInput -gt 0) { [void]$OutputString.Append(';') }
                             $PropertyName = $Item.Name
-                            [void]$OutputString.AppendFormat('{0}={1}',(ConvertTo-PsString $PropertyName -Compact:$Compact -NoEnumerate),(ConvertTo-PsString $InputObject.$PropertyName -Compact:$Compact -NoEnumerate))
+                            [void]$OutputString.AppendFormat('{0}={1}', (ConvertTo-PsString $PropertyName -Compact:$Compact -NoEnumerate), (ConvertTo-PsString $InputObject.$PropertyName -Compact:$Compact -NoEnumerate))
                             $iInput++
                         }
                         [void]$OutputString.Append('}')
-                        break }
+                        break
+                    }
                     Default {
                         $Exception = New-Object ArgumentException -ArgumentList ('Cannot convert input of type {0} to PowerShell string.' -f $InputObject.GetType())
                         Write-Error -Exception $Exception -Category ([System.Management.Automation.ErrorCategory]::ParserError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'ConvertPowerShellStringFailureTypeNotSupported' -TargetObject $InputObject
@@ -644,7 +648,7 @@ function ConvertTo-PsString {
                 $OutputArray = New-Object System.Text.StringBuilder
                 [void]$OutputArray.Append('(Write-Output @(')
                 if ($PSVersionTable.PSVersion -ge [version]'6.0') {
-                    [void]$OutputArray.AppendJoin(',',$listOutputString)
+                    [void]$OutputArray.AppendJoin(',', $listOutputString)
                 }
                 else {
                     [void]$OutputArray.Append(($listOutputString -join ','))

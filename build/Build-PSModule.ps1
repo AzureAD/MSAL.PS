@@ -1,25 +1,25 @@
 param
 (
     # Directory used to base all relative paths
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $BaseDirectory = "..\",
     #
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $OutputDirectory = ".\build\release\",
     #
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $SourceDirectory = ".\src\",
     #
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $ModuleManifestPath,
     #
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $PackagesConfigPath = ".\packages.config",
     #
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $PackagesDirectory = ".\build\packages",
     #
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string] $LicensePath = ".\LICENSE"
 )
 
@@ -60,7 +60,7 @@ $xmlPackagesConfig.Load($PackagesConfigFileInfo.FullName)
 ## Copy Packages to Module Output Directory
 foreach ($package in $xmlPackagesConfig.packages.package) {
     [string[]] $targetFrameworks = $package.targetFramework
-    if (!$targetFrameworks) { [string[]] $targetFrameworks = "net45","netcoreapp2.1" }
+    if (!$targetFrameworks) { [string[]] $targetFrameworks = "net45", "netcoreapp2.1" }
     foreach ($targetFramework in $targetFrameworks) {
         [System.IO.DirectoryInfo] $PackageDirectory = Join-Path $PackagesDirectoryInfo.FullName ("{0}.{1}\lib\{2}" -f $package.id, $package.version, $targetFramework)
         [System.IO.DirectoryInfo] $PackageOutputDirectory = "{0}\{1}.{2}\{3}" -f $ModuleOutputDirectoryInfo.FullName, $package.id, $package.version, $targetFramework
@@ -76,15 +76,15 @@ $ModuleRequiredAssembliesFileInfo = $ModuleFileListFileInfo | Where-Object Exten
 $ModuleManifestOutputFileInfo = $ModuleFileListFileInfo | Where-Object Name -eq $ModuleManifestFileInfo.Name
 
 $ModuleFileList = Get-RelativePath $ModuleFileListFileInfo.FullName -BaseDirectory $ModuleOutputDirectoryInfo.FullName -ErrorAction Stop
-$ModuleFileList = $ModuleFileList -replace '\\net45\\','\!!!\' -replace '\\netcoreapp2.1\\','\net45\' -replace '\\!!!\\','\netcoreapp2.1\'  # PowerShell Core fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList.
+$ModuleFileList = $ModuleFileList -replace '\\net45\\', '\!!!\' -replace '\\netcoreapp2.1\\', '\net45\' -replace '\\!!!\\', '\netcoreapp2.1\'  # PowerShell Core fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList.
 $ModuleRequiredAssemblies = Get-RelativePath $ModuleRequiredAssembliesFileInfo.FullName -BaseDirectory $ModuleOutputDirectoryInfo.FullName -ErrorAction Stop
 
 ## Clear FileList
-(Get-Content $ModuleManifestOutputFileInfo.FullName -Raw) -replace "(?s)FileList\ =\ @\([^)]*\)","# FileList = @()" | Set-Content $ModuleManifestOutputFileInfo.FullName
+(Get-Content $ModuleManifestOutputFileInfo.FullName -Raw) -replace "(?s)FileList\ =\ @\([^)]*\)", "# FileList = @()" | Set-Content $ModuleManifestOutputFileInfo.FullName
 
 ## Update Module Manifest in Module Output Directory
 Update-ModuleManifest -Path $ModuleManifestOutputFileInfo.FullName -FileList $ModuleFileList -NestedModules $ModuleManifest.NestedModules -CmdletsToExport $ModuleManifest.CmdletsToExport -AliasesToExport $ModuleManifest.AliasesToExport #-RequiredAssemblies $ModuleRequiredAssemblies
 #Write-Warning "PowerShell Core fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList so fix the order before publishing."
 
 ## Sign Module
-&$PSScriptRoot\Sign-PSModule.ps1 | Format-Table Path,Status,StatusMessage
+&$PSScriptRoot\Sign-PSModule.ps1 | Format-Table Path, Status, StatusMessage
