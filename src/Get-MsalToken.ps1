@@ -50,11 +50,11 @@ function Get-MsalToken {
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-OnBehalfOf', ValueFromPipelineByPropertyName = $true)]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
 
-        #
-        # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate')]
-        # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-AuthorizationCode')]
-        # [Parameter(Mandatory=$true, ParameterSetName='ConfidentialClientCertificate-OnBehalfOf')]
-        # [switch] $SendX5C,
+        # Specifies if the x5c claim (public key of the certificate) should be sent to the STS.
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClient-InputObject')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-AuthorizationCode')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-OnBehalfOf')]
+        [switch] $SendX5C,
 
         # The authorization code received from service authorization endpoint.
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClient-InputObject')]
@@ -305,7 +305,7 @@ function Get-MsalToken {
                 }
                 else {
                     $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenForClient($Scopes)
-                    #if ($SendX5C) { [void] $AquireTokenParameters.WithSendX5C($SendX5C) }
+                    if ($SendX5C) { [void] $AquireTokenParameters.WithSendX5C($SendX5C) }
                     if ($PSBoundParameters.ContainsKey('ForceRefresh')) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
                 }
             }
