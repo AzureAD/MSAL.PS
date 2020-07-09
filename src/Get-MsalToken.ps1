@@ -215,13 +215,13 @@ function Get-MsalToken {
                 [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplication
                 break
             }
-            "ConfidentialClientSecret" {
+            "ConfidentialClientSecret*" {
                 $paramSelectMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName Select-MsalClientApplication -CommandParameterSets "ConfidentialClientSecret"
                 [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication = Select-MsalClientApplication @paramSelectMsalClientApplication
                 [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplication
                 break
             }
-            "ConfidentialClientCertificate" {
+            "ConfidentialClientCertificate*" {
                 $paramSelectMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName Select-MsalClientApplication -CommandParameterSets "ConfidentialClientCertificate"
                 [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication = Select-MsalClientApplication @paramSelectMsalClientApplication
                 [Microsoft.Identity.Client.IConfidentialClientApplication] $ClientApplication = $ConfidentialClientApplication
