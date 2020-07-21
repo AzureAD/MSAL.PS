@@ -1,24 +1,77 @@
 Set-StrictMode -Version 2.0
 
+<#
+.SYNOPSIS
+    Get path relative to working directory.
+.EXAMPLE
+    PS C:\>Get-RelativePath 'C:\DirectoryA\File1.txt'
+    Get path relative to current directory.
+.EXAMPLE
+    PS C:\>Get-RelativePath 'C:\DirectoryA\File1.txt' -WorkingDirectory 'C:\DirectoryB' -CompareCase
+    Get path relative to specified working directory with case-sensitive directory comparison.
+.INPUTS
+    System.String
+#>
 function Get-RelativePath {
     [CmdletBinding()]
-    [OutputType([string[]])]
+    [OutputType([string])]
     param (
-        # Input Paths
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 1)]
-        [string[]] $Paths,
-        # Directory to base relative paths. Default is current directory.
+        # Input paths
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+        [string[]] $InputObjects,
+        # Working directory for relative paths. Default is current directory.
         [Parameter(Mandatory = $false, Position = 2)]
-        [string] $BaseDirectory = (Get-Location).ProviderPath
+        [string] $WorkingDirectory = (Get-Location).ProviderPath,
+        # Compare directory names as case-sensitive.
+        [Parameter(Mandatory = $false)]
+        [switch] $CompareCase,
+        # Directory separator used in paths.
+        [Parameter(Mandatory = $false)]
+        [char] $DirectorySeparator = [System.IO.Path]::DirectorySeparatorChar
     )
 
+    begin {
+        ## Adapted From:
+        ##  https://github.com/dotnet/runtime/blob/6072e4d3a7a2a1493f514cdf4be75a3d56580e84/src/libraries/System.Private.Uri/src/System/Uri.cs#L5037
+        function PathDifference([string] $path1, [string] $path2, [bool] $compareCase, [char] $directorySeparator = [System.IO.Path]::DirectorySeparatorChar) {
+            [int] $i = 0
+            [int] $si = -1
+
+            for ($i = 0; ($i -lt $path1.Length) -and ($i -lt $path2.Length); $i++) {
+                if (($path1[$i] -cne $path2[$i]) -and ($compareCase -or ([char]::ToLowerInvariant($path1[$i]) -cne [char]::ToLowerInvariant($path2[$i])))) {
+                    break
+                }
+                elseif ($path1[$i] -ceq $directorySeparator) {
+                    $si = $i
+                }
+            }
+
+            if ($i -ceq 0) {
+                return $path2
+            }
+            if (($i -ceq $path1.Length) -and ($i -ceq $path2.Length)) {
+                return [string]::Empty
+            }
+
+            [System.Text.StringBuilder] $relPath = New-Object System.Text.StringBuilder
+            ## Walk down several dirs
+            for (; $i -lt $path1.Length; $i++) {
+                if ($path1[$i] -ceq $directorySeparator) {
+                    [void] $relPath.Append("..$directorySeparator")
+                }
+            }
+            ## Same path except that path1 ended with a file name and path2 didn't
+            if ($relPath.Length -ceq 0 -and $path2.Length - 1 -ceq $si) {
+                return ".$directorySeparator" ## Truncate the file name
+            }
+            return $relPath.Append($path2.Substring($si + 1)).ToString()
+        }
+    }
+
     process {
-        foreach ($Path in $Paths) {
-            if (!$BaseDirectory.EndsWith('\') -and !$BaseDirectory.EndsWith('/')) { $BaseDirectory += '\' }
-            [uri] $uriPath = $Path
-            [uri] $uriBaseDirectory = $BaseDirectory
-            [uri] $uriRelativePath = $uriBaseDirectory.MakeRelativeUri($uriPath)
-            [string] $RelativePath = '.\{0}' -f $uriRelativePath.ToString().Replace("/", "\");
+        foreach ($InputObject in $InputObjects) {
+            if (!$WorkingDirectory.EndsWith($DirectorySeparator)) { $WorkingDirectory += $DirectorySeparator }
+            [string] $RelativePath = '.{0}{1}' -f $DirectorySeparator, (PathDifference $WorkingDirectory $InputObject $CompareCase $DirectorySeparator)
             Write-Output $RelativePath
         }
     }
@@ -130,6 +183,12 @@ function Get-PathInfo {
                     $OutputPath = Get-Item $ResolvePath -ErrorAction SilentlyContinue
                 }
                 catch { }
+                if ($OutputPath -is [array]) {
+                    $paramGetPathInfo = Select-PsBoundParameters $PSBoundParameters -CommandName Get-PathInfo -ExcludeParameters Paths
+                    Get-PathInfo $OutputPath @paramGetPathInfo
+                    return
+                }
+
                 ## If path could not be found and there are no wildcards, then create a FileSystemInfo object for the path.
                 if (!$OutputPath -and $Path -notmatch '[*?]') {
                     ## Get Absolute Path
@@ -167,6 +226,7 @@ function Get-PathInfo {
         }
     }
 }
+
 
 function Assert-DirectoryExists {
     [CmdletBinding()]
@@ -661,5 +721,91 @@ function ConvertTo-PsString {
             }
 
         }
+    }
+}
+
+<#
+.SYNOPSIS
+    Filters a hashtable or PSBoundParameters containing PowerShell command parameters to only those valid for specified command.
+.EXAMPLE
+    PS C:\>Select-PsBoundParameters @{Name='Valid'; Verbose=$true; NotAParameter='Remove'} -CommandName Get-Process -ExcludeParameters 'Verbose'
+    Filters the parameter hashtable to only include valid parameters for the Get-Process command and exclude the Verbose parameter.
+.EXAMPLE
+    PS C:\>Select-PsBoundParameters @{Name='Valid'; Verbose=$true; NotAParameter='Remove'} -CommandName Get-Process -CommandParameterSets NameWithUserName
+    Filters the parameter hashtable to only include valid parameters for the Get-Process command in the "NameWithUserName" ParameterSet.
+.INPUTS
+    System.String
+#>
+function Select-PsBoundParameters {
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param (
+        # Specifies the parameter key pairs to be filtered.
+        [Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true)]
+        [hashtable] $NamedParameters,
+
+        # Specifies the parameter names to remove from the output.
+        [Parameter(Mandatory = $false)]
+        [ArgumentCompleter( {
+                param ( $commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters )
+                if ($fakeBoundParameters.ContainsKey('NamedParameters')) {
+                    [string[]]$fakeBoundParameters.NamedParameters.Keys | Where-Object { $_ -Like "$wordToComplete*" }
+                }
+            })]
+        [string[]] $ExcludeParameters,
+
+        # Specifies the name of a PowerShell command to further filter valid parameters.
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter( {
+                param ( $commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters )
+                [array] $CommandInfo = Get-Command "$wordToComplete*"
+                if ($CommandInfo) {
+                    $CommandInfo.Name #| ForEach-Object {$_}
+                }
+            })]
+        [Alias('Name')]
+        [string] $CommandName,
+
+        # Specifies parameter sets of the PowerShell command to further filter valid parameters.
+        [Parameter(Mandatory = $false)]
+        [ArgumentCompleter( {
+                param ( $commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters )
+                if ($fakeBoundParameters.ContainsKey('CommandName')) {
+                    [array] $CommandInfo = Get-Command $fakeBoundParameters.CommandName
+                    if ($CommandInfo) {
+                        $CommandInfo[0].ParameterSets.Name | Where-Object { $_ -Like "$wordToComplete*" }
+                    }
+                }
+            })]
+        [string[]] $CommandParameterSets
+    )
+
+    process {
+        [hashtable] $SelectedParameters = $NamedParameters.Clone()
+
+        [string[]] $CommandParameters = $null
+        if ($CommandName) {
+            $CommandInfo = Get-Command $CommandName
+            if ($CommandParameterSets) {
+                [System.Collections.Generic.List[string]] $listCommandParameters = New-Object System.Collections.Generic.List[string]
+                foreach ($CommandParameterSet in $CommandParameterSets) {
+                    $listCommandParameters.AddRange([string[]]($CommandInfo.ParameterSets | Where-Object Name -eq $CommandParameterSet | Select-Object -ExpandProperty Parameters | Select-Object -ExpandProperty Name))
+                }
+                $CommandParameters = $listCommandParameters | Select-Object -Unique
+            }
+            else {
+                $CommandParameters = $CommandInfo.Parameters.Keys
+            }
+        }
+
+        [string[]] $ParameterKeys = $SelectedParameters.Keys
+        foreach ($ParameterKey in $ParameterKeys) {
+            if ($ExcludeParameters -contains $ParameterKey -or ($CommandParameters -and $CommandParameters -notcontains $ParameterKey)) {
+                $SelectedParameters.Remove($ParameterKey)
+            }
+        }
+
+        return $SelectedParameters
     }
 }

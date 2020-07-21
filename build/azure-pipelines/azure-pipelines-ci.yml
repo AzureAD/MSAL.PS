@@ -1,0 +1,91 @@
+# Continuous Integration Pipeline
+# https://aka.ms/yaml
+
+parameters:
+- name: vmImage
+  displayName: 'Pool Image'
+  type: string
+  default: 'windows-latest'
+  values:
+  - windows-latest
+  - ubuntu-latest
+  - macOS-latest
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/*
+
+pr: none
+
+variables:
+  moduleName: 'MSAL.PS'
+  vmImage: '${{ parameters.vmImage }}'
+  artifactModule: 'PSModule'
+  #artifactModuleSigned: 'PSModuleSigned'
+  #artifactModulePackage: 'PSModulePackage'
+
+pool:
+  vmImage: $(vmImage)
+
+stages:
+- stage: Build
+  jobs: 
+  - job: Prepare
+    variables:
+      skipComponentGovernanceDetection: true
+    steps:
+    - task: PowerShell@2
+      name: ModuleInfo
+      displayName: 'Get Parameters for PowerShell Module'
+      inputs:
+        filePath: '$(System.DefaultWorkingDirectory)/build/Get-PSModuleInfo.ps1'
+        arguments: '-ModuleManifestPath "$(Build.SourcesDirectory)/src/*.psd1" -PackagesConfigPath "$(Build.SourcesDirectory)/packages.config"'
+        pwsh: true
+
+  - job: Build
+    dependsOn: Prepare
+    variables: 
+      moduleName: '$[ dependencies.Prepare.outputs[''ModuleInfo.moduleName''] ]'
+      #moduleVersion.Prefix: '$[ dependencies.Prepare.outputs[''ModuleInfo.moduleVersion''] ]'
+      moduleVersion.Prefix: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Identity.Client''] ]'
+      moduleVersion.Revision: '$[ counter(variables[''moduleVersion.Prefix''], 1) ]'
+      moduleVersion: '$[ coalesce(variables[''moduleVersionOverride''], format(''{0}.{1}'', variables[''moduleVersion.Prefix''], variables[''moduleVersion.Revision''])) ]'
+      version.Microsoft.Identity.Client: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Identity.Client''] ]'
+    steps:
+    - template: template-psmodule-build.yml
+      parameters:
+        moduleName: '$(moduleName)'
+        moduleVersion: '$(moduleVersion)'
+        packages:
+        - id: Microsoft.Identity.Client
+          version: '$(version.Microsoft.Identity.Client)'
+          targetFramework: [netcoreapp2.1, net45]
+
+  - job: Sign
+    dependsOn:
+    - Prepare
+    - Build
+    variables:
+      moduleName: '$[ dependencies.Prepare.outputs[''ModuleInfo.moduleName''] ]'
+      skipComponentGovernanceDetection: true
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - download: current
+      artifact: '$(artifactModule)'
+    - template: template-psmodule-sign.yml
+      parameters:
+        moduleName: '$(moduleName)'
+        SigningCertificateSecretName: 'Jason-Thompson-Test'
+
+#- stage: Test
+#  dependsOn: Build
+#  jobs: 
+#  - job: Test
+#    steps:
+#    - script: 'echo ToDo: Integrate Pester Tests'

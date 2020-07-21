@@ -42,7 +42,7 @@ Import-Module "$PSScriptRoot\CommonFunctions.psm1" -Force -WarningAction Silentl
 [System.IO.FileInfo] $LicenseFileInfo = Get-PathInfo $LicensePath -DefaultDirectory $BaseDirectoryInfo.FullName -DefaultFilename "LICENSE" -ErrorAction Stop
 
 ## Read Module Manifest
-$ModuleManifest = Import-PowershellDataFile $ModuleManifestFileInfo.FullName
+$ModuleManifest = Import-PowerShellDataFile $ModuleManifestFileInfo.FullName
 [System.IO.DirectoryInfo] $ModuleOutputDirectoryInfo = Join-Path $OutputDirectoryInfo.FullName (Join-Path $ModuleManifestFileInfo.BaseName $ModuleManifest.ModuleVersion)
 
 ## Copy Source Module Code to Module Output Directory
@@ -51,7 +51,7 @@ Copy-Item ("{0}\*" -f $SourceDirectoryInfo.FullName) -Destination $ModuleOutputD
 Copy-Item $LicenseFileInfo.FullName -Destination (Join-Path $ModuleOutputDirectoryInfo.FullName License.txt) -Force
 
 ## NuGet Restore
-&$PSScriptRoot\Restore-NugetPackages.ps1 -PackagesConfigPath $PackagesConfigFileInfo.FullName -OutputDirectory $PackagesDirectoryInfo.FullName -ErrorAction Stop
+&$PSScriptRoot\Restore-NugetPackages.ps1 -BaseDirectory $BaseDirectory -PackagesConfigPath $PackagesConfigFileInfo.FullName -OutputDirectory $PackagesDirectoryInfo.FullName -ErrorAction Stop
 
 ## Read Packages Configuration
 $xmlPackagesConfig = New-Object xml
@@ -70,21 +70,8 @@ foreach ($package in $xmlPackagesConfig.packages.package) {
     }
 }
 
-## Get Module Output FileList
-$ModuleFileListFileInfo = Get-ChildItem $ModuleOutputDirectoryInfo.FullName -Recurse -File
-$ModuleRequiredAssembliesFileInfo = $ModuleFileListFileInfo | Where-Object Extension -eq '.dll'
-$ModuleManifestOutputFileInfo = $ModuleFileListFileInfo | Where-Object Name -eq $ModuleManifestFileInfo.Name
-
-$ModuleFileList = Get-RelativePath $ModuleFileListFileInfo.FullName -BaseDirectory $ModuleOutputDirectoryInfo.FullName -ErrorAction Stop
-$ModuleFileList = $ModuleFileList -replace '\\net45\\', '\!!!\' -replace '\\netcoreapp2.1\\', '\net45\' -replace '\\!!!\\', '\netcoreapp2.1\'  # PowerShell Core fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList.
-$ModuleRequiredAssemblies = Get-RelativePath $ModuleRequiredAssembliesFileInfo.FullName -BaseDirectory $ModuleOutputDirectoryInfo.FullName -ErrorAction Stop
-
-## Clear FileList
-(Get-Content $ModuleManifestOutputFileInfo.FullName -Raw) -replace "(?s)FileList\ =\ @\([^)]*\)", "# FileList = @()" | Set-Content $ModuleManifestOutputFileInfo.FullName
-
 ## Update Module Manifest in Module Output Directory
-Update-ModuleManifest -Path $ModuleManifestOutputFileInfo.FullName -FileList $ModuleFileList -NestedModules $ModuleManifest.NestedModules -CmdletsToExport $ModuleManifest.CmdletsToExport -AliasesToExport $ModuleManifest.AliasesToExport #-RequiredAssemblies $ModuleRequiredAssemblies
-#Write-Warning "PowerShell Core fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList so fix the order before publishing."
+&$PSScriptRoot\Update-PSModuleManifest.ps1 -ModuleManifestPath (Join-Path $ModuleOutputDirectoryInfo.FullName $ModuleManifestFileInfo.Name)
 
 ## Sign Module
 &$PSScriptRoot\Sign-PSModule.ps1 | Format-Table Path, Status, StatusMessage

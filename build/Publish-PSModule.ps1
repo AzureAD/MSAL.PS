@@ -1,11 +1,45 @@
+#Requires -Version 7.0
 param
 (
-    # Path to Module
-    [parameter(Mandatory = $false)]
-    [string] $ModulePath = ".\release\MSAL.PS\4.16.0.2",
+    # Path to Module Manifest
+    [Parameter(Mandatory = $false)]
+    [string] $ModuleManifestPath = ".\release\*\*.*.*\*.psd1",
+    # Repository for PowerShell Gallery
+    [Parameter(Mandatory = $false)]
+    [string] $RepositorySourceLocation = 'https://www.powershellgallery.com/api/v2',
     # API Key for PowerShell Gallery
     [Parameter(Mandatory = $true)]
-    [string] $NuGetApiKey
+    [securestring] $NuGetApiKey,
+    # Unlist from PowerShell Gallery
+    [Parameter(Mandatory = $false)]
+    [switch] $Unlist
 )
 
-Publish-Module -Path $ModulePath -NuGetApiKey $NuGetApiKey
+## Initialize
+Import-Module "$PSScriptRoot\CommonFunctions.psm1" -Force -WarningAction SilentlyContinue -ErrorAction Stop
+
+[System.IO.FileInfo] $ModuleManifestFileInfo = Get-PathInfo $ModuleManifestPath -DefaultFilename "*.psd1" -ErrorAction Stop | Select-Object -Last 1
+
+## Publish
+$PSRepositoryAll = Get-PSRepository
+$PSRepository = $PSRepositoryAll | Where-Object SourceLocation -like "$RepositorySourceLocation*"
+if (!$PSRepository) {
+    try {
+        [string] $RepositoryName = New-Guid
+        Register-PSRepository $RepositoryName -SourceLocation $RepositorySourceLocation
+        $PSRepository = Get-PSRepository $RepositoryName
+        Publish-Module -Path $ModuleManifestFileInfo.DirectoryName -NuGetApiKey (ConvertFrom-SecureString $NuGetApiKey -AsPlainText) -Repository $PSRepository.Name
+    }
+    finally {
+        Unregister-PSRepository $RepositoryName
+    }
+}
+else {
+    Publish-Module -Path $ModuleManifestFileInfo.DirectoryName -NuGetApiKey (ConvertFrom-SecureString $NuGetApiKey -AsPlainText) -Repository $PSRepository.Name
+}
+
+## Unlist the Package
+if ($Unlist) {
+    $ModuleManifest = Import-PowerShellDataFile $ModuleManifestFileInfo.FullName
+    Invoke-RestMethod -Method Delete -Uri ("{0}/{1}/{2}" -f $PSRepository.PublishLocation, $ModuleManifestFileInfo.BaseName, $ModuleManifest.ModuleVersion) -Headers @{ 'X-NuGet-ApiKey' = ConvertFrom-SecureString $NuGetApiKey -AsPlainText }
+}
