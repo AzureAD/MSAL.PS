@@ -48,7 +48,7 @@ function Select-MsalClientApplication {
         [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions
     )
 
-    $paramNewMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName New-MsalClientApplication
+    $paramNewMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName New-MsalClientApplication -ExcludeParameters ErrorAction
     $NewClientApplication = New-MsalClientApplication -ErrorAction Stop @paramNewMsalClientApplication
     switch -Wildcard ($PSCmdlet.ParameterSetName) {
         "PublicClient*" {
