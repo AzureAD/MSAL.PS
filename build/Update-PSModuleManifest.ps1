@@ -5,7 +5,10 @@ param
     [string] $ModuleManifestPath = ".\release\*\*.*.*",
     # Module Version
     [Parameter(Mandatory = $false)]
-    [string] $ModuleVersion
+    [string] $ModuleVersion,
+    # Skip Update of RequiredAssemblies
+    [Parameter(Mandatory = $false)]
+    [switch] $SkipRequiredAssemblies
 )
 
 ## Initialize
@@ -31,7 +34,7 @@ $ModuleFileList = Get-RelativePath $ModuleFileListFileInfo.FullName -WorkingDire
 $ModuleFileList = $ModuleFileList -replace '\\net45\\', '\!!!\' -replace '\\netcoreapp2.1\\', '\net45\' -replace '\\!!!\\', '\netcoreapp2.1\'  # PowerShell Core fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList.
 $paramUpdateModuleManifest['FileList'] = $ModuleFileList
 
-if ($ModuleRequiredAssembliesFileInfo) {
+if (!$SkipRequiredAssemblies -and $ModuleRequiredAssembliesFileInfo) {
     $ModuleRequiredAssemblies = Get-RelativePath $ModuleRequiredAssembliesFileInfo.FullName -WorkingDirectory $ModuleOutputDirectoryInfo.FullName -ErrorAction Stop
     $paramUpdateModuleManifest['RequiredAssemblies'] = $ModuleRequiredAssemblies
 }

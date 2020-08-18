@@ -71,7 +71,7 @@ foreach ($package in $xmlPackagesConfig.packages.package) {
 }
 
 ## Update Module Manifest in Module Output Directory
-&$PSScriptRoot\Update-PSModuleManifest.ps1 -ModuleManifestPath (Join-Path $ModuleOutputDirectoryInfo.FullName $ModuleManifestFileInfo.Name)
+&$PSScriptRoot\Update-PSModuleManifest.ps1 -ModuleManifestPath (Join-Path $ModuleOutputDirectoryInfo.FullName $ModuleManifestFileInfo.Name) -SkipRequiredAssemblies
 
 ## Sign Module
 &$PSScriptRoot\Sign-PSModule.ps1 | Format-Table Path, Status, StatusMessage
