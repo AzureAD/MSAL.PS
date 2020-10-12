@@ -4,7 +4,7 @@
 resources:
   pipelines:
   - pipeline: 'CI'
-    source: 'jasoth.MSAL.PS.CI'
+    source: 'AzureAD.MSAL.PS.CI'
     branch: master
     #trigger:
     #  branches:
