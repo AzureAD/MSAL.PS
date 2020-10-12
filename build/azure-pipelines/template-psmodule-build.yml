@@ -60,7 +60,7 @@ steps:
   displayName: 'Update PowerShell Module Manifest'
   inputs:
     filePath: '$(System.DefaultWorkingDirectory)/build/Update-PSModuleManifest.ps1'
-    arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ parameters.moduleName }}/${{ parameters.moduleName }}.psd1" -ModuleVersion "${{ parameters.moduleVersion }}"'
+    arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ parameters.moduleName }}/${{ parameters.moduleName }}.psd1" -ModuleVersion "${{ parameters.moduleVersion }}" -SkipRequiredAssemblies'
     pwsh: true
 
 - task: PublishPipelineArtifact@1
