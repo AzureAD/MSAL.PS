@@ -126,7 +126,7 @@ FileList = @(
 PrivateData = @{
     PSData = @{
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Microsoft', 'Identity', 'Azure', 'AzureActiveDirectory', 'AzureAD', 'AAD', 'ActiveDirectory', 'AD', 'Microsoft.Identity.Client', 'MicrosoftAuthenticationLibrary', 'MSAL', 'OAuth', 'OpenIdConnect', 'OIDC', 'AzureAutomationNotSupported', 'PSEdition_Desktop', 'PSEdition_Core', 'Windows', 'Linux', 'MacOS'
+        Tags = 'Microsoft', 'Identity', 'Azure', 'AzureActiveDirectory', 'AzureAD', 'AAD', 'ActiveDirectory', 'AD', 'ActiveDirectoryFederationServices', 'ADFS', 'Microsoft.Identity.Client', 'MicrosoftAuthenticationLibrary', 'MSAL', 'OAuth', 'OpenIdConnect', 'OIDC', 'AzureAutomationNotSupported', 'PSEdition_Desktop', 'PSEdition_Core', 'Windows', 'Linux', 'MacOS'
 
         # A URL to the license for this module.
         LicenseUri = 'https://raw.githubusercontent.com/jasoth/MSAL.PS/master/LICENSE'
