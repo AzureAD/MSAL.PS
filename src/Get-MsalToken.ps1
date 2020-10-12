@@ -52,6 +52,7 @@ function Get-MsalToken {
 
         # Specifies if the x5c claim (public key of the certificate) should be sent to the STS.
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClient-InputObject')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate')]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-AuthorizationCode')]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-OnBehalfOf')]
         [switch] $SendX5C,
@@ -173,6 +174,10 @@ function Get-MsalToken {
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [hashtable] $ExtraQueryParameters,
 
+        # Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP), rather than a Bearer token.
+        [Parameter(Mandatory = $false)]
+        [System.Net.Http.HttpRequestMessage] $WithProofOfPosession,
+
         # Ignore any access token in the user token cache and attempt to acquire new access token using the refresh token for the account if one is available.
         [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient')]
         [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-Silent')]
@@ -186,7 +191,11 @@ function Get-MsalToken {
         [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-Interactive', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-InputObject', ValueFromPipelineByPropertyName = $true)]
-        [switch] $UseEmbeddedWebView
+        [switch] $UseEmbeddedWebView,
+
+        # Specifies the timeout threshold for MSAL.net operations.
+        [Parameter(Mandatory = $false)]
+        [timespan] $Timeout
     )
 
     begin {
@@ -197,6 +206,7 @@ function Get-MsalToken {
             return $false
         }
 
+        function Coalesce([psobject[]]$objects) { foreach ($object in $objects) { if ($object -notin $null, [string]::Empty) { return $object } } return $null }
     }
 
     process {
@@ -247,6 +257,9 @@ function Get-MsalToken {
                     if ($LoginHint) { [void] $AquireTokenParameters.WithLoginHint($LoginHint) }
                     if ($Prompt) { [void] $AquireTokenParameters.WithPrompt([Microsoft.Identity.Client.Prompt]::$Prompt) }
                     if ($PSBoundParameters.ContainsKey('UseEmbeddedWebView')) { [void] $AquireTokenParameters.WithUseEmbeddedWebView($UseEmbeddedWebView) }
+                    if (!$Timeout -and (($PSBoundParameters.ContainsKey('UseEmbeddedWebView') -and !$UseEmbeddedWebView) -or $PSVersionTable.PSEdition -eq 'Core')) {
+                        $Timeout = New-TimeSpan -Minutes 2
+                    }
                 }
                 elseif ($PSBoundParameters.ContainsKey("IntegratedWindowsAuth") -and $IntegratedWindowsAuth) {
                     $AquireTokenParameters = $PublicClientApplication.AcquireTokenByIntegratedWindowsAuth($Scopes)
@@ -305,9 +318,9 @@ function Get-MsalToken {
                 }
                 else {
                     $AquireTokenParameters = $ConfidentialClientApplication.AcquireTokenForClient($Scopes)
-                    if ($SendX5C) { [void] $AquireTokenParameters.WithSendX5C($SendX5C) }
                     if ($PSBoundParameters.ContainsKey('ForceRefresh')) { [void] $AquireTokenParameters.WithForceRefresh($ForceRefresh) }
                 }
+                if ($SendX5C) { [void] $AquireTokenParameters.WithSendX5C($SendX5C) }
             }
             "*" {
                 if ($AzureCloudInstance -and $TenantId) { [void] $AquireTokenParameters.WithAuthority($AzureCloudInstance, $TenantId) }
@@ -316,12 +329,50 @@ function Get-MsalToken {
                 if ($Authority) { [void] $AquireTokenParameters.WithAuthority($Authority.AbsoluteUri) }
                 if ($CorrelationId) { [void] $AquireTokenParameters.WithCorrelationId($CorrelationId) }
                 if ($ExtraQueryParameters) { [void] $AquireTokenParameters.WithExtraQueryParameters((ConvertTo-Dictionary $ExtraQueryParameters -KeyType ([string]) -ValueType ([string]))) }
+                if ($WithProofOfPosession) { [void] $AquireTokenParameters.WithProofOfPosession($WithProofOfPosession) }
                 Write-Debug ('Aquiring Token for Application with ClientId [{0}]' -f $ClientApplication.ClientId)
+                if (!$Timeout) { $Timeout = [timespan]::Zero }
+
+                ## Wait for async task to complete
+                $tokenSource = New-Object System.Threading.CancellationTokenSource
                 try {
-                    $AuthenticationResult = $AquireTokenParameters.ExecuteAsync().GetAwaiter().GetResult()
+                    #$AuthenticationResult = $AquireTokenParameters.ExecuteAsync().GetAwaiter().GetResult()
+                    $taskAuthenticationResult = $AquireTokenParameters.ExecuteAsync($tokenSource.Token)
+                    try {
+                        $endTime = [datetime]::Now.Add($Timeout)
+                        while (!$taskAuthenticationResult.IsCompleted) {
+                            if ($Timeout -eq [timespan]::Zero -or [datetime]::Now -lt $endTime) {
+                                Start-Sleep -Seconds 1
+                            }
+                            else {
+                                $tokenSource.Cancel()
+                                try { $taskAuthenticationResult.Wait() }
+                                catch { }
+                                Write-Error -Exception (New-Object System.TimeoutException) -Category ([System.Management.Automation.ErrorCategory]::OperationTimeout) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'GetMsalTokenFailureOperationTimeout' -TargetObject $AquireTokenParameters -ErrorAction Stop
+                            }
+                        }
+                    }
+                    finally {
+                        if (!$taskAuthenticationResult.IsCompleted) {
+                            Write-Debug ('Canceling Token Acquisition for Application with ClientId [{0}]' -f $ClientApplication.ClientId)
+                            $tokenSource.Cancel()
+                        }
+                        $tokenSource.Dispose()
+                    }
+
+                    ## Parse task results
+                    if ($taskAuthenticationResult.IsFaulted) {
+                        Write-Error -Exception $taskAuthenticationResult.Exception -Category ([System.Management.Automation.ErrorCategory]::AuthenticationError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'GetMsalTokenFailureAuthenticationError' -TargetObject $AquireTokenParameters -ErrorAction Stop
+                    }
+                    if ($taskAuthenticationResult.IsCanceled) {
+                        Write-Error -Exception (New-Object System.Threading.Tasks.TaskCanceledException $taskAuthenticationResult) -Category ([System.Management.Automation.ErrorCategory]::OperationStopped) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'GetMsalTokenFailureOperationStopped' -TargetObject $AquireTokenParameters -ErrorAction Stop
+                    }
+                    else {
+                        $AuthenticationResult = $taskAuthenticationResult.Result
+                    }
                 }
                 catch {
-                    Write-Error -Exception $_.Exception.InnerException -Category ([System.Management.Automation.ErrorCategory]::AuthenticationError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'GetMsalTokenFailureAuthenticationError' -TargetObject $AquireTokenParameters -ErrorAction Stop
+                    Write-Error -Exception (Coalesce $_.Exception.InnerException,$_.Exception) -Category ([System.Management.Automation.ErrorCategory]::AuthenticationError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'GetMsalTokenFailureAuthenticationError' -TargetObject $AquireTokenParameters -ErrorAction Stop
                 }
                 break
             }

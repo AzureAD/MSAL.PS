@@ -55,6 +55,8 @@ foreach ($Path in ($ModuleManifest.FileList -like "*\DeviceCodeHelper.cs")) {
 }
 if ($PSVersionTable.PSVersion -ge [version]'6.0') {
     $RequiredAssemblies.Add('System.Console.dll')
+    #$RequiredAssemblies.Add('System.ComponentModel.Primitives.dll')
+    #$RequiredAssemblies.Add('System.Diagnostics.Process.dll')
 }
 try {
     Add-Type -LiteralPath $srcDeviceCodeHelper -ReferencedAssemblies $RequiredAssemblies -IgnoreWarnings -WarningAction SilentlyContinue
