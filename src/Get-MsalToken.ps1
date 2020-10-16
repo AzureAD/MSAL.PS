@@ -176,7 +176,7 @@ function Get-MsalToken {
 
         # Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP), rather than a Bearer token.
         [Parameter(Mandatory = $false)]
-        [System.Net.Http.HttpRequestMessage] $WithProofOfPosession,
+        [System.Net.Http.HttpRequestMessage] $ProofOfPossession,
 
         # Ignore any access token in the user token cache and attempt to acquire new access token using the refresh token for the account if one is available.
         [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient')]
@@ -329,7 +329,7 @@ function Get-MsalToken {
                 if ($Authority) { [void] $AquireTokenParameters.WithAuthority($Authority.AbsoluteUri) }
                 if ($CorrelationId) { [void] $AquireTokenParameters.WithCorrelationId($CorrelationId) }
                 if ($ExtraQueryParameters) { [void] $AquireTokenParameters.WithExtraQueryParameters((ConvertTo-Dictionary $ExtraQueryParameters -KeyType ([string]) -ValueType ([string]))) }
-                if ($WithProofOfPosession) { [void] $AquireTokenParameters.WithProofOfPosession($WithProofOfPosession) }
+                if ($ProofOfPossession) { [void] $AquireTokenParameters.WithProofOfPosession($ProofOfPossession) }
                 Write-Debug ('Aquiring Token for Application with ClientId [{0}]' -f $ClientApplication.ClientId)
                 if (!$Timeout) { $Timeout = [timespan]::Zero }
 

@@ -60,6 +60,10 @@ function New-MsalClientApplication {
         # Address of the authority to issue token.
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [uri] $Authority,
+        # Use Platform Authentication Broker
+        #[Parameter(Mandatory = $false, ParameterSetName = 'PublicClient', ValueFromPipelineByPropertyName = $true)]
+        #[Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-InputObject', ValueFromPipelineByPropertyName = $true)]
+        #[switch] $AuthenticationBroker,
         # Sets Extra Query Parameters for the query string in the HTTP authentication request.
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [hashtable] $ExtraQueryParameters,
@@ -89,8 +93,10 @@ function New-MsalClientApplication {
                 $ClientApplicationBuilder = [Microsoft.Identity.Client.PublicClientApplicationBuilder]::Create($ClientId)
             }
 
+            if ($PSBoundParameters.ContainsKey('EnableExperimentalFeatures')) { [void] $ClientApplicationBuilder.WithExperimentalFeatures($EnableExperimentalFeatures) }  # Must be called before other experimental features
             if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri.AbsoluteUri) }
             elseif (!$PublicClientOptions -or !$PublicClientOptions.RedirectUri) { [void] $ClientApplicationBuilder.WithDefaultRedirectUri() }
+            if ($PSBoundParameters.ContainsKey('AuthenticationBroker')) { [void] $ClientApplicationBuilder.WithBroker($AuthenticationBroker) }
 
             $ClientOptions = $PublicClientOptions
         }
@@ -102,6 +108,7 @@ function New-MsalClientApplication {
                 $ClientApplicationBuilder = [Microsoft.Identity.Client.ConfidentialClientApplicationBuilder]::Create($ClientId)
             }
 
+            if ($PSBoundParameters.ContainsKey('EnableExperimentalFeatures')) { [void] $ClientApplicationBuilder.WithExperimentalFeatures($EnableExperimentalFeatures) }  # Must be called before other experimental features
             if ($ClientSecret) { [void] $ClientApplicationBuilder.WithClientSecret((ConvertFrom-SecureStringAsPlainText $ClientSecret -Force)) }
             if ($ClientAssertion) { [void] $ClientApplicationBuilder.WithClientAssertion($ClientAssertion) }
             if ($ClientClaims) { [void] $ClientApplicationBuilder.WithClientClaims($ClientCertificate, (ConvertTo-Dictionary $ClientClaims -KeyType ([string]) -ValueType ([string]))) }
@@ -120,7 +127,6 @@ function New-MsalClientApplication {
                 [void] $ClientApplicationBuilder.WithClientVersion($PSVersionTable.PSVersion)
             }
             if ($ExtraQueryParameters) { [void] $ClientApplicationBuilder.WithExtraQueryParameters((ConvertTo-Dictionary $ExtraQueryParameters -KeyType ([string]) -ValueType ([string]))) }
-            if ($PSBoundParameters.ContainsKey('EnableExperimentalFeatures')) { [void] $ClientApplicationBuilder.WithExperimentalFeatures($EnableExperimentalFeatures) }
             #[void] $ClientApplicationBuilder.WithLogging($null, [Microsoft.Identity.Client.LogLevel]::Verbose, $false, $true)
 
             $ClientApplication = $ClientApplicationBuilder.Build()
