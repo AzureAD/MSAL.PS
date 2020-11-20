@@ -5,6 +5,23 @@
 The MSAL.PS PowerShell module wraps MSAL.NET functionality into PowerShell-friendly cmdlets and is not supported by Microsoft. Microsoft support does not extend beyond the underlying MSAL.NET library. For any inquiries regarding the PowerShell module itself, you may contact the author on GitHub or PowerShell Gallery.
 MSAL.NET (Microsoft.Identity.Client) is an authentication library which enables you to acquire tokens from Azure AD, to access protected Web APIs (Microsoft APIs or applications registered with Azure Active Directory).
 
+## Install from the PowerShell Gallery
+```PowerShell
+Install-Module MSAL.PS
+```
+
+If you encounter the error, `WARNING: The specified module 'MSAL.PS' with PowerShellGetFormatVersion '2.0' is not supported by the current version of PowerShellGet. Get the latest version of the PowerShellGet module to install this module, 'MSAL.PS'` then run the following commands to proceed with the installation.
+
+```PowerShell
+## Update Nuget Package and PowerShellGet Module
+Install-PackageProvider NuGet -Force
+Install-Module PowerShellGet -Force
+
+## In a new PowerShell process, install the MSAL.PS Module. Restart PowerShell console if this fails.
+&(Get-Process -Id $pid).Path -Command { Install-Module MSAL.PS }
+Import-Module MSAL.PS
+```
+
 ## Contents
 
 | File/folder       | Description                                             |
