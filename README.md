@@ -22,6 +22,16 @@ Install-Module PowerShellGet -Force
 Import-Module MSAL.PS
 ```
 
+## Usage and Examples
+The built-in help commands in PowerShell can be used to learn about each command in the module.
+```PowerShell
+## View usage examples.
+Get-Help Get-MsalToken -Examples
+
+## View full help.
+Get-Help Get-MsalToken -Full
+```
+
 ## Contents
 
 | File/folder       | Description                                             |
