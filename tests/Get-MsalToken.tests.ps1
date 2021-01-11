@@ -12,7 +12,7 @@ Import-Module $ModulePath -Force
 ## Get Test Automation Token
 [hashtable] $AppConfigAutomation = @{
     ClientId          = 'ada4b466-ae54-45f8-98fc-13b22708b978'
-    ClientCertificate = (Get-ChildItem Cert:\CurrentUser\My\7103A1080D8611BD2CE8A5026D148938F787B12C)
+    ClientCertificate = (Get-ChildItem Cert:\CurrentUser\My\FEC059F21DC9C927406E1EB730BF1EEBEDDB7C0C)
     RedirectUri       = 'http://localhost/'
     TenantId          = 'jasoth.onmicrosoft.com'
 }
