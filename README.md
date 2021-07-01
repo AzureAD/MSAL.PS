@@ -31,6 +31,21 @@ Get-Help Get-MsalToken -Examples
 ## View full help.
 Get-Help Get-MsalToken -Full
 ```
+### Confidential Client Example
+
+AAD P1 licenses required. More info found on [MS Docs](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/howto-manage-inactive-user-accounts).
+```PowerShell
+Import-Module MSAL.PS
+$clientId = "YOURCLIENTID"
+$clientSecret = "YOURCLIENTSECRET"
+$tenantId = "YOURTENANTID"
+
+$ConfidentialClientOptions = New-Object Microsoft.Identity.Client.ConfidentialClientApplicationOptions -Property @{ ClientId = $clientId; ClientSecret = $clientSecret; TenantId = $tenantId }
+$ConfidentialClient = $ConfidentialClientOptions | New-MsalClientApplication
+$tokenObj = Get-MsalToken -Scope 'https://graph.microsoft.com/.default' -ConfidentialClientApplication $ConfidentialClient
+$apiUrl = "https://graph.microsoft.com/beta/users?filter=signInActivity/lastSignInDateTime le 2021-06-21T00:00:00Z&`$select=userPrincipalName,displayName,mail,signInActivity"
+$res = Invoke-RestMethod -Headers @{Authorization = "Bearer $($tokenObj.AccessToken)"} -Uri $apiUrl -Method Get
+```
 
 ## Contents
 
