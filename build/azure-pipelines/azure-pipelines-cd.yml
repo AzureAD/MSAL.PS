@@ -101,7 +101,7 @@ stages:
       parameters:
         moduleName: '$(moduleName)'
         pipelineId: 'CI'
-        SigningCertificateAzureConnection: 'GTP - Jason Thompson(49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
+        SigningCertificateAzureConnection: 'GTP - Jason Thompson (49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
         SigningCertificateKeyVaultName: 'JasothPublic'
         SigningCertificateSecretName: 'Jason-Thompson'
 
@@ -171,7 +171,7 @@ stages:
             parameters:
               moduleName: '$(moduleName)'
               RepositorySourceLocation: 'https://www.poshtestgallery.com/api/v2'
-              NuGetApiKeyAzureConnection: 'GTP - Jason Thompson(49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
+              NuGetApiKeyAzureConnection: 'GTP - Jason Thompson (49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
               NuGetApiKeyVaultName: 'JasothPublic'
               NuGetApiKeySecretName: 'PSTestGallery-API-Key'
               Unlist: true
@@ -210,7 +210,7 @@ stages:
             parameters:
               moduleName: '$(moduleName)'
               RepositorySourceLocation: 'https://www.powershellgallery.com/api/v2'
-              NuGetApiKeyAzureConnection: 'GTP - Jason Thompson(49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
+              NuGetApiKeyAzureConnection: 'GTP - Jason Thompson (49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
               NuGetApiKeyVaultName: 'JasothPublic'
               NuGetApiKeySecretName: 'PSGallery-API-Key'
           - task: GitHubRelease@1
