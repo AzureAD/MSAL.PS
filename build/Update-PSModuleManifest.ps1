@@ -40,12 +40,11 @@ $ModuleRequiredAssembliesFileInfo = $ModuleFileListFileInfo | Where-Object Exten
 ## Get Paths Relative to Module Base Directory
 $ModuleFileList = Get-RelativePath $ModuleFileListFileInfo.FullName -WorkingDirectory $ModuleOutputDirectoryInfo.FullName -ErrorAction Stop
 # PowerShell 6.0 through 7.0.x fails to load assembly if net45 dll comes before netcoreapp2.1 dll in the FileList. Fixed in PowerShell 7.1.
-$ModuleFileList = $ModuleFileList -replace '([\/])net45([\/])Microsoft.Identity.Client.', '$1!!!$2Microsoft.Identity.Client.' -replace '([\/])netcoreapp2.1([\/])Microsoft.Identity.Client.', '$1net45$2Microsoft.Identity.Client.' -replace '([\/])!!!([\/])Microsoft.Identity.Client.', '$1netcoreapp2.1$2Microsoft.Identity.Client.'
-$ModuleFileList = $ModuleFileList -replace '([\/])net461([\/])Microsoft.Identity.Client.Desktop.', '$1!!!$2Microsoft.Identity.Client.Desktop.' -replace '([\/])netcoreapp3.1([\/])Microsoft.Identity.Client.Desktop.', '$1net461$2Microsoft.Identity.Client.Desktop.' -replace '([\/])!!!([\/])Microsoft.Identity.Client.Desktop.', '$1netcoreapp3.1$2Microsoft.Identity.Client.Desktop.'
-$ModuleFileList = $ModuleFileList -replace '([\/])net45([\/])Microsoft.Web.WebView2.', '$1!!!$2Microsoft.Web.WebView2.' -replace '([\/])netcoreapp3.0([\/])Microsoft.Web.WebView2.', '$1net45$2Microsoft.Web.WebView2.' -replace '([\/])!!!([\/])Microsoft.Web.WebView2.', '$1netcoreapp3.0$2Microsoft.Web.WebView2.'
+$ModuleFileList = $ModuleFileList -replace '([\\/])net45([\\/])Microsoft.Identity.Client.', '$1!!!$2Microsoft.Identity.Client.' -replace '([\\/])netcoreapp2.1([\\/])Microsoft.Identity.Client.', '$1net45$2Microsoft.Identity.Client.' -replace '([\\/])!!!([\\/])Microsoft.Identity.Client.', '$1netcoreapp2.1$2Microsoft.Identity.Client.'
+$ModuleFileList = $ModuleFileList -replace '([\\/])net461([\\/])Microsoft.Identity.Client.Desktop.', '$1!!!$2Microsoft.Identity.Client.Desktop.' -replace '([\\/])netcoreapp3.1([\\/])Microsoft.Identity.Client.Desktop.', '$1net461$2Microsoft.Identity.Client.Desktop.' -replace '([\\/])!!!([\\/])Microsoft.Identity.Client.Desktop.', '$1netcoreapp3.1$2Microsoft.Identity.Client.Desktop.'
+$ModuleFileList = $ModuleFileList -replace '([\\/])net45([\\/])Microsoft.Web.WebView2.', '$1!!!$2Microsoft.Web.WebView2.' -replace '([\\/])netcoreapp3.0([\\/])Microsoft.Web.WebView2.', '$1net45$2Microsoft.Web.WebView2.' -replace '([\\/])!!!([\\/])Microsoft.Web.WebView2.', '$1netcoreapp3.0$2Microsoft.Web.WebView2.'
 #$ModuleFileList = $ModuleFileList -replace '\\net45\\', '\!!!\' -replace '\\netcoreapp2.1\\', '\net45\' -replace '\\!!!\\', '\netcoreapp2.1\'
 $paramUpdateModuleManifest['FileList'] = $ModuleFileList
-$ModuleFileList
 
 if (!$SkipRequiredAssemblies -and $ModuleRequiredAssembliesFileInfo) {
     $ModuleRequiredAssemblies = Get-RelativePath $ModuleRequiredAssembliesFileInfo.FullName -WorkingDirectory $ModuleOutputDirectoryInfo.FullName -ErrorAction Stop

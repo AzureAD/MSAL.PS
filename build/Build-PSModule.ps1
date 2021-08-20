@@ -65,7 +65,7 @@ foreach ($package in $xmlPackagesConfig.packages.package) {
         [System.IO.DirectoryInfo] $PackageDirectory = Join-Path $PackagesDirectoryInfo.FullName ("{0}.{1}\lib\{2}" -f $package.id, $package.version, $targetFramework)
         if ($PackageDirectory.Exists -and !($package.id -eq 'Microsoft.Identity.Client' -and $targetFramework -eq 'net461')) { # net45 will be used so remove net461 for Microsoft.Identity.Client
             [System.IO.DirectoryInfo] $PackageOutputDirectory = "{0}\{1}.{2}\{3}" -f $ModuleOutputDirectoryInfo.FullName, $package.id, $package.version, $targetFramework
-            $PackageOutputDirectory
+            #$PackageOutputDirectory
             Assert-DirectoryExists $PackageOutputDirectory -ErrorAction Stop | Out-Null
             Copy-Item ("{0}\*" -f $PackageDirectory) -Destination $PackageOutputDirectory.FullName -Recurse -Force -ErrorAction SilentlyContinue
             if ($package.id -eq 'Microsoft.Web.WebView2') {

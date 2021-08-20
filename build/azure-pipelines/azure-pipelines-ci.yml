@@ -5,7 +5,7 @@ parameters:
 - name: vmImage
   displayName: 'Pool Image'
   type: string
-  default: 'windows-latest'
+  default: 'ubuntu-latest'
   values:
   - windows-latest
   - ubuntu-latest
@@ -61,6 +61,8 @@ stages:
       version.Microsoft.Identity.Client: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Identity.Client''] ]'
       version.Microsoft.Identity.Client.Desktop: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Identity.Client.Desktop''] ]'
       version.Microsoft.Web.WebView2: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Web.WebView2''] ]'
+    pool:
+      vmImage: 'windows-latest'
     steps:
     - template: template-psmodule-build.yml
       parameters:

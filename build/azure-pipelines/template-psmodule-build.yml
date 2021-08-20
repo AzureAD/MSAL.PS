@@ -65,6 +65,14 @@ steps:
           Contents: '**'
           TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ package.id }}.${{ package.version }}/${{ targetFramework }}'
           preserveTimestamp: true
+      - ${{ if eq(package.id, 'Microsoft.Web.WebView2') }}:
+        - task: CopyFiles@2
+          displayName: 'Copy ${{ package.id }}.${{ package.version }} ${{ targetFramework }} Runtime to Staging'
+          inputs:
+            SourceFolder: '$(System.DefaultWorkingDirectory)/packages/${{ package.id }}.${{ package.version }}/runtimes/win-x64/native'
+            Contents: '**'
+            TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ package.id }}.${{ package.version }}/${{ targetFramework }}'
+            preserveTimestamp: true
 
 - ${{ if ne(parameters.moduleRename, '') }}:
   - pwsh: 'Rename-Item "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ parameters.moduleName }}.psd1" -NewName "${{ parameters.moduleRename }}.psd1"'
