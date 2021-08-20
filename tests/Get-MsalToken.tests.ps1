@@ -12,7 +12,7 @@ Import-Module $ModulePath -Force
 ## Get Test Automation Token
 [hashtable] $AppConfigAutomation = @{
     ClientId          = 'ada4b466-ae54-45f8-98fc-13b22708b978'
-    ClientCertificate = (Get-ChildItem Cert:\CurrentUser\My\FEC059F21DC9C927406E1EB730BF1EEBEDDB7C0C)
+    ClientCertificate = (Get-ChildItem Cert:\CurrentUser\My\5933CF2495FBC09128DB39979BB6C47CF7C18CCC)
     RedirectUri       = 'http://localhost/'
     TenantId          = 'jasoth.onmicrosoft.com'
 }
@@ -21,7 +21,7 @@ $MSGraphToken = Get-MSGraphToken -ErrorAction Stop @AppConfigAutomation
 try {
     ## Create applications in tenant for testing.
     $appPublicClient, $spPublicClient = New-TestAzureAdPublicClient -AdminConsent -MSGraphToken $MSGraphToken
-    $appConfidentialClient, $spConfidentialClient = New-TestAzureAdConfidentialClient -AdminConsent -MSGraphToken $MSGraphToken
+    $appConfidentialClient, $spConfidentialClient = New-TestAzureAdConfidentialClient -AdminConsent -MSGraphToken $MSGraphToken -PreauthorizedApps $appPublicClient.appId
     $appConfidentialClientSecret, $ClientSecret = $appConfidentialClient | Add-AzureAdClientSecret -MSGraphToken $MSGraphToken
     $appConfidentialClientCertificate, $ClientCertificate = $appConfidentialClient | Add-AzureAdClientCertificate -MSGraphToken $MSGraphToken
     $StartDelay = Get-Date
@@ -152,6 +152,7 @@ try {
                 }
 
                 It 'ClientApplication with ClientCertificate On-Behalf-Of User' {
+                    #$OnBehalfOfToken = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Scopes "$($appConfidentialClient.appId)/.default" -Interactive -Prompt Consent
                     $OnBehalfOfToken = Get-MsalToken $appPublicClient.appId -TenantId $appPublicClient.publisherDomain -Scopes "$($appConfidentialClient.appId)/user_impersonation"
                     $Output = Get-MsalToken $ClientApplication -Scopes 'https://graph.microsoft.com/User.Read' -UserAssertion $OnBehalfOfToken.AccessToken
                     $Output | Should -BeOfType [Microsoft.Identity.Client.AuthenticationResult]

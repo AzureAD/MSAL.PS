@@ -40,6 +40,10 @@ function Select-MsalClientApplication {
         # Address of the authority to issue token.
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [uri] $Authority,
+        # Use Platform Authentication Broker
+        [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-InputObject', ValueFromPipelineByPropertyName = $true)]
+        [switch] $AuthenticationBroker,
         # Public client application options
         [Parameter(Mandatory = $true, ParameterSetName = 'PublicClient-InputObject', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Microsoft.Identity.Client.PublicClientApplicationOptions] $PublicClientOptions,
@@ -53,7 +57,7 @@ function Select-MsalClientApplication {
     switch -Wildcard ($PSCmdlet.ParameterSetName) {
         "PublicClient*" {
             #[Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.TenantId -eq $NewClientApplication.AppConfig.TenantId } | Select-Object -Last 1
-            [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri } | Select-Object -Last 1
+            [Microsoft.Identity.Client.IPublicClientApplication] $ClientApplication = $PublicClientApplications | Where-Object { $_.ClientId -eq $NewClientApplication.ClientId -and $_.AppConfig.RedirectUri -eq $NewClientApplication.AppConfig.RedirectUri -and $_.AppConfig.IsBrokerEnabled -eq $NewClientApplication.AppConfig.IsBrokerEnabled } | Select-Object -Last 1
             break
         }
         "ConfidentialClientSecret" {

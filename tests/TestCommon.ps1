@@ -573,6 +573,9 @@ function New-TestAzureAdConfidentialClient {
         # Automatic admin consent
         [Parameter(Mandatory = $false)]
         [switch] $AdminConsent,
+        # Add client apps as pre-authorized.
+        [Parameter(Mandatory = $false)]
+        [string[]] $PreauthorizedApps,
         # Specifies the access token to use for Microsoft Graph.
         [Parameter(Mandatory = $true)]
         [psobject] $MSGraphToken
@@ -585,6 +588,7 @@ function New-TestAzureAdConfidentialClient {
     }
 
     process {
+        $permissionId = [guid]::NewGuid()
         $Application = Invoke-RestMethod -Method Post -Uri "https://graph.microsoft.com/v1.0/applications" -Headers $MSGraphHeaders -ContentType 'application/json' -Body (ConvertTo-Json -Depth 4 @{
                 displayName            = $DisplayName
                 signInAudience         = "AzureADMyOrg"
@@ -621,13 +625,20 @@ function New-TestAzureAdConfidentialClient {
                                 id   = "7427e0e9-2fba-42fe-b0c0-848c9e6a8182"
                                 type = "Scope"
                             }
+                            @{
+                                id   = "b340eb25-3456-403f-be2f-af7a0d370277"
+                                type = "Scope"
+                            }
                         )
                     }
                 )
                 api                    = @{
+                    knownClientApplications = @(
+                        $PreauthorizedApps
+                    )
                     oauth2PermissionScopes = @(
                         @{
-                            id                      = [guid]::NewGuid()
+                            id                      = $permissionId
                             value                   = "user_impersonation"
                             type                    = "User"
                             adminConsentDescription = "Allow the application to access $DisplayName on behalf of the signed-in user."
@@ -635,6 +646,16 @@ function New-TestAzureAdConfidentialClient {
                             userConsentDescription  = "Allow the application to access $DisplayName on your behalf."
                             userConsentDisplayName  = "Access $DisplayName"
                             isEnabled               = $true
+                        }
+                    )
+                    preAuthorizedApplications = @(
+                        foreach ($appId in $PreauthorizedApps) {
+                            @{
+                                appId         = $appId
+                                delegatedPermissionIds = @(
+                                    $permissionId
+                                )
+                            }
                         }
                     )
                 }

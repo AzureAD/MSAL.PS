@@ -61,9 +61,9 @@ function New-MsalClientApplication {
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [uri] $Authority,
         # Use Platform Authentication Broker
-        #[Parameter(Mandatory = $false, ParameterSetName = 'PublicClient', ValueFromPipelineByPropertyName = $true)]
-        #[Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-InputObject', ValueFromPipelineByPropertyName = $true)]
-        #[switch] $AuthenticationBroker,
+        [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-InputObject', ValueFromPipelineByPropertyName = $true)]
+        [switch] $AuthenticationBroker,
         # Sets Extra Query Parameters for the query string in the HTTP authentication request.
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [hashtable] $ExtraQueryParameters,
@@ -94,9 +94,16 @@ function New-MsalClientApplication {
             }
 
             if ($PSBoundParameters.ContainsKey('EnableExperimentalFeatures')) { [void] $ClientApplicationBuilder.WithExperimentalFeatures($EnableExperimentalFeatures) }  # Must be called before other experimental features
+            if ($script:ModuleFeatureSupport.WebView2Support) { [void] [Microsoft.Identity.Client.Desktop.DesktopExtensions]::WithDesktopFeatures($ClientApplicationBuilder) }
             if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri.AbsoluteUri) }
-            elseif (!$PublicClientOptions -or !$PublicClientOptions.RedirectUri) { [void] $ClientApplicationBuilder.WithDefaultRedirectUri() }
-            if ($PSBoundParameters.ContainsKey('AuthenticationBroker')) { [void] $ClientApplicationBuilder.WithBroker($AuthenticationBroker) }
+            elseif (!$PublicClientOptions -or !$PublicClientOptions.RedirectUri) {
+                if ($script:ModuleFeatureSupport.WebView2Support) { [void] $ClientApplicationBuilder.WithRedirectUri('https://login.microsoftonline.com/common/oauth2/nativeclient') }
+                else { [void] $ClientApplicationBuilder.WithDefaultRedirectUri() }
+            }
+            if ($PSBoundParameters.ContainsKey('AuthenticationBroker')) {
+                if ([System.Environment]::OSVersion.Platform -eq 'Win32NT') { [void] [Microsoft.Identity.Client.Desktop.WamExtension]::WithWindowsBroker($ClientApplicationBuilder, $AuthenticationBroker) }
+                else { [void] $ClientApplicationBuilder.WithBroker($AuthenticationBroker) }
+            }
 
             $ClientOptions = $PublicClientOptions
         }

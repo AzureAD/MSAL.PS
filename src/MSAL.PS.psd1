@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.21.0'
+ModuleVersion = '4.35.1'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -25,7 +25,7 @@ Author = 'Jason Thompson'
 CompanyName = 'Microsoft Corporation'
 
 # Copyright statement for this module
-Copyright = '(c) 2020 Jason Thompson. All rights reserved.'
+Copyright = '(c) 2021 Jason Thompson. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
@@ -57,7 +57,7 @@ DotNetFrameworkVersion = '4.5'
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @(
-#     '..\build\packages\Microsoft.Identity.Client.4.7.1\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
+#     '..\build\packages\Microsoft.Identity.Client.4.27.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
 # )
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
@@ -71,18 +71,24 @@ DotNetFrameworkVersion = '4.5'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(
+    '.\internal\ConvertFrom-SecureStringAsPlainText.ps1'
+    '.\internal\ConvertTo-Dictionary.ps1'
+    '.\internal\Export-Config.ps1'
+    '.\internal\Get-ObjectPropertyValue.ps1'
+    '.\internal\Import-Config.ps1'
+    '.\internal\Select-PsBoundParameters.ps1'
+    '.\internal\Set-Config.ps1'
+    '.\internal\Write-HostPrompt.ps1'
     '.\Add-MsalClientApplication.ps1'
     '.\Clear-MsalTokenCache.ps1'
-    '.\ConvertFrom-SecureStringAsPlainText.ps1'
-    '.\ConvertTo-Dictionary.ps1'
     '.\Enable-MsalTokenCacheOnDisk.ps1'
     '.\Get-MsalAccount.ps1'
     '.\Get-MsalClientApplication.ps1'
+    '.\Get-MsalFeatureSupport.ps1'
     '.\Get-MsalToken.ps1'
     '.\New-MsalClientApplication.ps1'
     '.\Remove-MsalClientApplication.ps1'
     '.\Select-MsalClientApplication.ps1'
-    '.\Select-PsBoundParameters.ps1'
 )
 
 # Functions to export from this module
@@ -92,6 +98,7 @@ FunctionsToExport = @(
     'Enable-MsalTokenCacheOnDisk'
     'Get-MsalAccount'
     'Get-MsalClientApplication'
+    'Get-MsalFeatureSupport'
     'Get-MsalToken'
     'New-MsalClientApplication'
     'Remove-MsalClientApplication'
@@ -115,11 +122,12 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 FileList = @(
-    '..\build\packages\Microsoft.Identity.Client.4.21.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
-    '..\build\packages\Microsoft.Identity.Client.4.21.0\lib\net45\Microsoft.Identity.Client.dll'
+    #'..\build\packages\Microsoft.Identity.Client.4.27.0\lib\net5.0-windows10.0.17763\Microsoft.Identity.Client.dll'
+    #'..\build\packages\Microsoft.Identity.Client.4.27.0\lib\netcoreapp2.1\Microsoft.Identity.Client.dll'
+    #'..\build\packages\Microsoft.Identity.Client.4.27.0\lib\net45\Microsoft.Identity.Client.dll'
     #'..\build\packages\System.Security.Cryptography.ProtectedData.4.7.0\lib\netstandard1.3\System.Security.Cryptography.ProtectedData.dll'
-    '.\TokenCacheHelper.cs'
-    '.\DeviceCodeHelper.cs'
+    '.\internal\TokenCacheHelper.cs'
+    '.\internal\DeviceCodeHelper.cs'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.

@@ -5,21 +5,70 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "PowerShell Launch Module",
             "type": "PowerShell",
             "request": "launch",
-            "name": "PowerShell Launch Current File",
-            "script": "${file}",
-            "args": [],
-            "cwd": "${file}"
+            "preLaunchTask": "",
+            "script": "${workspaceRoot}/Launch-PSModule.ps1",
+            "cwd": "${workspaceRoot}",
+            "args": [
+                "-NoNewWindow"
+            ]
         },
         {
+            "name": "PowerShell Launch Module and Current Function w/Args Prompt",
             "type": "PowerShell",
             "request": "launch",
-            "name": "PowerShell Launch Current File in Temporary Console",
+            "script": "${workspaceRoot}/Launch-PSModule.ps1",
+            "cwd": "${workspaceRoot}",
+            "args": [
+                "-PostImportScriptBlock { ${fileBasenameNoExtension} ${command:SpecifyScriptArgs} }",
+                "-NoNewWindow"
+            ]
+        },
+        {
+            "name": "PowerShell Launch Module in External Console",
+            "type": "PowerShell",
+            "request": "launch",
+            "preLaunchTask": "",
+            "script": "${workspaceRoot}/Launch-PSModule.ps1",
+            "cwd": "${workspaceRoot}",
+            "args": [
+                "-PowerShellPaths ${input:pickPowerShellExecutable}",
+                "-NoNewWindow:$false"
+            ]
+        },
+        {
+            "name": "PowerShell Test Module in External Consoles",
+            "type": "PowerShell",
+            "request": "launch",
+            "preLaunchTask": "",
+            "script": "${workspaceRoot}/build/Test-PSModule.ps1",
+            "cwd": "${workspaceRoot}/build",
+            "args": [
+                "-PowerShellPaths 'pwsh','powershell'",
+                "-NoNewWindow:$false"
+            ]
+        },
+        {
+            "name": "PowerShell Test Current Function in External Consoles",
+            "type": "PowerShell",
+            "request": "launch",
+            "preLaunchTask": "",
+            "script": "${workspaceRoot}/build/Test-PSModule.ps1",
+            "cwd": "${workspaceRoot}/build",
+            "args": [
+                "-ModuleTestFileName '${fileBasenameNoExtension}.Tests.ps1'",
+                "-PowerShellPaths 'pwsh','powershell'",
+                "-NoNewWindow:$false"
+            ]
+        },
+        {
+            "name": "PowerShell Launch Current File",
+            "type": "PowerShell",
+            "request": "launch",
             "script": "${file}",
-            "args": [],
-            "cwd": "${file}",
-            "createTemporaryIntegratedConsole": true
+            "cwd": "${file}"
         },
         {
             "type": "PowerShell",
@@ -33,16 +82,35 @@
         },
         {
             "type": "PowerShell",
-            "request": "attach",
-            "name": "PowerShell Attach to Host Process",
-            "processId": "${command:PickPSHostProcess}",
-            "runspaceId": 1
+            "request": "launch",
+            "name": "PowerShell Launch Current File in Temporary Console",
+            "script": "${file}",
+            "cwd": "${file}",
+            "createTemporaryIntegratedConsole": true
         },
         {
+            "name": "PowerShell Attach to Host Process",
             "type": "PowerShell",
-            "request": "launch",
-            "name": "PowerShell Interactive Session",
-            "cwd": ""
+            "request": "attach",
+            "processId": "${command:PickPSHostProcess}",
+            "runspaceId": 1
+        }
+    ],
+    "inputs": [
+        {
+            "type": "pickString",
+            "id": "pickPowerShellExecutable",
+            "description": "Select PowerShell executable to launch",
+            "options": [
+                "powershell",
+                "pwsh",
+                "C:\\Software\\PowerShell-6.0.0-win-x64\\pwsh.exe",
+                "C:\\Software\\PowerShell-6.2.7-win-x64\\pwsh.exe",
+                "C:\\Software\\PowerShell-7.0.0-win-x64\\pwsh.exe",
+                "C:\\Software\\PowerShell-7.0.5-win-x64\\pwsh.exe",
+                "C:\\Software\\PowerShell-7.1.0-win-x64\\pwsh.exe"
+            ],
+            "default": "pwsh"
         }
     ]
 }

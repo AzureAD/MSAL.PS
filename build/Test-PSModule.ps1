@@ -17,7 +17,11 @@ param
     [string[]] $PowerShellPaths = @(
         'pwsh'
         'powershell'
-        #'D:\Software\PowerShell-6.2.4-win-x64\pwsh.exe'
+        'C:\Software\PowerShell-6.0.0-win-x64\pwsh.exe'
+        'C:\Software\PowerShell-6.2.7-win-x64\pwsh.exe'
+        'C:\Software\PowerShell-7.0.0-win-x64\pwsh.exe'
+        'C:\Software\PowerShell-7.0.5-win-x64\pwsh.exe'
+        'C:\Software\PowerShell-7.1.0-win-x64\pwsh.exe'
     ),
     #
     [Parameter(Mandatory = $false)]

@@ -9,6 +9,7 @@
     Get all accounts from client application cache.
 #>
 function Get-MsalAccount {
+    [CmdletBinding()]
     param
     (
         # Client application

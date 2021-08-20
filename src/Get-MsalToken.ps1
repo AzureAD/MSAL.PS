@@ -102,6 +102,12 @@ function Get-MsalToken {
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [uri] $Authority,
 
+        # Use Platform Authentication Broker
+        [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-Interactive', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'PublicClient-InputObject', ValueFromPipelineByPropertyName = $true)]
+        [switch] $AuthenticationBroker,
+
         # Public client application
         [Parameter(Mandatory = $true, ParameterSetName = 'PublicClient-InputObject', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Microsoft.Identity.Client.IPublicClientApplication] $PublicClientApplication,
@@ -245,13 +251,17 @@ function Get-MsalToken {
                 if ($PSBoundParameters.ContainsKey("UserCredential") -and $UserCredential) {
                     $AquireTokenParameters = $PublicClientApplication.AcquireTokenByUsernamePassword($Scopes, $UserCredential.UserName, $UserCredential.Password)
                 }
-                elseif ($PSBoundParameters.ContainsKey("DeviceCode") -and $DeviceCode) {
+                elseif ($PSBoundParameters.ContainsKey("DeviceCode") -and $DeviceCode -or ($Interactive -and !$script:ModuleFeatureSupport.WebView1Support -and !$script:ModuleFeatureSupport.WebView2Support -and $PublicClientApplication.AppConfig.RedirectUri -ne 'http://localhost')) {
                     $AquireTokenParameters = $PublicClientApplication.AcquireTokenWithDeviceCode($Scopes, [DeviceCodeHelper]::GetDeviceCodeResultCallback())
                 }
                 elseif ($PSBoundParameters.ContainsKey("Interactive") -and $Interactive) {
                     $AquireTokenParameters = $PublicClientApplication.AcquireTokenInteractive($Scopes)
                     [IntPtr] $ParentWindow = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
-                    if ($ParentWindow) { [void] $AquireTokenParameters.WithParentActivityOrWindow($ParentWindow) }
+                    if ($ParentWindow -eq [System.IntPtr]::Zero -and [System.Environment]::OSVersion.Platform -eq 'Win32NT') {
+                        $Win32Process = Get-CimInstance Win32_Process -Filter ("ProcessId = '{0}'" -f [System.Diagnostics.Process]::GetCurrentProcess().Id)
+                        $ParentWindow = (Get-Process -Id $Win32Process.ParentProcessId).MainWindowHandle
+                    }
+                    if ($ParentWindow -ne [System.IntPtr]::Zero) { [void] $AquireTokenParameters.WithParentActivityOrWindow($ParentWindow) }
                     #if ($Account) { [void] $AquireTokenParameters.WithAccount($Account) }
                     if ($extraScopesToConsent) { [void] $AquireTokenParameters.WithExtraScopesToConsent($extraScopesToConsent) }
                     if ($LoginHint) { [void] $AquireTokenParameters.WithLoginHint($LoginHint) }

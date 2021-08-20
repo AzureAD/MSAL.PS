@@ -60,18 +60,25 @@ $xmlPackagesConfig.Load($PackagesConfigFileInfo.FullName)
 ## Copy Packages to Module Output Directory
 foreach ($package in $xmlPackagesConfig.packages.package) {
     [string[]] $targetFrameworks = $package.targetFramework
-    if (!$targetFrameworks) { [string[]] $targetFrameworks = "net45", "netcoreapp2.1" }
+    if (!$targetFrameworks) { [string[]] $targetFrameworks = "net45", "net461", "netcoreapp2.1", "netcoreapp3.0", "netcoreapp3.1" }
     foreach ($targetFramework in $targetFrameworks) {
         [System.IO.DirectoryInfo] $PackageDirectory = Join-Path $PackagesDirectoryInfo.FullName ("{0}.{1}\lib\{2}" -f $package.id, $package.version, $targetFramework)
-        [System.IO.DirectoryInfo] $PackageOutputDirectory = "{0}\{1}.{2}\{3}" -f $ModuleOutputDirectoryInfo.FullName, $package.id, $package.version, $targetFramework
-        $PackageOutputDirectory
-        Assert-DirectoryExists $PackageOutputDirectory -ErrorAction Stop | Out-Null
-        Copy-Item ("{0}\*" -f $PackageDirectory) -Destination $PackageOutputDirectory.FullName -Recurse -Force -ErrorAction SilentlyContinue
+        if ($PackageDirectory.Exists -and !($package.id -eq 'Microsoft.Identity.Client' -and $targetFramework -eq 'net461')) { # net45 will be used so remove net461 for Microsoft.Identity.Client
+            [System.IO.DirectoryInfo] $PackageOutputDirectory = "{0}\{1}.{2}\{3}" -f $ModuleOutputDirectoryInfo.FullName, $package.id, $package.version, $targetFramework
+            $PackageOutputDirectory
+            Assert-DirectoryExists $PackageOutputDirectory -ErrorAction Stop | Out-Null
+            Copy-Item ("{0}\*" -f $PackageDirectory) -Destination $PackageOutputDirectory.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            if ($package.id -eq 'Microsoft.Web.WebView2') {
+                [System.IO.DirectoryInfo] $PackageDirectory = Join-Path $PackagesDirectoryInfo.FullName ("{0}.{1}\runtimes\{2}" -f $package.id, $package.version, 'win-x64\native')
+                Copy-Item ("{0}\*" -f $PackageDirectory) -Destination $PackageOutputDirectory.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
     }
 }
 
 ## Update Module Manifest in Module Output Directory
 &$PSScriptRoot\Update-PSModuleManifest.ps1 -ModuleManifestPath (Join-Path $ModuleOutputDirectoryInfo.FullName $ModuleManifestFileInfo.Name) -SkipRequiredAssemblies
+Write-Output (Join-Path $ModuleOutputDirectoryInfo.FullName $ModuleManifestFileInfo.Name)
 
 ## Sign Module
-&$PSScriptRoot\Sign-PSModule.ps1 | Format-Table Path, Status, StatusMessage
+&$PSScriptRoot\Sign-PSModule.ps1 -ModuleManifestPath (Join-Path $ModuleOutputDirectoryInfo.FullName $ModuleManifestFileInfo.Name) | Format-Table Path, Status, StatusMessage
