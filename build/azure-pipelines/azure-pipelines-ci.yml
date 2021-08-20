@@ -47,7 +47,7 @@ stages:
       displayName: 'Get Parameters for PowerShell Module'
       inputs:
         filePath: '$(System.DefaultWorkingDirectory)/build/Get-PSModuleInfo.ps1'
-        arguments: '-ModuleManifestPath "$(Build.SourcesDirectory)/src/*.psd1" -TrimVersionDepth 2'
+        arguments: '-ModuleManifestPath "$(Build.SourcesDirectory)/src/*.psd1" -PackagesConfigPath "$(Build.SourcesDirectory)" -TrimVersionDepth 3'
         pwsh: true
 
   - job: Build

@@ -50,7 +50,7 @@ stages:
       displayName: 'Get PowerShell Module Information'
       inputs:
         filePath: '$(System.DefaultWorkingDirectory)/build/Get-PSModuleInfo.ps1'
-        arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/CI/$(artifactModule)/*/*.psd1"'
+        arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/CI/$(artifactModule)/*/*.psd1" -PackagesConfigPath "$(Build.SourcesDirectory)"'
         pwsh: true
 
   # - job: Build
@@ -120,7 +120,7 @@ stages:
       displayName: 'Get PowerShell Module Information'
       inputs:
         filePath: '$(System.DefaultWorkingDirectory)/build/Get-PSModuleInfo.ps1'
-        arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/$(artifactModuleSigned)/*/*.psd1"'
+        arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/$(artifactModuleSigned)/*/*.psd1" -PackagesConfigPath "$(Build.SourcesDirectory)"'
         pwsh: true
 
   - deployment: Package
@@ -154,7 +154,7 @@ stages:
       displayName: 'Get PowerShell Module Information'
       inputs:
         filePath: '$(System.DefaultWorkingDirectory)/build/Get-PSModuleInfo.ps1'
-        arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/$(artifactModuleSigned)/*/*.psd1"'
+        arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/$(artifactModuleSigned)/*/*.psd1" -PackagesConfigPath "$(Build.SourcesDirectory)"'
         pwsh: true
 
   - deployment: Publish
@@ -193,7 +193,7 @@ stages:
       displayName: 'Get PowerShell Module Information'
       inputs:
         filePath: '$(System.DefaultWorkingDirectory)/build/Get-PSModuleInfo.ps1'
-        arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/$(artifactModuleSigned)/*/*.psd1"'
+        arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/$(artifactModuleSigned)/*/*.psd1" -PackagesConfigPath "$(Build.SourcesDirectory)"'
         pwsh: true
 
   - deployment: Publish
