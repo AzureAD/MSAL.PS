@@ -59,6 +59,8 @@ stages:
       moduleVersion.Revision: '$[ counter(variables[''moduleVersion.Prefix''], 0) ]'
       moduleVersion: '$[ coalesce(variables[''moduleVersionOverride''], format(''{0}.{1}'', variables[''moduleVersion.Prefix''], variables[''moduleVersion.Revision''])) ]'
       version.Microsoft.Identity.Client: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Identity.Client''] ]'
+      version.Microsoft.Identity.Client.Desktop: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Identity.Client.Desktop''] ]'
+      version.Microsoft.Web.WebView2: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Web.WebView2''] ]'
     steps:
     - template: template-psmodule-build.yml
       parameters:
