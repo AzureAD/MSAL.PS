@@ -5,7 +5,7 @@ parameters:
 - name: vmImage
   displayName: 'Pool Image'
   type: string
-  default: 'windows-latest'
+  default: 'ubuntu-latest'
   values:
   - windows-latest
   - ubuntu-latest
@@ -16,18 +16,21 @@ trigger:
   branches:
     include:
     - master
+    - preview
   paths:
     include:
     - src/*
 
-pr: none
+#pr: none
 
 variables:
   moduleName: 'MSAL.PS'
   vmImage: '${{ parameters.vmImage }}'
+  ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+    prereleaseTag: 
+  ${{ if ne(variables['Build.SourceBranchName'], 'master') }}:
+    prereleaseTag: 'preview'
   artifactModule: 'PSModule'
-  #artifactModuleSigned: 'PSModuleSigned'
-  #artifactModulePackage: 'PSModulePackage'
 
 pool:
   vmImage: $(vmImage)
@@ -44,16 +47,16 @@ stages:
       displayName: 'Get Parameters for PowerShell Module'
       inputs:
         filePath: '$(System.DefaultWorkingDirectory)/build/Get-PSModuleInfo.ps1'
-        arguments: '-ModuleManifestPath "$(Build.SourcesDirectory)/src/*.psd1" -PackagesConfigPath "$(Build.SourcesDirectory)/packages.config"'
+        arguments: '-ModuleManifestPath "$(Build.SourcesDirectory)/src/*.psd1" -TrimVersionDepth 2'
         pwsh: true
 
   - job: Build
     dependsOn: Prepare
     variables: 
-      moduleName: '$[ dependencies.Prepare.outputs[''ModuleInfo.moduleName''] ]'
-      #moduleVersion.Prefix: '$[ dependencies.Prepare.outputs[''ModuleInfo.moduleVersion''] ]'
+      moduleNameSrc: '$[ dependencies.Prepare.outputs[''ModuleInfo.moduleName''] ]'
+      moduleVersionSrc: '$[ coalesce(dependencies.Prepare.outputs[''ModuleInfo.moduleVersionTrimmed''], dependencies.Prepare.outputs[''ModuleInfo.moduleVersion'']) ]'
       moduleVersion.Prefix: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Identity.Client''] ]'
-      moduleVersion.Revision: '$[ counter(variables[''moduleVersion.Prefix''], 1) ]'
+      moduleVersion.Revision: '$[ counter(variables[''moduleVersion.Prefix''], 0) ]'
       moduleVersion: '$[ coalesce(variables[''moduleVersionOverride''], format(''{0}.{1}'', variables[''moduleVersion.Prefix''], variables[''moduleVersion.Revision''])) ]'
       version.Microsoft.Identity.Client: '$[ dependencies.Prepare.outputs[''ModuleInfo.version.Microsoft.Identity.Client''] ]'
     steps:
@@ -61,10 +64,17 @@ stages:
       parameters:
         moduleName: '$(moduleName)'
         moduleVersion: '$(moduleVersion)'
+        prereleaseTag: '$(prereleaseTag)'
         packages:
         - id: Microsoft.Identity.Client
           version: '$(version.Microsoft.Identity.Client)'
           targetFramework: [netcoreapp2.1, net45]
+        - id: Microsoft.Identity.Client.Desktop
+          version: '$(version.Microsoft.Identity.Client.Desktop)'
+          targetFramework: [netcoreapp3.1, net461]
+        - id: Microsoft.Web.WebView2
+          version: '$(version.Microsoft.Web.WebView2)'
+          targetFramework: [netcoreapp3.0, net45]
 
   - job: Sign
     dependsOn:
@@ -81,6 +91,8 @@ stages:
     - template: template-psmodule-sign.yml
       parameters:
         moduleName: '$(moduleName)'
+        SigningCertificateAzureConnection: 'GTP - Jason Thompson(49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
+        SigningCertificateKeyVaultName: 'JasothPublic'
         SigningCertificateSecretName: 'Jason-Thompson-Test'
 
 #- stage: Test

@@ -4,7 +4,6 @@
 parameters:
   - name: moduleName
     type: string
-    default:
   - name: pipelineId
     type: string
     default:
@@ -14,9 +13,12 @@ parameters:
   - name: RepositorySourceLocation
     type: string
     default: 'https://www.powershellgallery.com/api/v2'
+  - name: NuGetApiKeyAzureConnection
+    type: string
+  - name: NuGetApiKeyVaultName
+    type: string
   - name: NuGetApiKeySecretName
     type: string
-    default: 'PSGallery-API-Key'
   - name: Unlist
     type: boolean
     default: false
@@ -27,8 +29,8 @@ steps:
   - task: AzureKeyVault@1
     displayName: 'Download NuGet API Key'
     inputs:
-      azureSubscription: 'GTP - Jason Thompson(49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
-      KeyVaultName: 'JasothPublic'
+      azureSubscription: '${{ parameters.NuGetApiKeyAzureConnection }}'
+      KeyVaultName: '${{ parameters.NuGetApiKeyVaultName }}'
       SecretsFilter: '${{ parameters.NuGetApiKeySecretName }}'
       RunAsPreJob: false
 

@@ -5,7 +5,16 @@ parameters:
 - name: moduleName
   type: string
   default:
+- name: moduleRename
+  type: string
+  default:
+- name: moduleGuid
+  type: string
+  default:
 - name: moduleVersion
+  type: string
+  default:
+- name: prereleaseTag
   type: string
   default:
 - name: packages
@@ -21,46 +30,55 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)/src'
     Contents: '**'
-    TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ parameters.moduleName }}'
+    TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}'
     preserveTimestamp: true
 
 - task: CopyFiles@2
   displayName: 'Copy LICENSE to Staging'
   inputs:
     Contents: 'LICENSE'
-    TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ parameters.moduleName }}'
+    TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}'
     preserveTimestamp: true
 
-- pwsh: 'Rename-Item "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ parameters.moduleName }}/LICENSE" -NewName "License.txt"'
+- pwsh: 'Rename-Item "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/LICENSE" -NewName "License.txt"'
   displayName: 'Rename LICENSE to License.txt'
   env:
     StagingDirectory: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}'
-    ModuleName: '${{ parameters.moduleName }}'
+    ModuleName: '${{ coalesce(parameters.moduleRename,parameters.moduleName) }}'
 
-- task: NuGetCommand@2
-  displayName: 'Restore NuGet Packages'
-  inputs:
-    command: 'restore'
-    restoreSolution: '$(System.DefaultWorkingDirectory)/packages.config'
-    feedsToUse: 'config'
-    nugetConfigPath: '$(System.DefaultWorkingDirectory)/NuGet.config'
-    restoreDirectory: '$(System.DefaultWorkingDirectory)/packages'
+- ${{ if gt(length(parameters.packages), 0) }}:
+  - task: NuGetCommand@2
+    displayName: 'Restore NuGet Packages'
+    inputs:
+      command: 'restore'
+      restoreSolution: '$(System.DefaultWorkingDirectory)/packages.config'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(System.DefaultWorkingDirectory)/NuGet.config'
+      restoreDirectory: '$(System.DefaultWorkingDirectory)/packages'
 
-- ${{ each package in parameters.packages }}:
-  - ${{ each targetFramework in package.targetFramework }}:
-    - task: CopyFiles@2
-      displayName: 'Copy ${{ package.id }}.${{ package.version }} ${{ targetFramework }} to Staging'
-      inputs:
-        SourceFolder: '$(System.DefaultWorkingDirectory)/packages/${{ package.id }}.${{ package.version }}/lib/${{ targetFramework }}'
-        Contents: '**'
-        TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ parameters.moduleName }}/${{ package.id }}.${{ package.version }}/${{ targetFramework }}'
-        preserveTimestamp: true
+  - ${{ each package in parameters.packages }}:
+    - ${{ each targetFramework in package.targetFramework }}:
+      - task: CopyFiles@2
+        displayName: 'Copy ${{ package.id }}.${{ package.version }} ${{ targetFramework }} to Staging'
+        inputs:
+          SourceFolder: '$(System.DefaultWorkingDirectory)/packages/${{ package.id }}.${{ package.version }}/lib/${{ targetFramework }}'
+          Contents: '**'
+          TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ package.id }}.${{ package.version }}/${{ targetFramework }}'
+          preserveTimestamp: true
+
+- ${{ if ne(parameters.moduleRename, '') }}:
+  - pwsh: 'Rename-Item "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ parameters.moduleName }}.psd1" -NewName "${{ parameters.moduleRename }}.psd1"'
+    displayName: 'Rename PowerShell Module Manifest'
+    env:
+      StagingDirectory: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}'
+      ModuleName: '${{ parameters.moduleName }}'
+      ModuleRename: '${{ parameters.moduleRename }}'
 
 - task: PowerShell@2
   displayName: 'Update PowerShell Module Manifest'
   inputs:
     filePath: '$(System.DefaultWorkingDirectory)/build/Update-PSModuleManifest.ps1'
-    arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ parameters.moduleName }}/${{ parameters.moduleName }}.psd1" -ModuleVersion "${{ parameters.moduleVersion }}" -SkipRequiredAssemblies'
+    arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}.psd1" -Guid "${{ parameters.moduleGuid }}" -ModuleVersion "${{ parameters.moduleVersion }}" -Prerelease "${{ parameters.prereleaseTag }}" -SkipRequiredAssemblies'
     pwsh: true
 
 - task: PublishPipelineArtifact@1

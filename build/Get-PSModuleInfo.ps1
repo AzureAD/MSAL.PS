@@ -6,9 +6,9 @@ param
     # Path to packages.config file
     [parameter(Mandatory = $false)]
     [string] $PackagesConfigPath = "..\",
-    # Return version number without a revision number
+    # Return trimmed version to the depth specified
     [parameter(Mandatory = $false)]
-    [switch] $TrimRevisionNumber
+    [int] $TrimVersionDepth
 )
 
 ## Initialize
@@ -27,9 +27,14 @@ Write-Host ('##[debug] {0} = {1}' -f 'moduleName', $env:moduleName)
 
 ## Output moduleVersion Azure Pipelines
 $env:moduleVersion = $ModuleManifest.ModuleVersion
-if ($TrimRevisionNumber) { $env:moduleVersion = $env:moduleVersion -replace '(?<=^(.?[0-9]+){3,}).[0-9]+$', '' }
 Write-Host ('##vso[task.setvariable variable=moduleVersion;isOutput=true]{0}' -f $env:moduleVersion)
 Write-Host ('##[debug] {0} = {1}' -f 'moduleVersion', $env:moduleVersion)
+
+if ($TrimVersionDepth) {
+    $env:moduleVersionTrimmed = $env:moduleVersion -replace ('(?<=^(.?[0-9]+){{{0},}})(.[0-9]+)+$' -f $TrimVersionDepth), ''
+    Write-Host ('##vso[task.setvariable variable=moduleVersionTrimmed;isOutput=true]{0}' -f $env:moduleVersionTrimmed)
+    Write-Host ('##[debug] {0} = {1}' -f 'moduleVersionTrimmed', $env:moduleVersionTrimmed)
+}
 
 ## Read Packages Configuration
 if ($PackagesConfigFileInfo.Exists) {
