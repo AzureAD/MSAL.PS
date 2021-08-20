@@ -39,8 +39,8 @@ steps:
   - task: AzureKeyVault@1
     displayName: 'Download Signing Certificate'
     inputs:
-      azureSubscription: 'GTP - Jason Thompson(49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
-      KeyVaultName: 'JasothPublic'
+      azureSubscription: '${{ parameters.SigningCertificateAzureConnection }}'
+      KeyVaultName: '${{ parameters.SigningCertificateKeyVaultName }}'
       SecretsFilter: '${{ parameters.SigningCertificateSecretName }}'
       RunAsPreJob: false
 
