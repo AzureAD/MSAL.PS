@@ -16,6 +16,14 @@ If you encounter the error, `WARNING: The specified module 'MSAL.PS' with PowerS
 ## Update Nuget Package and PowerShellGet Module
 Install-PackageProvider NuGet -Force
 Install-Module PowerShellGet -Force
+```
+
+If you encounter the error, `WARNING: The version '1.4.7' of module 'PackageManagement' is currently in use. Retry the operation after closing the applications.`. then run the following commands to proceed with the installation.
+
+
+```PowerShell
+Update-Module -Name PowerShellGet -RequiredVersion XX.XX.X
+# Example: Update-Module -Name PowerShellGet -RequiredVersion 2.2.5
 
 ## In a new PowerShell process, install the MSAL.PS Module. Restart PowerShell console if this fails.
 &(Get-Process -Id $pid).Path -Command { Install-Module MSAL.PS }
