@@ -14,6 +14,9 @@ function Catch-AssemblyLoadError {
     $Assembly = [System.AppDomain]::CurrentDomain.GetAssemblies().Where{ $AssemblyName -eq $_.ManifestModule }
     if (-not $Assembly) { throw $ErrorRecord }
 
+    ## On older Windows OSes, the desktop DLL conflicts with itself so just ignore.
+    if ($Assembly.Location.StartsWith($PSScriptRoot)) { return }
+
     Write-Warning (@'
 Assembly with same name "{0}" is already loaded:
 {1}
