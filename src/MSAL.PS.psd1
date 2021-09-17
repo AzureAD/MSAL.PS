@@ -71,6 +71,7 @@ DotNetFrameworkVersion = '4.5'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(
+    '.\internal\Assert-DirectoryExists.ps1'
     '.\internal\ConvertFrom-SecureStringAsPlainText.ps1'
     '.\internal\ConvertTo-Dictionary.ps1'
     '.\internal\Export-Config.ps1'
