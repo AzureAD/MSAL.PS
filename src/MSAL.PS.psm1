@@ -25,6 +25,15 @@ $script:ModuleFeatureSupport = [ordered]@{
     AuthBrokerSupport      = [System.Environment]::OSVersion.Platform -eq 'Win32NT' -and $PSVersionTable.PSVersion -lt [version]'7.0'
 }
 
+## Get Device Registration Status
+[hashtable] $Dsreg = @{}
+#if ([System.Environment]::OSVersion.Platform -eq 'Win32NT' -and [System.Environment]::OSVersion.Version -ge '10.0') {
+    try {
+        Dsregcmd /status | foreach { if ($_ -match '\s*(.+) : (.+)') { $Dsreg.Add($Matches[1], $Matches[2]) } }
+    }
+    catch {}
+#}
+
 ## PowerShell Desktop 5.1 does not dot-source ScriptsToProcess when a specific version is specified on import. This is a bug.
 # if ($PSEdition -eq 'Desktop') {
 #     $ModuleManifest = Import-PowershellDataFile (Join-Path $PSScriptRoot $MyInvocation.MyCommand.Name.Replace('.psm1','.psd1'))
@@ -41,3 +50,6 @@ $script:ModuleFeatureSupport = [ordered]@{
 ## Global Variables
 [System.Collections.Generic.List[Microsoft.Identity.Client.IPublicClientApplication]] $PublicClientApplications = New-Object 'System.Collections.Generic.List[Microsoft.Identity.Client.IPublicClientApplication]'
 [System.Collections.Generic.List[Microsoft.Identity.Client.IConfidentialClientApplication]] $ConfidentialClientApplications = New-Object 'System.Collections.Generic.List[Microsoft.Identity.Client.IConfidentialClientApplication]'
+$script:ModuleState = @{
+    UseWebView2 = $script:ModuleFeatureSupport.WebView2Support -and ($Dsreg['AzureAdPrt'] -eq 'NO' -or !$script:ModuleFeatureSupport.WebView1Support)
+}
