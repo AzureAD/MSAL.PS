@@ -171,8 +171,8 @@ stages:
             parameters:
               moduleName: '$(moduleName)'
               RepositorySourceLocation: 'https://www.poshtestgallery.com/api/v2'
-              NuGetApiKeyAzureConnection: 'GTP - Jason Thompson (49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
-              NuGetApiKeyVaultName: 'JasothPublic'
+              NuGetApiKeyAzureConnection: 'GTP - Architecture (980e0e9f-178a-4c38-9372-f17806c6b944)'
+              NuGetApiKeyVaultName: 'codesign-kv'
               NuGetApiKeySecretName: 'PSTestGallery-API-Key'
               Unlist: true
 
@@ -210,8 +210,8 @@ stages:
             parameters:
               moduleName: '$(moduleName)'
               RepositorySourceLocation: 'https://www.powershellgallery.com/api/v2'
-              NuGetApiKeyAzureConnection: 'GTP - Jason Thompson (49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
-              NuGetApiKeyVaultName: 'JasothPublic'
+              NuGetApiKeyAzureConnection: 'GTP - Architecture (980e0e9f-178a-4c38-9372-f17806c6b944)'
+              NuGetApiKeyVaultName: 'codesign-kv'
               NuGetApiKeySecretName: 'PSGallery-API-Key'
           - task: GitHubRelease@1
             displayName: 'Create Release on GitHub'
