@@ -92,6 +92,13 @@ function New-MsalClientApplication {
             else {
                 $ClientApplicationBuilder = [Microsoft.Identity.Client.PublicClientApplicationBuilder]::Create($ClientId)
             }
+
+            ## Check Device Registration Status
+            if (!$script:ModuleState.DeviceRegistrationStatus) {
+                $script:ModuleState.DeviceRegistrationStatus = Get-DeviceRegistrationStatus
+                $script:ModuleState.UseWebView2 = $script:ModuleFeatureSupport.WebView2Support -and ($script:ModuleState.DeviceRegistrationStatus['AzureAdPrt'] -eq 'NO' -or !$script:ModuleFeatureSupport.WebView1Support)
+            }
+
             if ($PSBoundParameters.ContainsKey('EnableExperimentalFeatures')) { [void] $ClientApplicationBuilder.WithExperimentalFeatures($EnableExperimentalFeatures) }  # Must be called before other experimental features
             if ($script:ModuleState.UseWebView2) { [void] [Microsoft.Identity.Client.Desktop.DesktopExtensions]::WithDesktopFeatures($ClientApplicationBuilder) }
             if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri.AbsoluteUri) }

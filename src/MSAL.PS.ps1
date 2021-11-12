@@ -24,13 +24,13 @@ Assembly with same name "{0}" is already loaded:
 
     ## Ask the user
     if ($script:ModuleConfig.'dll.lenientLoadingPrompt') {
-        $DefaultChoice = if ($script:ModuleConfig.'dll.lenientLoading') { 0 } else { 1 }
+        $DefaultChoice = if ($script:ModuleConfig.'dll.lenientLoading') { 1 } else { 2 }
         $DllLenientLoading = Write-HostPrompt 'Ignore assembly conflict and continue importing module?' -Message 'Some module functionality will not work.' -Choices @('&Yes', '&No') -DefaultChoice $DefaultChoice -ErrorAction SilentlyContinue
-        if ($DllLenientLoading -eq 0) {
+        if ($DllLenientLoading -eq 1) {
             $script:ModuleConfig.'dll.lenientLoading' = $true
 
-            $PersistModuleConfig = Write-HostPrompt 'Remember settings?' -Message ('Module settings will be persisted in "{0}"' -f (Join-Path ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::ApplicationData)) '/MSAL.PS/config.json')) -DefaultChoice 1 -Choices @('&Yes', '&No') -ErrorAction SilentlyContinue
-            if ($PersistModuleConfig -eq 0) {
+            $PersistModuleConfig = Write-HostPrompt 'Remember settings?' -Message ('Module settings will be persisted in "{0}"' -f (Join-Path ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::ApplicationData)) '/MSAL.PS/config.json')) -DefaultChoice 2 -Choices @('&Yes', '&No') -ErrorAction SilentlyContinue
+            if ($PersistModuleConfig -eq 1) {
                 $script:ModuleConfig.'dll.lenientLoadingPrompt' = $false
                 Export-Config
             }

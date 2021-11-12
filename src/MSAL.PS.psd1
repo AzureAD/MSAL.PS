@@ -75,6 +75,7 @@ NestedModules = @(
     '.\internal\ConvertFrom-SecureStringAsPlainText.ps1'
     '.\internal\ConvertTo-Dictionary.ps1'
     '.\internal\Export-Config.ps1'
+    '.\internal\Get-DeviceRegistrationStatus.ps1'
     '.\internal\Get-ObjectPropertyValue.ps1'
     '.\internal\Import-Config.ps1'
     '.\internal\Select-PsBoundParameters.ps1'
@@ -153,7 +154,7 @@ PrivateData = @{
         # Prerelease = ''
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-        RequireLicenseAcceptance = $true
+        RequireLicenseAcceptance = $false
 
         # External dependent modules of this module
         # ExternalModuleDependencies = @()
