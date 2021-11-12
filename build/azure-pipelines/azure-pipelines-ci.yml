@@ -80,24 +80,24 @@ stages:
           version: '$(version.Microsoft.Web.WebView2)'
           targetFramework: [netcoreapp3.0, net45]
 
-  - job: Sign
-    dependsOn:
-    - Prepare
-    - Build
-    variables:
-      moduleName: '$[ dependencies.Prepare.outputs[''ModuleInfo.moduleName''] ]'
-      skipComponentGovernanceDetection: true
-    pool:
-      vmImage: 'windows-latest'
-    steps:
-    - download: current
-      artifact: '$(artifactModule)'
-    - template: template-psmodule-sign.yml
-      parameters:
-        moduleName: '$(moduleName)'
-        #SigningCertificateAzureConnection: 'GTP - Jason Thompson (49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
-        #SigningCertificateKeyVaultName: 'JasothPublic'
-        #SigningCertificateSecretName: 'Jason-Thompson-Test'
+  # - job: Sign
+  #   dependsOn:
+  #   - Prepare
+  #   - Build
+  #   variables:
+  #     moduleName: '$[ dependencies.Prepare.outputs[''ModuleInfo.moduleName''] ]'
+  #     skipComponentGovernanceDetection: true
+  #   pool:
+  #     vmImage: 'windows-latest'
+  #   steps:
+  #   - download: current
+  #     artifact: '$(artifactModule)'
+  #   - template: template-psmodule-sign.yml
+  #     parameters:
+  #       moduleName: '$(moduleName)'
+  #       #SigningCertificateAzureConnection: 'GTP - Jason Thompson (49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
+  #       #SigningCertificateKeyVaultName: 'JasothPublic'
+  #       #SigningCertificateSecretName: 'Jason-Thompson-Test'
 
 #- stage: Test
 #  dependsOn: Build
