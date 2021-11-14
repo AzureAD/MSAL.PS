@@ -101,6 +101,7 @@ stages:
       parameters:
         moduleName: '$(moduleName)'
         pipelineId: 'CI'
+        EsrpCodeSigningServiceName: 'ESRP - MSFT Identity - Community Projects'
         #SigningCertificateAzureConnection: 'GTP - Jason Thompson (49945a1a-9e37-4522-bb4b-f71fa2deeec6)'
         #SigningCertificateKeyVaultName: 'JasothPublic'
         #SigningCertificateSecretName: 'Jason-Thompson'

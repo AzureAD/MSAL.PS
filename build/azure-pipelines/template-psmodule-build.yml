@@ -40,7 +40,7 @@ steps:
     TargetFolder: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}'
     preserveTimestamp: true
 
-- pwsh: 'Rename-Item "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/LICENSE" -NewName "License.txt"'
+- pwsh: 'Rename-Item "$env:StagingDirectory/$env:ModuleName/LICENSE" -NewName "License.txt"'
   displayName: 'Rename LICENSE to License.txt'
   env:
     StagingDirectory: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}'
@@ -75,7 +75,7 @@ steps:
             preserveTimestamp: true
 
 - ${{ if ne(parameters.moduleRename, '') }}:
-  - pwsh: 'Rename-Item "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ parameters.moduleName }}.psd1" -NewName "${{ parameters.moduleRename }}.psd1"'
+  - pwsh: 'Rename-Item "$env:StagingDirectory/$env:ModuleRename/$env:ModuleName.psd1" -NewName "$env:ModuleRename.psd1"'
     displayName: 'Rename PowerShell Module Manifest'
     env:
       StagingDirectory: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}'
@@ -88,12 +88,6 @@ steps:
     filePath: '$(System.DefaultWorkingDirectory)/build/Update-PSModuleManifest.ps1'
     arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}.psd1" -Guid "${{ parameters.moduleGuid }}" -ModuleVersion "${{ parameters.moduleVersion }}" -Prerelease "${{ parameters.prereleaseTag }}" -SkipRequiredAssemblies'
     pwsh: true
-
-- pwsh: 'New-FileCatalog "$env:StagingDirectory/$env:ModuleName/$env:ModuleName.cat" -Path "$env:StagingDirectory/$env:ModuleName" -CatalogVersion 2.0'
-  displayName: 'Create File Catalog'
-  env:
-    StagingDirectory: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}'
-    ModuleName: '${{ coalesce(parameters.moduleRename,parameters.moduleName) }}'
 
 - task: PublishPipelineArtifact@1
   displayName: 'Publish PowerShell Module Artifact'
