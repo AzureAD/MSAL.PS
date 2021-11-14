@@ -89,6 +89,12 @@ steps:
     arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}.psd1" -Guid "${{ parameters.moduleGuid }}" -ModuleVersion "${{ parameters.moduleVersion }}" -Prerelease "${{ parameters.prereleaseTag }}" -SkipRequiredAssemblies'
     pwsh: true
 
+- pwsh: 'New-FileCatalog "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}.cat" -Path "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}" -CatalogVersion 2.0'
+  displayName: 'Create File Catalog'
+  env:
+    StagingDirectory: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}'
+    ModuleName: '${{ coalesce(parameters.moduleRename,parameters.moduleName) }}'
+
 - task: PublishPipelineArtifact@1
   displayName: 'Publish PowerShell Module Artifact'
   inputs:
