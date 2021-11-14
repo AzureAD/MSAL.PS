@@ -92,7 +92,7 @@ steps:
     displayName: 'Create File Catalog'
     env:
       StagingDirectory: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}'
-      ModuleName: '${{ coalesce(parameters.moduleRename,parameters.moduleName) }}'
+      ModuleName: '${{ parameters.moduleName }}'
 
   - task: EsrpCodeSigning@1
     displayName: 'Sign File Catalog'
