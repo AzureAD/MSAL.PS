@@ -89,7 +89,7 @@ steps:
     arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}.psd1" -Guid "${{ parameters.moduleGuid }}" -ModuleVersion "${{ parameters.moduleVersion }}" -Prerelease "${{ parameters.prereleaseTag }}" -SkipRequiredAssemblies'
     pwsh: true
 
-- pwsh: 'New-FileCatalog "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}.cat" -Path "$(Pipeline.Workspace)/${{ parameters.artifactOutput }}/${{ coalesce(parameters.moduleRename,parameters.moduleName) }}" -CatalogVersion 2.0'
+- pwsh: 'New-FileCatalog "$env:StagingDirectory/$env:ModuleName/$env:ModuleName.cat" -Path "$env:StagingDirectory/$env:ModuleName" -CatalogVersion 2.0'
   displayName: 'Create File Catalog'
   env:
     StagingDirectory: '$(Pipeline.Workspace)/${{ parameters.artifactOutput }}'
