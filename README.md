@@ -10,24 +10,34 @@ MSAL.NET (Microsoft.Identity.Client) is an authentication library which enables 
 Install-Module MSAL.PS
 ```
 
-If you encounter the error, `WARNING: The specified module 'MSAL.PS' with PowerShellGetFormatVersion '2.0' is not supported by the current version of PowerShellGet. Get the latest version of the PowerShellGet module to install this module, 'MSAL.PS'` then run the following commands to proceed with the installation.
+If you see the warning, `You are installing the modules from an untrusted repository. If you trust this repository, change its InstallationPolicy value by running the Set-PSRepository cmdlet. Are you sure you want to install the modules from 'PSGallery'?`, ensure the repository is PSGallery and select Yes.
+
+The signing certificate for MSAL.PS is switching to use Microsoft's code signing process. When upgrading to version 4.37.0.x from a previous version, you will see the following error.
+`PackageManagement\Install-Package : Authenticode issuer 'CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US' of the new module 'MSAL.PS' with version 'x.x.x.x' from root certificate authority 'CN=Microsoft Root Certificate Authority 2011, O=Microsoft Corporation, L=Redmond, S=Washington, C=US' is not matching with the authenticode issuer 'CN=Jason Thompson, O=Jason Thompson, L=Cincinnati, S=Ohio, C=US' of the previously-installed module 'MSAL.PS' with version 'x.x.x.x' from root certificate authority 'CN=DigiCert Assured ID Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US'. If you still want to install or update, use -SkipPublisherCheck parameter.`
+To resolve, run `Install-Module MSAL.PS -SkipPublisherCheck`.
+
+If you encounter the error, `WARNING: The specified module 'MSAL.PS' with PowerShellGetFormatVersion '2.0' is not supported by the current version of PowerShellGet. Get the latest version of the PowerShellGet module to install this module, 'MSAL.PS'`, then run the following commands before attempting the MSAL.PS installation again.
 
 ```PowerShell
 ## Update Nuget Package and PowerShellGet Module
-Install-PackageProvider NuGet -Force
-Install-Module PowerShellGet -Force
+Install-PackageProvider NuGet -Scope CurrentUser -Force
+Install-Module PowerShellGet -Scope CurrentUser -Force -AllowClobber
+## Remove old modules from existing session
+Remove-Module PowerShellGet,PackageManagement -Force -ErrorAction Ignore
+## Import updated module
+Import-Module PowerShellGet -MinimumVersion 2.0 -Force
+Import-PackageProvider PowerShellGet -MinimumVersion 2.0 -Force
 ```
 
-If you encounter the error, `WARNING: The version '1.4.7' of module 'PackageManagement' is currently in use. Retry the operation after closing the applications.`. then run the following commands to proceed with the installation.
+If you encounter the error, `WARNING: The version '1.4.7' of module 'PackageManagement' is currently in use. Retry the operation after closing the applications.` then try closing your PowerShell console and reopen.
 
+If at any point you see the error, `<Path> cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at http://go.microsoft.com/fwlink/?LinkID=135170.`, you must enable local scripts to be run.
 
 ```PowerShell
-Update-Module -Name PowerShellGet -RequiredVersion XX.XX.X
-# Example: Update-Module -Name PowerShellGet -RequiredVersion 2.2.5
-
-## In a new PowerShell process, install the MSAL.PS Module. Restart PowerShell console if this fails.
-&(Get-Process -Id $pid).Path -Command { Install-Module MSAL.PS }
-Import-Module MSAL.PS
+## Set globally on device
+Set-ExecutionPolicy RemoteSigned
+## Or set for just for current PowerShell session.
+Set-ExecutionPolicy RemoteSigned -Scope Process
 ```
 
 ## Usage and Examples
