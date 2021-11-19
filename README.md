@@ -15,7 +15,7 @@ If you see the warning, `You are installing the modules from an untrusted reposi
 The signing certificate for MSAL.PS is changing to use Microsoft's code signing process. When upgrading to version 4.37.0.x from a previous version, you will see the following error, `PackageManagement\Install-Package : Authenticode issuer 'CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US' of the new module 'MSAL.PS' with version 'x.x.x.x' from root certificate authority 'CN=Microsoft Root Certificate Authority 2011, O=Microsoft Corporation, L=Redmond, S=Washington, C=US' is not matching with the authenticode issuer 'CN=Jason Thompson, O=Jason Thompson, L=Cincinnati, S=Ohio, C=US' of the previously-installed module 'MSAL.PS' with version 'x.x.x.x' from root certificate authority 'CN=DigiCert Assured ID Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US'. If you still want to install or update, use -SkipPublisherCheck parameter.`, which can be resolved using the following command.
 
 ```PowerShell
-Install-Module MSAL.PS -SkipPublisherCheck
+Install-Module MSAL.PS -SkipPublisherCheck -Force
 ```
 
 If you encounter the error, `WARNING: The specified module 'MSAL.PS' with PowerShellGetFormatVersion '2.0' is not supported by the current version of PowerShellGet. Get the latest version of the PowerShellGet module to install this module, 'MSAL.PS'`, then run the following commands before attempting the MSAL.PS installation again.
