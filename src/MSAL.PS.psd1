@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.36.1'
+ModuleVersion = '4.37.0'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
@@ -25,7 +25,7 @@ Author = 'Jason Thompson'
 CompanyName = 'Microsoft Corporation'
 
 # Copyright statement for this module
-Copyright = '(c) 2021 Jason Thompson. All rights reserved.'
+Copyright = '(c) 2021 Microsoft Corporation. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
