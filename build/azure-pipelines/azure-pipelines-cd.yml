@@ -41,6 +41,8 @@ stages:
   - job: Prepare
     variables:
       skipComponentGovernanceDetection: true
+    pool:
+      vmImage: 'windows-latest'
     steps:
     #- checkout: none
     - download: CI
@@ -52,6 +54,11 @@ stages:
         filePath: '$(System.DefaultWorkingDirectory)/build/Get-PSModuleInfo.ps1'
         arguments: '-ModuleManifestPath "$(Pipeline.Workspace)/CI/$(artifactModule)/*/*.psd1" -PackagesConfigPath "$(Build.SourcesDirectory)"'
         pwsh: true
+    - task: PSScriptAnalyzer@1
+      inputs:
+        Path: '$(Pipeline.Workspace)/CI/$(artifactModule)'
+        Settings: 'required'
+        Recurse: true
 
   # - job: Build
   #   displayName: 'Update Build'
