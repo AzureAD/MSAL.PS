@@ -335,7 +335,16 @@ function Get-MsalToken {
             "*" {
                 if ($AzureCloudInstance -and $TenantId) { [void] $AquireTokenParameters.WithAuthority($AzureCloudInstance, $TenantId) }
                 elseif ($AzureCloudInstance) { [void] $AquireTokenParameters.WithAuthority($AzureCloudInstance, 'common') }
-                elseif ($TenantId) { [void] $AquireTokenParameters.WithAuthority(('https://{0}' -f $ClientApplication.AppConfig.Authority.AuthorityInfo.Host), $TenantId) }
+                elseif ($TenantId) {
+                    if( Get-Member -InputObject $ClientApplication.AppConfig -Name "AuthorityInfo" -MemberType Properties )
+                    {
+                        [void] $AquireTokenParameters.WithAuthority(('https://{0}' -f $ClientApplication.AppConfig.AuthorityInfo.Host), $TenantId)
+                    }
+                    else
+                    {
+                        [void] $AquireTokenParameters.WithAuthority(('https://{0}' -f $ClientApplication.AppConfig.Authority.AuthorityInfo.Host), $TenantId)
+                    }
+                }
                 if ($Authority) { [void] $AquireTokenParameters.WithAuthority($Authority.AbsoluteUri) }
                 if ($CorrelationId) { [void] $AquireTokenParameters.WithCorrelationId($CorrelationId) }
                 if ($ExtraQueryParameters) { [void] $AquireTokenParameters.WithExtraQueryParameters((ConvertTo-Dictionary $ExtraQueryParameters -KeyType ([string]) -ValueType ([string]))) }
