@@ -51,20 +51,19 @@ Get-Help Get-MsalToken -Examples
 ## View full help.
 Get-Help Get-MsalToken -Full
 ```
-### Confidential Client Example
 
-AAD P1 licenses required. More info found on [MS Docs](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/howto-manage-inactive-user-accounts).
+### Public Client Example
 ```PowerShell
-Import-Module MSAL.PS
-$clientId = "YOURCLIENTID"
-$clientSecret = "YOURCLIENTSECRET"
-$tenantId = "YOURTENANTID"
+$MsalToken = Get-MsalToken -ClientId '00000000-0000-0000-0000-000000000000' -Scope 'https://graph.microsoft.com/User.Read'
+Invoke-RestMethod -Method Get -Uri 'https://graph.microsoft.com/v1.0/me' -Headers @{ Authorization = $MsalToken.CreateAuthorizationHeader() }
+```
 
-$ConfidentialClientOptions = New-Object Microsoft.Identity.Client.ConfidentialClientApplicationOptions -Property @{ ClientId = $clientId; ClientSecret = $clientSecret; TenantId = $tenantId }
-$ConfidentialClient = $ConfidentialClientOptions | New-MsalClientApplication
-$tokenObj = Get-MsalToken -Scope 'https://graph.microsoft.com/.default' -ConfidentialClientApplication $ConfidentialClient
-$apiUrl = "https://graph.microsoft.com/beta/users?filter=signInActivity/lastSignInDateTime le 2021-06-21T00:00:00Z&`$select=userPrincipalName,displayName,mail,signInActivity"
-$res = Invoke-RestMethod -Headers @{Authorization = "Bearer $($tokenObj.AccessToken)"} -Uri $apiUrl -Method Get
+### Confidential Client Example
+```PowerShell
+$ClientCertificate = Get-Item Cert:\CurrentUser\My\0000000000000000000000000000000000000000
+$MsalClientApplication = Get-MsalClientApplication -ClientId '00000000-0000-0000-0000-000000000000' -ClientCertificate $ClientCertificate -TenantId '00000000-0000-0000-0000-000000000000'
+$MsalToken = $MsalClientApplication | Get-MsalToken -Scope 'https://graph.microsoft.com/.default'
+Invoke-RestMethod -Method Get -Uri 'https://graph.microsoft.com/v1.0/<MSGraphEndpoint>' -Headers @{Authorization = $MsalToken.CreateAuthorizationHeader() }
 ```
 
 ## Contents
