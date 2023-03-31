@@ -5,19 +5,21 @@ using Microsoft.Identity.Client;
 
 public static class TokenCacheHelper
 {
-    public static void EnableSerialization(ITokenCache tokenCache, string username = "")
+    public static void EnableSerialization(ITokenCache tokenCache, string cacheFilePath = "")
     {
         tokenCache.SetBeforeAccess(BeforeAccessNotification);
         tokenCache.SetAfterAccess(AfterAccessNotification);
-        Username = username;
+        if(string.IsNullOrEmpty(CacheFilePath))
+            CacheFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MSAL.PS", "MSAL.PS.msalcache.bin3");
+        else
+            CacheFilePath = cacheFilePath;
     }
 
     /// <summary>
     /// Path to the token cache
     /// </summary>
-    private static readonly string Username = "";
     
-    public static readonly string CacheFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MSAL.PS", Username + "MSAL.PS.msalcache.bin3");
+    public static readonly string CacheFilePath;
 
     private static readonly object FileLock = new object();
 
