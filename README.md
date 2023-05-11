@@ -58,13 +58,19 @@ $MsalToken = Get-MsalToken -ClientId '00000000-0000-0000-0000-000000000000' -Sco
 Invoke-RestMethod -Method Get -Uri 'https://graph.microsoft.com/v1.0/me' -Headers @{ Authorization = $MsalToken.CreateAuthorizationHeader() }
 ```
 
-### Confidential Client Example
+### Confidential Client Example (aka Client Credential Flow) using a Certificate:
+
+This example assumes the application has been granted relevant application permissions to obtain data from the endpoint defined in `<MSGraphEndpoint>`.
+
 ```PowerShell
 $ClientCertificate = Get-Item Cert:\CurrentUser\My\0000000000000000000000000000000000000000
 $MsalClientApplication = Get-MsalClientApplication -ClientId '00000000-0000-0000-0000-000000000000' -ClientCertificate $ClientCertificate -TenantId '00000000-0000-0000-0000-000000000000'
 $MsalToken = $MsalClientApplication | Get-MsalToken -Scope 'https://graph.microsoft.com/.default'
 Invoke-RestMethod -Method Get -Uri 'https://graph.microsoft.com/v1.0/<MSGraphEndpoint>' -Headers @{Authorization = $MsalToken.CreateAuthorizationHeader() }
 ```
+
+A client secret may be used by `Get-MsalToken` instead of a certificate, by constructing an object like so: `$ClientSecret = 'SECRETVALUEHERE' | ConvertTo-SecureString -AsPlainText -Force` and passing this to `-ClientSecret` rather than `-ClientCertificate`.
+
 
 ## Contents
 
