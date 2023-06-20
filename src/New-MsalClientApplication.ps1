@@ -133,7 +133,7 @@ function New-MsalClientApplication {
             if ($ClientClaims) { [void] $ClientApplicationBuilder.WithClientClaims($ClientCertificate, (ConvertTo-Dictionary $ClientClaims -KeyType ([string]) -ValueType ([string]))) }
             elseif ($ClientCertificate) { [void] $ClientApplicationBuilder.WithCertificate($ClientCertificate) }
             if ($RedirectUri) { [void] $ClientApplicationBuilder.WithRedirectUri($RedirectUri.AbsoluteUri) }
-            [void] $ClientApplicationBuilder.WithAzureRegion($AzureRegion)
+            if ($AzureRegion) { [void] $ClientApplicationBuilder.WithAzureRegion($AzureRegion) }
             $ClientOptions = $ConfidentialClientOptions
         }
         "*" {

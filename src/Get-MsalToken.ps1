@@ -36,6 +36,7 @@ function Get-MsalToken {
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-AuthorizationCode', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-OnBehalfOf', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-Regional', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [string] $ClientId,
 
         # Secure secret of the client requesting the token.
@@ -48,6 +49,7 @@ function Get-MsalToken {
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-AuthorizationCode', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-OnBehalfOf', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-Regional', ValueFromPipelineByPropertyName = $true)]
         [System.Security.Cryptography.X509Certificates.X509Certificate2] $ClientCertificate,
 
         # Specifies if the x5c claim (public key of the certificate) should be sent to the STS.
@@ -55,6 +57,7 @@ function Get-MsalToken {
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate')]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-AuthorizationCode')]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-OnBehalfOf')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-Regional')]
         [switch] $SendX5C,
 
         # The authorization code received from service authorization endpoint.
@@ -88,6 +91,7 @@ function Get-MsalToken {
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-AuthorizationCode', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-OnBehalfOf', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-Regional', ValueFromPipelineByPropertyName = $true)]
         [uri] $RedirectUri,
 
         # Instance of Azure Cloud
@@ -205,17 +209,8 @@ function Get-MsalToken {
 
         # Specifies the Azure region to use for token acquisition.
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientClaims', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientAssertion', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret-AuthorizationCode', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret-AuthorizationCode', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret-OnBehalfOf', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-AuthorizationCode', ValueFromPipelineByPropertyName = $true)]
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate-OnBehalfOf', ValueFromPipelineByPropertyName = $true)]
-        [string] $AzureRegion = [Microsoft.Identity.Client.ConfidentialClientApplication]::AttemptRegionDiscovery
+        [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-Regional', ValueFromPipelineByPropertyName = $true)]
+        [string] $AzureRegion
     )
 
     begin {
