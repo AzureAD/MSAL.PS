@@ -208,7 +208,6 @@ function Get-MsalToken {
         [timespan] $Timeout,
 
         # Specifies the Azure region to use for token acquisition.
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClientCertificate-Regional', ValueFromPipelineByPropertyName = $true)]
         [string] $AzureRegion
     )
