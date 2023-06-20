@@ -82,12 +82,11 @@ function New-MsalClientApplication {
         # Confidential client application options
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClient-InputObject', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions,
-        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientClaims', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientAssertion', ValueFromPipelineByPropertyName = $true)]
         [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClient-InputObject', ValueFromPipelineByPropertyName = $true)]
-        [string] $AzureRegion = [Microsoft.Identity.Client.ConfidentialClientApplication]::AttemptRegionDiscovery
+        [string] $AzureRegion
     )
 
     switch -Wildcard ($PSCmdlet.ParameterSetName) {
