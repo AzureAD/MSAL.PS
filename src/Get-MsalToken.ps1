@@ -19,7 +19,7 @@
     Pipe in confidential client options object to get a confidential client application using a client certificate and target a specific tenant.
 .EXAMPLE
     PS C:\>$MsalToken = Get-MsalToken -ClientId '00000000-0000-0000-0000-000000000000' -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/Files.ReadWrite' -AsSecureString
-	PS C:\>Connect-MgGraph -AccessToken $MsalToken.AccessTokenAsSecureString()
+    PS C:\>Connect-MgGraph -AccessToken $MsalToken.AccessTokenAsSecureString()
     Get AccessToken and allow to convert to SecureString. Makes it easier to work with Microsoft.Graph SDK 2.0 - AccessToken param now is SecureString.
 #>
 function Get-MsalToken {
@@ -208,7 +208,7 @@ function Get-MsalToken {
         [Parameter(Mandatory = $false)]
         [timespan] $Timeout,
 		
-		# Convert tokens to SecureString.
+        # Convert tokens to SecureString.
         [Parameter(Mandatory = $false)]
         [switch] $AsSecureString
     )
@@ -398,18 +398,18 @@ function Get-MsalToken {
             }
         }
 		
-		if($AsSecureString) {
-			try {
-				$AccessTokenSecureString = { ConvertTo-SecureString -AsPlainText $this.AccessToken -Force }
-				$AuthenticationResult | Add-Member -MemberType ScriptMethod -Name AccessTokenAsSecureString -Value $AccessTokenSecureString
-			}
-			catch {}
-			try {
-				$IdTokenSecureString = { ConvertTo-SecureString -AsPlainText $this.IdToken -Force }
-				$AuthenticationResult | Add-Member -MemberType ScriptMethod -Name IdTokenAsSecureString -Value $IdTokenSecureString
-			}
-			catch {}
-		}		
+        if($AsSecureString) {
+            try {
+                $AccessTokenSecureString = { ConvertTo-SecureString -AsPlainText $this.AccessToken -Force }
+                $AuthenticationResult | Add-Member -MemberType ScriptMethod -Name AccessTokenAsSecureString -Value $AccessTokenSecureString
+            }
+            catch {}
+            try {
+                $IdTokenSecureString = { ConvertTo-SecureString -AsPlainText $this.IdToken -Force }
+                $AuthenticationResult | Add-Member -MemberType ScriptMethod -Name IdTokenAsSecureString -Value $IdTokenSecureString
+            }
+            catch {}
+        }
 
         return $AuthenticationResult
     }
