@@ -17,8 +17,13 @@
     PS C:\>$MsalClientApplication = Get-MsalClientApplication -ClientId '00000000-0000-0000-0000-000000000000' -ClientCertificate $ClientCertificate -TenantId '00000000-0000-0000-0000-000000000000'
     PS C:\>$MsalClientApplication | Get-MsalToken -Scopes 'https://graph.microsoft.com/.default'
     Pipe in confidential client options object to get a confidential client application using a client certificate and target a specific tenant.
+.EXAMPLE
+    PS C:\>$MsalToken = Get-MsalToken -ClientId '00000000-0000-0000-0000-000000000000' -Scopes 'https://graph.microsoft.com/User.Read','https://graph.microsoft.com/Files.ReadWrite' -AsSecureString
+    PS C:\>Connect-MgGraph -AccessToken $MsalToken.AccessTokenAsSecureString()
+    Get AccessToken and allow to convert to SecureString. Makes it easier to work with Microsoft.Graph SDK 2.0 - AccessToken param now is SecureString.
 #>
 function Get-MsalToken {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", "")]
     [CmdletBinding(DefaultParameterSetName = 'PublicClient')]
     [OutputType([Microsoft.Identity.Client.AuthenticationResult])]
     param
@@ -201,7 +206,11 @@ function Get-MsalToken {
 
         # Specifies the timeout threshold for MSAL.net operations.
         [Parameter(Mandatory = $false)]
-        [timespan] $Timeout
+        [timespan] $Timeout,
+		
+        # Convert tokens to SecureString.
+        [Parameter(Mandatory = $false)]
+        [switch] $AsSecureString
     )
 
     begin {
@@ -380,12 +389,26 @@ function Get-MsalToken {
                     else {
                         $AuthenticationResult = $taskAuthenticationResult.Result
                     }
+				
                 }
                 catch {
                     Write-Error -Exception (Coalesce $_.Exception.InnerException,$_.Exception) -Category ([System.Management.Automation.ErrorCategory]::AuthenticationError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'GetMsalTokenFailureAuthenticationError' -TargetObject $AquireTokenParameters -ErrorAction Stop
                 }
                 break
             }
+        }
+		
+        if($AsSecureString) {
+            try {
+                $AccessTokenSecureString = { ConvertTo-SecureString -AsPlainText $this.AccessToken -Force }
+                $AuthenticationResult | Add-Member -MemberType ScriptMethod -Name AccessTokenAsSecureString -Value $AccessTokenSecureString
+            }
+            catch {}
+            try {
+                $IdTokenSecureString = { ConvertTo-SecureString -AsPlainText $this.IdToken -Force }
+                $AuthenticationResult | Add-Member -MemberType ScriptMethod -Name IdTokenAsSecureString -Value $IdTokenSecureString
+            }
+            catch {}
         }
 
         return $AuthenticationResult
