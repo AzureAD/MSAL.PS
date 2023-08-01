@@ -49,7 +49,11 @@ function Select-MsalClientApplication {
         [Microsoft.Identity.Client.PublicClientApplicationOptions] $PublicClientOptions,
         # Confidential client application options
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClient-InputObject', Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
-        [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions
+        [Microsoft.Identity.Client.ConfidentialClientApplicationOptions] $ConfidentialClientOptions,
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientSecret', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClientCertificate', ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ConfidentialClient-InputObject', ValueFromPipelineByPropertyName = $true)]
+        [string] $AzureRegion = [Microsoft.Identity.Client.ConfidentialClientApplication]::AttemptRegionDiscovery
     )
 
     $paramNewMsalClientApplication = Select-PsBoundParameters $PSBoundParameters -CommandName New-MsalClientApplication -ExcludeParameters ErrorAction

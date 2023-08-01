@@ -10,7 +10,7 @@
 RootModule = 'MSAL.PS.psm1'
 
 # Version number of this module.
-ModuleVersion = '4.37.0'
+ModuleVersion = '4.54.1'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core','Desktop'
