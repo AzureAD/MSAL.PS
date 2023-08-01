@@ -7,6 +7,9 @@
     PS C:\>Enable-MsalTokenCacheOnDisk $ClientApplication
     Enable client application to use persistent token cache on disk.
 .EXAMPLE
+    PS C:\>Enable-MsalTokenCacheOnDisk $ClientApplication -CacheFilePath $CacheFilePath
+    Enable client application to use persistent token cache on disk.
+.EXAMPLE
     PS C:\>Enable-MsalTokenCacheOnDisk $ClientApplication -PassThru
     Enable client application to use persistent token cache on disk and return the object.
 #>
@@ -21,6 +24,9 @@ function Enable-MsalTokenCacheOnDisk {
         # Confidential client application
         [Parameter(Mandatory = $true, ParameterSetName = 'ConfidentialClient', Position = 0, ValueFromPipeline = $true)]
         [Microsoft.Identity.Client.IConfidentialClientApplication] $ConfidentialClientApplication,
+        # Path to Cache File
+        [Parameter(Mandatory = $false)]
+        [string] $CacheFilePath,
         # Returns client application
         [Parameter(Mandatory = $false)]
         [switch] $PassThru
@@ -39,9 +45,9 @@ function Enable-MsalTokenCacheOnDisk {
 
     if ([System.Environment]::OSVersion.Platform -eq 'Win32NT' -and $PSVersionTable.PSVersion -lt [version]'6.0') {
         if ($ClientApplication -is [Microsoft.Identity.Client.IConfidentialClientApplication]) {
-            [TokenCacheHelper]::EnableSerialization($ClientApplication.AppTokenCache)
+            [TokenCacheHelper]::EnableSerialization($ClientApplication.AppTokenCache, $CacheFilePath)
         }
-        [TokenCacheHelper]::EnableSerialization($ClientApplication.UserTokenCache)
+        [TokenCacheHelper]::EnableSerialization($ClientApplication.UserTokenCache, $CacheFilePath)
     }
     else {
         Write-Warning 'Using TokenCache On Disk only works on Windows platform using Windows PowerShell. The token cache will stored in memory and not persisted on disk.'
